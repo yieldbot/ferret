@@ -17,7 +17,7 @@ script:
   - #go test -v -coverprofile=reports/cover.out -covermode=count
 
 before_deploy:
-  - ./build.sh
+  - ./release.sh
 
 deploy:
   provider: releases
