@@ -128,6 +128,6 @@ For the full copyright and license information, please view the LICENSE.txt file
 [release-url]: https://github.com/yieldbot/ferret/releases/latest
 [release-image]: https://img.shields.io/badge/release-1.0.0-blue.svg
 
-[download-darwin-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.0.0/fetter-darwin-amd64.zip
-[download-linux-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.0.0/fetter-linux-amd64.zip
-[download-windows-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.0.0/fetter-windows-amd64.zip
+[download-darwin-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.0.0/ferret-darwin-amd64.zip
+[download-linux-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.0.0/ferret-linux-amd64.zip
+[download-windows-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.0.0/ferret-windows-amd64.zip
