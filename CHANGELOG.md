@@ -1,5 +1,9 @@
 ## Changelog
 
+### v1.1.0 [2016-07-09]
+
+* Add Trello provider
+
 ### v1.0.0 [2016-07-08]
 
 * Add AnswerHub provider
