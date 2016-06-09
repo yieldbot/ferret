@@ -91,7 +91,7 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 
 	// Prepare output
 	var t = gocli.Table{}
-	t.AddRow(1, "#", "TITLE")
+	t.AddRow(1, "#", "DESCRIPTION")
 	for i, v := range results {
 		t.AddRow(i+2, fmt.Sprintf("%d", i+1), v.Description)
 	}
