@@ -12,4 +12,5 @@ import (
 	_ "github.com/yieldbot/ferret/providers/answerhub"
 	_ "github.com/yieldbot/ferret/providers/github"
 	_ "github.com/yieldbot/ferret/providers/slack"
+	_ "github.com/yieldbot/ferret/providers/trello"
 )

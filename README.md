@@ -3,7 +3,7 @@
 [![Build Status][travis-image]][travis-url] [![GoDoc][godoc-image]][godoc-url] [![Release][release-image]][release-url]
 
 Ferret is a search engine that unifies search results from different resources
-such as Github, Slack, AnswerHub and more.
+such as Github, Slack, Trello, AnswerHub and more.
 
 Distributed knowledge and avoiding context switching are very important for
 efficiency. Ferret provides a unified search interface for retrieving and
@@ -29,38 +29,31 @@ accessible from anywhere in the command line.
 
 #### Help
 
-```
+```bash
 ferret -h
 ```
 
-#### Search Github
+#### Search
 
-```
+```bash
+# Search Github
+# For more Github search syntax see https://developer.github.com/v3/search/
 ferret search github intent
 ferret search github intent+extension:md
-```
 
-[See](https://developer.github.com/v3/search/) for more Github search syntax.
-
-#### Search Slack
-
-```
+# Search Slack
 ferret search slack "meeting minutes"
-```
 
-#### Search AnswerHub
+# Search Trello
+ferret search trello milestone
 
-```
+# Search AnswerHub
 ferret search answerhub vpn
-```
 
-#### Opening search results
-
-Search for 'alerting' keyword on Github and go to the second search result
-
-```
-ferret search github alerting
-ferret search github alerting --goto 2
+# Opening search results
+# Search for 'milestone' keyword on Trello and go to the second search result
+ferret search trello milestone
+ferret search trello milestone --goto 2
 ```
 
 
@@ -93,6 +86,12 @@ export FERRET_GITHUB_SEARCH_USER=
 # Slack
 # For a token see https://api.slack.com/docs/oauth-test-tokens
 export FERRET_SLACK_TOKEN=
+
+# Trello
+# For a key see https://trello.com/app-key and visit (after update it);
+# https://trello.com/1/authorize?key=REPLACEWITHYOURKEY&expiration=never&name=SinglePurposeToken&response_type=token&scope=read
+export FERRET_TRELLO_KEY=
+export FERRET_TRELLO_TOKEN=
 
 
 # AnswerHub
