@@ -49,7 +49,7 @@ type SearchResult struct {
 type SearchResultCards struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	Url  string `json:"shortUrl"`
+	URL  string `json:"shortUrl"`
 }
 
 // Search makes a search
@@ -74,7 +74,7 @@ func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 	for _, v := range sr.Cards {
 		ri := search.ResultItem{
 			Description: v.Name,
-			Link:        v.Url,
+			Link:        v.URL,
 		}
 		result = append(result, ri)
 	}
