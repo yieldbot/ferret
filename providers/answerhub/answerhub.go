@@ -65,7 +65,7 @@ type SearchResultList struct {
 func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 
 	// Prepare the request
-	query := fmt.Sprintf("%s/services/v2/node.json?q=%s*", provider.url, url.QueryEscape(keyword))
+	query := fmt.Sprintf("%s/services/v2/node.json?pageSize=10&q=%s*", provider.url, url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", query, nil)
 	if provider.username != "" || provider.password != "" {
 		req.SetBasicAuth(provider.username, provider.password)

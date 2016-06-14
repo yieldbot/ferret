@@ -56,7 +56,7 @@ type SearchResultCards struct {
 func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 
 	// Prepare the request
-	query := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&query=%s", provider.url, provider.key, provider.token, url.QueryEscape(keyword))
+	query := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&query=%s", provider.url, provider.key, provider.token, url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", query, nil)
 
 	// Make the request
