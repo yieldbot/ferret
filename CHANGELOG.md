@@ -1,6 +1,6 @@
 ## Changelog
 
-### Unreleased
+### v1.2.0 [2016-07-14]
 
 * Add pagination support
 
