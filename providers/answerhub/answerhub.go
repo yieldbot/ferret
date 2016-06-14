@@ -76,10 +76,15 @@ func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 	if err != nil {
 		return nil, errors.New("failed to fetch search result. Error: " + err.Error())
 	}
+	defer res.Body.Close()
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	// Parse and prepare the result
 	var sr SearchResult
-	if err = json.Unmarshal(res, &sr); err != nil {
+	if err = json.Unmarshal(data, &sr); err != nil {
 		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 	}
 	var result []search.ResultItem
@@ -95,7 +100,7 @@ func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 }
 
 // do makes a request
-func (provider *Provider) do(req *http.Request) ([]byte, error) {
+func (provider *Provider) do(req *http.Request) (*http.Response, error) {
 
 	// Do the request
 	var client = &http.Client{}
@@ -103,18 +108,11 @@ func (provider *Provider) do(req *http.Request) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 
 	// Check the response
 	if res.StatusCode < 200 || res.StatusCode > 299 {
 		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 	}
 
-	// Read the data
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return res, nil
 }
