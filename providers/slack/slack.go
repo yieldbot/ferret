@@ -61,10 +61,10 @@ type SearchResultMessagesMatches struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
+func (provider *Provider) Search(keyword string, page int) ([]search.ResultItem, error) {
 
 	// Prepare the request
-	query := fmt.Sprintf("%s/search.all?page=1&count=10&query=%s&token=%s", provider.url, url.QueryEscape(keyword), provider.token)
+	query := fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, page, url.QueryEscape(keyword), provider.token)
 	req, err := http.NewRequest("GET", query, nil)
 
 	// Make the request

@@ -54,6 +54,9 @@ ferret search answerhub vpn
 # Search for 'milestone' keyword on Trello and go to the second search result
 ferret search trello milestone
 ferret search trello milestone --goto 2
+
+# Pagination
+ferret search trello milestone --page 2
 ```
 
 

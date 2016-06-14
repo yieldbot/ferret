@@ -33,7 +33,7 @@ func init() {
 // Searcher is the interface that must be implemented by a search provider
 type Searcher interface {
 	// Search makes a search
-	Search(keyword string) ([]ResultItem, error)
+	Search(keyword string, page int) ([]ResultItem, error)
 }
 
 // ResultItem represents a search result item structure
@@ -70,8 +70,19 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 		log.Fatalf("invalid provider. Possible providers are %s", Providers())
 	}
 
+	// Page
+	page := 1
+	p, ok := args["page"]
+	if ok {
+		i, err := strconv.Atoi(p)
+		if err != nil || i <= 0 {
+			log.Fatal("invalid page #. It should be greater than 0")
+		}
+		page = i
+	}
+
 	// Search
-	results, err := s.Search(keyword)
+	results, err := s.Search(keyword, page)
 	if err != nil {
 		log.Fatalf("failed to search due to %s", err.Error())
 	}

@@ -62,10 +62,10 @@ type SearchResultList struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
+func (provider *Provider) Search(keyword string, page int) ([]search.ResultItem, error) {
 
 	// Prepare the request
-	query := fmt.Sprintf("%s/services/v2/node.json?page=1&pageSize=10&q=%s*", provider.url, url.QueryEscape(keyword))
+	query := fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=10&q=%s*", provider.url, page, url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", query, nil)
 	if provider.username != "" || provider.password != "" {
 		req.SetBasicAuth(provider.username, provider.password)

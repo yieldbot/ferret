@@ -1,5 +1,9 @@
 ## Changelog
 
+### Unreleased
+
+* Add pagination support
+
 ### v1.1.0 [2016-07-09]
 
 * Add Trello provider

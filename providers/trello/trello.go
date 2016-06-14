@@ -53,10 +53,11 @@ type SearchResultCards struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
+func (provider *Provider) Search(keyword string, page int) ([]search.ResultItem, error) {
 
 	// Prepare the request
-	query := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, (1 - 1), url.QueryEscape(keyword))
+	page = page - 1
+	query := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, page, url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", query, nil)
 
 	// Make the request
