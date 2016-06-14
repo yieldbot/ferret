@@ -96,10 +96,10 @@ func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 	return result, nil
 }
 
-// do makes request
+// do makes a request
 func (provider *Provider) do(req *http.Request) ([]byte, error) {
 
-	// Do request
+	// Do the request
 	var client = &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
@@ -107,15 +107,15 @@ func (provider *Provider) do(req *http.Request) ([]byte, error) {
 	}
 	defer res.Body.Close()
 
-	// Read data
+	// Check the response
+	if res.StatusCode < 200 || res.StatusCode > 299 {
+		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
+	}
+
+	// Read the data
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
-	}
-
-	// Check response
-	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return data, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 	}
 
 	return data, nil
