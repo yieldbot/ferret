@@ -66,7 +66,7 @@ type SearchResultItemsRepository struct {
 func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 
 	// Prepare the request
-	query := fmt.Sprintf("%s/search/code?per_page=10&q=%s", provider.url, url.QueryEscape(keyword))
+	query := fmt.Sprintf("%s/search/code?page=1&per_page=10&q=%s", provider.url, url.QueryEscape(keyword))
 	if provider.searchUser != "" {
 		query += fmt.Sprintf("+user:%s", url.QueryEscape(provider.searchUser))
 	}

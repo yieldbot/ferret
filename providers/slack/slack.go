@@ -64,7 +64,7 @@ type SearchResultMessagesMatches struct {
 func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 
 	// Prepare the request
-	query := fmt.Sprintf("%s/search.all?count=10&query=%s&token=%s", provider.url, url.QueryEscape(keyword), provider.token)
+	query := fmt.Sprintf("%s/search.all?page=1&count=10&query=%s&token=%s", provider.url, url.QueryEscape(keyword), provider.token)
 	req, err := http.NewRequest("GET", query, nil)
 
 	// Make the request
