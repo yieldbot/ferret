@@ -60,9 +60,12 @@ func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 	req, err := http.NewRequest("GET", query, nil)
 
 	// Make the request
-	res, err := provider.do(req)
+	var client = &http.Client{}
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, errors.New("failed to fetch search result. Error: " + err.Error())
+	} else if res.StatusCode < 200 || res.StatusCode > 299 {
+		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 	}
 	defer res.Body.Close()
 	data, err := ioutil.ReadAll(res.Body)
@@ -85,22 +88,4 @@ func (provider *Provider) Search(keyword string) ([]search.ResultItem, error) {
 	}
 
 	return result, nil
-}
-
-// do makes a request
-func (provider *Provider) do(req *http.Request) (*http.Response, error) {
-
-	// Do the request
-	var client = &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check the response
-	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
-	}
-
-	return res, nil
 }
