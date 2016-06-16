@@ -63,14 +63,15 @@ ferret search trello milestone --page 2
 
 ### Configuration
 
-Add the following environment variable definitions in `~/.bash_profile` file.
+Add the following environment variable definitions in `~/.bash_profile`
+(OSX and Linux) file. Replace `export` command with `set` for Windows.
 
 #### Global Configuration
 
 ```bash
 # The command is used by `--goto` argument for opening links.
 # It's optional and the default value is `open`
-export FERRET_GOTO_CMD="open"
+export FERRET_GOTO_CMD=open
 ```
 
 #### Configurations for Providers
@@ -80,7 +81,7 @@ define environment variables for one or more search provider.
 
 ```bash
 # Github
-export FERRET_GITHUB_URL="https://api.github.com/"
+export FERRET_GITHUB_URL=https://api.github.com/
 # For a token see https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 export FERRET_GITHUB_TOKEN=
 # It's optional for filtering specific Github user (i.e. yieldbot)
@@ -101,7 +102,7 @@ export FERRET_TRELLO_TOKEN=
 # AnswerHub
 # For enabling the REST API 
 # see http://docs.answerhub.com/articles/1444/how-to-enable-and-grant-use-of-the-rest-api.html
-export FERRET_ANSWERHUB_URL="https://answerhub.yourdomain.com/"
+export FERRET_ANSWERHUB_URL=https://answerhub.yourdomain.com/
 # For username and password information
 # see 'My Preferences->Authentication Modes' page in your AnswerHub site
 export FERRET_ANSWERHUB_USERNAME=
