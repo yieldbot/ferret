@@ -7,6 +7,10 @@ BIN_NAME=$(basename `pwd`)
 PLATFORMS="darwin linux windows"
 rm -rf releases/ && mkdir releases
 for PLATFORM in $PLATFORMS; do
-  CGO_ENABLED=0 GOOS=${PLATFORM} go build -a -tags netgo -installsuffix netgo -ldflags "$GO_LDFLAGS" -o "$BIN_NAME" && zip "releases/${BIN_NAME}-${PLATFORM}-amd64.zip" "$BIN_NAME" && rm "$BIN_NAME"
+  BIN_NAME_F=$BIN_NAME
+  if [ $PLATFORM == "windows" ]; then
+    BIN_NAME_F="${BIN_NAME}.exe"
+  fi
+  CGO_ENABLED=0 GOOS=${PLATFORM} go build -a -tags netgo -installsuffix netgo -ldflags "$GO_LDFLAGS" -o "${BIN_NAME_F}" && zip "releases/${BIN_NAME}-${PLATFORM}-amd64.zip" "${BIN_NAME_F}" && rm "${BIN_NAME_F}"
 done
 ls -alF releases/
