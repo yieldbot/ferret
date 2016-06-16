@@ -56,6 +56,7 @@ ferret search trello milestone
 ferret search trello milestone --goto 2
 
 # Pagination
+# Number of search result for per page is 10
 ferret search trello milestone --page 2
 ```
 
