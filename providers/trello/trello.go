@@ -53,7 +53,7 @@ type SearchResultCards struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string, page int) ([]search.ResultItem, error) {
+func (provider *Provider) Search(keyword string, page int) (search.ResultItems, error) {
 
 	// Prepare the request
 	page = page - 1
@@ -79,7 +79,7 @@ func (provider *Provider) Search(keyword string, page int) ([]search.ResultItem,
 	if err = json.Unmarshal(data, &sr); err != nil {
 		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 	}
-	var result []search.ResultItem
+	var result search.ResultItems
 	for _, v := range sr.Cards {
 		ri := search.ResultItem{
 			Description: v.Name,
