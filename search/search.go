@@ -48,9 +48,11 @@ type ResultItems []ResultItem
 func (r ResultItems) Len() int {
 	return len(r)
 }
+
 func (r ResultItems) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
 }
+
 func (r ResultItems) Less(i, j int) bool {
 	return r[i].Description < r[j].Description
 }
