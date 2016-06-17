@@ -79,7 +79,7 @@ func (provider *Provider) Search(keyword string, page int) ([]search.ResultItem,
 	var client = &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("failed to fetch search result. Error: " + err.Error())
+		return nil, errors.New("failed to fetch data. Error: " + err.Error())
 	} else if res.StatusCode < 200 || res.StatusCode > 299 {
 		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 	}
