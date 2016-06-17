@@ -53,7 +53,7 @@ func main() {
 		if len(cli.SubCommandArgs) < 1 {
 			cli.LogErr.Fatalf("missing provider. Possible providers are %s", search.Providers())
 		} else if len(cli.SubCommandArgs) < 2 {
-			cli.LogErr.Fatal("missing keyword")
+			cli.LogErr.Fatal("missing provider or keyword")
 		}
 		search.ByKeyword(cli.SubCommandArgs[0], cli.SubCommandArgs[1], cli.SubCommandArgsMap)
 	} else {
