@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/yieldbot/gocli"
 )
@@ -97,7 +98,9 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 	}
 
 	// Search
+	start := time.Now()
 	results, err := s.Search(keyword, page)
+	elapsed := time.Since(start)
 	if err != nil {
 		log.Fatalf("failed to search due to %s", err.Error())
 	}
@@ -122,4 +125,5 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 		t.AddRow(i+2, fmt.Sprintf("%d", i+1), v.Description)
 	}
 	t.PrintData()
+	fmt.Printf("\n%dms\n", int64(elapsed/time.Millisecond))
 }
