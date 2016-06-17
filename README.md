@@ -3,7 +3,7 @@
 [![Build Status][travis-image]][travis-url] [![GoDoc][godoc-image]][godoc-url] [![Release][release-image]][release-url]
 
 Ferret is a search engine that unifies search results from different resources
-such as Github, Slack, Trello, AnswerHub and more.
+such as Github, Slack, Trello, AnswerHub and Consul.
 
 Distributed knowledge and avoiding context switching are very important for
 efficiency. Ferret provides a unified search interface for retrieving and
@@ -50,6 +50,9 @@ ferret search trello milestone
 # Search AnswerHub
 ferret search answerhub vpn
 
+# Search Consul
+ferret search consul influxdb
+
 # Pagination
 # Number of search result for per page is 10
 ferret search trello milestone --page 2
@@ -92,6 +95,7 @@ export FERRET_GITHUB_SEARCH_USER=
 # For a token see https://api.slack.com/docs/oauth-test-tokens
 export FERRET_SLACK_TOKEN=
 
+
 # Trello
 # For a key see https://trello.com/app-key and visit (after update it);
 # https://trello.com/1/authorize?key=REPLACEWITHYOURKEY&expiration=never&name=SinglePurposeToken&response_type=token&scope=read
@@ -107,6 +111,10 @@ export FERRET_ANSWERHUB_URL=https://answerhub.yourdomain.com
 # see 'My Preferences->Authentication Modes' page in your AnswerHub site
 export FERRET_ANSWERHUB_USERNAME=
 export FERRET_ANSWERHUB_PASSWORD=
+
+
+# Consul
+export FERRET_CONSUL_URL=http://consul.service.consul
 ```
 
 
