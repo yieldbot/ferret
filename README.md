@@ -50,14 +50,14 @@ ferret search trello milestone
 # Search AnswerHub
 ferret search answerhub vpn
 
+# Pagination
+# Number of search result for per page is 10
+ferret search trello milestone --page 2
+
 # Opening search results
 # Search for 'milestone' keyword on Trello and go to the second search result
 ferret search trello milestone
 ferret search trello milestone --goto 2
-
-# Pagination
-# Number of search result for per page is 10
-ferret search trello milestone --page 2
 ```
 
 
@@ -102,7 +102,7 @@ export FERRET_TRELLO_TOKEN=
 # AnswerHub
 # For enabling the REST API 
 # see http://docs.answerhub.com/articles/1444/how-to-enable-and-grant-use-of-the-rest-api.html
-export FERRET_ANSWERHUB_URL=https://answerhub.yourdomain.com/
+export FERRET_ANSWERHUB_URL=https://answerhub.yourdomain.com
 # For username and password information
 # see 'My Preferences->Authentication Modes' page in your AnswerHub site
 export FERRET_ANSWERHUB_USERNAME=
