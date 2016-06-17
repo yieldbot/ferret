@@ -61,7 +61,7 @@ type SearchResultMessagesMatches struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string, page int) (search.ResultItems, error) {
+func (provider *Provider) Search(keyword string, page int) (search.Results, error) {
 
 	// Prepare the request
 	query := fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, page, url.QueryEscape(keyword), provider.token)
@@ -86,14 +86,14 @@ func (provider *Provider) Search(keyword string, page int) (search.ResultItems, 
 	if err = json.Unmarshal(data, &sr); err != nil {
 		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 	}
-	var result search.ResultItems
+	var result search.Results
 	if sr.Messages != nil {
 		for _, v := range sr.Messages.Matches {
 			l := len(v.Text)
 			if l > 120 {
 				l = 120
 			}
-			ri := search.ResultItem{
+			ri := search.Result{
 				Description: fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
 				Link:        v.Permalink,
 			}

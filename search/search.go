@@ -34,28 +34,7 @@ func init() {
 // Searcher is the interface that must be implemented by a search provider
 type Searcher interface {
 	// Search makes a search
-	Search(keyword string, page int) (ResultItems, error)
-}
-
-// ResultItem represents a search result item structure
-type ResultItem struct {
-	Description string
-	Link        string
-}
-
-// ResultItems represents a list of search result item structure
-type ResultItems []ResultItem
-
-func (r ResultItems) Len() int {
-	return len(r)
-}
-
-func (r ResultItems) Swap(i, j int) {
-	r[i], r[j] = r[j], r[i]
-}
-
-func (r ResultItems) Less(i, j int) bool {
-	return r[i].Description < r[j].Description
+	Search(keyword string, page int) (Results, error)
 }
 
 // Register registers a search provider

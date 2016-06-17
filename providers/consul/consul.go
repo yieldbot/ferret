@@ -42,9 +42,9 @@ type Provider struct {
 type SearchResult map[string][]string
 
 // Search makes a search
-func (provider *Provider) Search(keyword string, page int) (search.ResultItems, error) {
+func (provider *Provider) Search(keyword string, page int) (search.Results, error) {
 
-	var result search.ResultItems
+	var result search.Results
 
 	dcs, err := provider.datacenter()
 	if err != nil {
@@ -79,7 +79,7 @@ func (provider *Provider) Search(keyword string, page int) (search.ResultItems, 
 			if len(v) > 0 {
 				for _, vv := range v {
 					if strings.Contains(vv, keyword) || strings.Contains(k, keyword) {
-						ri := search.ResultItem{
+						ri := search.Result{
 							Description: fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
 							Link:        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 						}
@@ -88,7 +88,7 @@ func (provider *Provider) Search(keyword string, page int) (search.ResultItems, 
 				}
 			} else {
 				if strings.Contains(k, keyword) {
-					ri := search.ResultItem{
+					ri := search.Result{
 						Description: fmt.Sprintf("%s.service.%s.consul", k, dc),
 						Link:        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 					}

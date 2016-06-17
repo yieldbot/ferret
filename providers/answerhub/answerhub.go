@@ -62,7 +62,7 @@ type SearchResultList struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string, page int) (search.ResultItems, error) {
+func (provider *Provider) Search(keyword string, page int) (search.Results, error) {
 
 	// Prepare the request
 	query := fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=10&q=%s*", provider.url, page, url.QueryEscape(keyword))
@@ -90,9 +90,9 @@ func (provider *Provider) Search(keyword string, page int) (search.ResultItems, 
 	if err = json.Unmarshal(data, &sr); err != nil {
 		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 	}
-	var result search.ResultItems
+	var result search.Results
 	for _, v := range sr.List {
-		ri := search.ResultItem{
+		ri := search.Result{
 			Description: v.Title,
 			Link:        fmt.Sprintf("%s/questions/%d/", provider.url, v.ID),
 		}
