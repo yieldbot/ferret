@@ -17,6 +17,7 @@ import (
 	"os"
 
 	"github.com/yieldbot/ferret/search"
+	"golang.org/x/net/context"
 )
 
 func init() {
@@ -61,45 +62,49 @@ type SearchResultMessagesMatches struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string, page int) (search.Results, error) {
+func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
 
-	// Prepare the request
+	var result search.Results
+	var err error
+
 	query := fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, page, url.QueryEscape(keyword), provider.token)
 	req, err := http.NewRequest("GET", query, nil)
-
-	// Make the request
-	var client = &http.Client{}
-	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("failed to fetch data. Error: " + err.Error())
-	} else if res.StatusCode < 200 || res.StatusCode > 299 {
-		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
-	}
-	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 
-	// Parse and prepare the result
-	var sr SearchResult
-	if err = json.Unmarshal(data, &sr); err != nil {
-		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
-	}
-	var result search.Results
-	if sr.Messages != nil {
-		for _, v := range sr.Messages.Matches {
-			l := len(v.Text)
-			if l > 120 {
-				l = 120
-			}
-			ri := search.Result{
-				Description: fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
-				Link:        v.Permalink,
-			}
-			result = append(result, ri)
+	err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
+
+		if err != nil {
+			return errors.New("failed to fetch data. Error: " + err.Error())
+		} else if res.StatusCode < 200 || res.StatusCode > 299 {
+			return errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 		}
-	}
+		defer res.Body.Close()
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+		var sr SearchResult
+		if err = json.Unmarshal(data, &sr); err != nil {
+			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
+		}
+		if sr.Messages != nil {
+			for _, v := range sr.Messages.Matches {
+				l := len(v.Text)
+				if l > 120 {
+					l = 120
+				}
+				ri := search.Result{
+					Description: fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
+					Link:        v.Permalink,
+				}
+				result = append(result, ri)
+			}
+		}
 
-	return result, nil
+		return nil
+	})
+
+	return result, err
 }

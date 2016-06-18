@@ -17,6 +17,7 @@ import (
 	"os"
 
 	"github.com/yieldbot/ferret/search"
+	"golang.org/x/net/context"
 )
 
 func init() {
@@ -53,40 +54,44 @@ type SearchResultCards struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string, page int) (search.Results, error) {
+func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
 
-	// Prepare the request
+	var result search.Results
+	var err error
+
 	page = page - 1
 	query := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, page, url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", query, nil)
-
-	// Make the request
-	var client = &http.Client{}
-	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("failed to fetch data. Error: " + err.Error())
-	} else if res.StatusCode < 200 || res.StatusCode > 299 {
-		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
-	}
-	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 
-	// Parse and prepare the result
-	var sr SearchResult
-	if err = json.Unmarshal(data, &sr); err != nil {
-		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
-	}
-	var result search.Results
-	for _, v := range sr.Cards {
-		ri := search.Result{
-			Description: v.Name,
-			Link:        v.URL,
+	err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
+
+		if err != nil {
+			return errors.New("failed to fetch data. Error: " + err.Error())
+		} else if res.StatusCode < 200 || res.StatusCode > 299 {
+			return errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 		}
-		result = append(result, ri)
-	}
+		defer res.Body.Close()
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+		var sr SearchResult
+		if err = json.Unmarshal(data, &sr); err != nil {
+			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
+		}
+		for _, v := range sr.Cards {
+			ri := search.Result{
+				Description: v.Name,
+				Link:        v.URL,
+			}
+			result = append(result, ri)
+		}
 
-	return result, nil
+		return nil
+	})
+
+	return result, err
 }

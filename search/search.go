@@ -18,23 +18,29 @@ import (
 	"time"
 
 	"github.com/yieldbot/gocli"
+	"golang.org/x/net/context"
 )
 
 var (
-	goCommand = "open"
-	providers = make(map[string]Searcher)
+	goCommand     = "open"
+	searchTimeout = "5000ms"
+	providers     = make(map[string]Searcher)
 )
 
 func init() {
 	if os.Getenv("FERRET_GOTO_CMD") != "" {
 		goCommand = os.Getenv("FERRET_GOTO_CMD")
 	}
+
+	if os.Getenv("FERRET_SEARCH_TIMEOUT") != "" {
+		searchTimeout = os.Getenv("FERRET_SEARCH_TIMEOUT")
+	}
 }
 
 // Searcher is the interface that must be implemented by a search provider
 type Searcher interface {
 	// Search makes a search
-	Search(keyword string, page int) (Results, error)
+	Search(ctx context.Context, keyword string, page int) (Results, error)
 }
 
 // Register registers a search provider
@@ -59,6 +65,8 @@ func Providers() []string {
 // ByKeyword make a search by the given provider and keyword
 func ByKeyword(provider, keyword string, args map[string]string) {
 
+	start := time.Now()
+
 	// Check the provider
 	s, ok := providers[provider]
 	if !ok {
@@ -77,12 +85,17 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 	}
 
 	// Search
-	start := time.Now()
-	results, err := s.Search(keyword, page)
-	elapsed := time.Since(start)
+	timeout, err := time.ParseDuration(searchTimeout)
+	if err != nil {
+		timeout = 5000 * time.Millisecond
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	results, err := s.Search(ctx, keyword, page)
 	if err != nil {
 		log.Fatalf("failed to search due to %s", err.Error())
 	}
+	elapsed := time.Since(start)
 
 	// Goto
 	if n, ok := args["goto"]; ok {

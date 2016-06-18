@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/yieldbot/ferret/search"
+	"golang.org/x/net/context"
 )
 
 func init() {
@@ -63,45 +64,49 @@ type SearchResultItemsRepository struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(keyword string, page int) (search.Results, error) {
+func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
 
-	// Prepare the request
+	var result search.Results
+	var err error
+
 	query := fmt.Sprintf("%s/search/code?page=%d&per_page=10&q=%s", provider.url, page, url.QueryEscape(keyword))
 	if provider.searchUser != "" {
 		query += fmt.Sprintf("+user:%s", url.QueryEscape(provider.searchUser))
 	}
 	req, err := http.NewRequest("GET", query, nil)
+	if err != nil {
+		return nil, errors.New("failed to prepare request. Error: " + err.Error())
+	}
 	if provider.token != "" {
 		req.Header.Set("Authorization", "token "+provider.token)
 	}
 
-	// Make the request
-	var client = &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, errors.New("failed to fetch data. Error: " + err.Error())
-	} else if res.StatusCode < 200 || res.StatusCode > 299 {
-		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
-	}
-	defer res.Body.Close()
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
+	err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
 
-	// Parse and prepare the result
-	var sr SearchResult
-	if err = json.Unmarshal(data, &sr); err != nil {
-		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
-	}
-	var result search.Results
-	for _, v := range sr.Items {
-		ri := search.Result{
-			Description: fmt.Sprintf("%s: %s", v.Repository.Fullname, v.Path),
-			Link:        v.HTMLUrl,
+		if err != nil {
+			return errors.New("failed to fetch data. Error: " + err.Error())
+		} else if res.StatusCode < 200 || res.StatusCode > 299 {
+			return errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 		}
-		result = append(result, ri)
-	}
+		defer res.Body.Close()
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+		var sr SearchResult
+		if err = json.Unmarshal(data, &sr); err != nil {
+			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
+		}
+		for _, v := range sr.Items {
+			ri := search.Result{
+				Description: fmt.Sprintf("%s: %s", v.Repository.Fullname, v.Path),
+				Link:        v.HTMLUrl,
+			}
+			result = append(result, ri)
+		}
 
-	return result, nil
+		return nil
+	})
+
+	return result, err
 }
