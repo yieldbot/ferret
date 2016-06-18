@@ -77,7 +77,7 @@ Add the following environment variable definitions in `~/.bash_profile`
 export FERRET_GOTO_CMD=open
 
 # Default timeout for search command
-FERRET_SEARCH_TIMEOUT=5000ms
+export FERRET_SEARCH_TIMEOUT=5000ms
 ```
 
 #### Configurations for Providers
