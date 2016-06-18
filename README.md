@@ -73,10 +73,11 @@ Add the following environment variable definitions in `~/.bash_profile`
 
 ```bash
 # The command is used by `--goto` argument for opening links.
-# It's optional and the default value is `open`
+# Default is `open`
 export FERRET_GOTO_CMD=open
 
 # Default timeout for search command
+# Default is `5000ms`
 export FERRET_SEARCH_TIMEOUT=5000ms
 ```
 
