@@ -1,6 +1,6 @@
 ## Changelog
 
-### UNRELEASED
+### v1.4.0 [2016-07-20]
 
 * Add timeout feature for search
 * Add elapsed time for search results
