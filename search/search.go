@@ -68,10 +68,13 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 
 	start := time.Now()
 
-	// Check the provider
+	// Check the args
 	s, ok := providers[provider]
 	if !ok {
 		log.Fatalf("invalid provider. Possible providers are %s", Providers())
+	}
+	if keyword == "" {
+		log.Fatal("missing keyword")
 	}
 
 	// Page

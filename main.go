@@ -50,12 +50,14 @@ func main() {
 		cli.PrintVersion(versionExtFlag)
 	} else if cli.SubCommand == "search" {
 		// Search
-		if len(cli.SubCommandArgs) < 1 {
-			cli.LogErr.Fatalf("missing provider. Possible providers are %s", search.Providers())
-		} else if len(cli.SubCommandArgs) < 2 {
-			cli.LogErr.Fatal("missing provider or keyword")
+		var provider, keyword string
+		if len(cli.SubCommandArgs) > 0 {
+			provider = cli.SubCommandArgs[0]
+			if len(cli.SubCommandArgs) > 1 {
+				keyword = cli.SubCommandArgs[0]
+			}
 		}
-		search.ByKeyword(cli.SubCommandArgs[0], cli.SubCommandArgs[1], cli.SubCommandArgsMap)
+		search.ByKeyword(provider, keyword, cli.SubCommandArgsMap)
 	} else {
 		// Default
 		cli.PrintUsage()
