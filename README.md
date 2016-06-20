@@ -57,6 +57,9 @@ ferret search consul influxdb
 # Number of search result for per page is 10
 ferret search trello milestone --page 2
 
+# Timeout
+ferret search trello milestone --timeout 5000ms
+
 # Opening search results
 # Search for 'milestone' keyword on Trello and go to the second search result
 ferret search trello milestone

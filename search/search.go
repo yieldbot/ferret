@@ -88,11 +88,23 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 		page = i
 	}
 
-	// Search
-	timeout, err := time.ParseDuration(searchTimeout)
-	if err != nil {
-		timeout = 5000 * time.Millisecond
+	// Timeout
+	var timeout = 5000 * time.Millisecond
+	to, ok := args["timeout"]
+	if ok {
+		d, err := time.ParseDuration(to)
+		if err != nil {
+			log.Fatal("invalid timeout. It should be a duration (i.e. 5000ms)")
+		}
+		timeout = d
+	} else {
+		d, err := time.ParseDuration(searchTimeout)
+		if err == nil {
+			timeout = d
+		}
 	}
+
+	// Search
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	results, err := s.Search(ctx, keyword, page)
