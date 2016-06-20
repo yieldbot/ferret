@@ -1,5 +1,10 @@
 ## Changelog
 
+### UNRELEASED
+
+* Add timeout feature for search
+* Add elapsed time for search results
+
 ### v1.3.0 [2016-07-17]
 
 * Add Consul provider
