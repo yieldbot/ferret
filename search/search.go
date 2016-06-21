@@ -29,12 +29,12 @@ var (
 )
 
 func init() {
-	if os.Getenv("FERRET_GOTO_CMD") != "" {
-		goCommand = os.Getenv("FERRET_GOTO_CMD")
+	if e := os.Getenv("FERRET_GOTO_CMD"); e != "" {
+		goCommand = e
 	}
 
-	if os.Getenv("FERRET_SEARCH_TIMEOUT") != "" {
-		searchTimeout = os.Getenv("FERRET_SEARCH_TIMEOUT")
+	if e := os.Getenv("FERRET_SEARCH_TIMEOUT"); e != "" {
+		searchTimeout = e
 	}
 }
 
