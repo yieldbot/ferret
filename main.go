@@ -13,6 +13,7 @@ import (
 	_ "github.com/yieldbot/ferret/providers"
 	"github.com/yieldbot/ferret/search"
 	"github.com/yieldbot/gocli"
+	"golang.org/x/net/context"
 )
 
 func init() {
@@ -44,20 +45,25 @@ func main() {
 		},
 	}
 	cli.Init()
+	search.Logger = cli.LogErr
 
 	if versionFlag || versionExtFlag {
 		// Version
 		cli.PrintVersion(versionExtFlag)
 	} else if cli.SubCommand == "search" {
 		// Search
-		var provider, keyword string
+		var q = search.Query{
+			Page:    cli.SubCommandArgsMap["page"],
+			Goto:    cli.SubCommandArgsMap["goto"],
+			Timeout: cli.SubCommandArgsMap["timeout"],
+		}
 		if len(cli.SubCommandArgs) > 0 {
-			provider = cli.SubCommandArgs[0]
+			q.Provider = cli.SubCommandArgs[0]
 			if len(cli.SubCommandArgs) > 1 {
-				keyword = cli.SubCommandArgs[0]
+				q.Keyword = cli.SubCommandArgs[1]
 			}
 		}
-		search.ByKeyword(provider, keyword, cli.SubCommandArgsMap)
+		search.PrintResults(search.ByKeyword(context.WithValue(context.Background(), "searchQuery", q)))
 	} else {
 		// Default
 		cli.PrintUsage()

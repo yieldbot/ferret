@@ -23,12 +23,17 @@ import (
 )
 
 var (
+	// Logger is the logger
+	Logger *log.Logger
+
 	goCommand     = "open"
 	searchTimeout = "5000ms"
 	providers     = make(map[string]Searcher)
 )
 
 func init() {
+	Logger = log.New(os.Stderr, "", log.LstdFlags)
+
 	if e := os.Getenv("FERRET_GOTO_CMD"); e != "" {
 		goCommand = e
 	}
@@ -64,37 +69,41 @@ func Providers() []string {
 }
 
 // ByKeyword make a search by the given provider and keyword
-func ByKeyword(provider, keyword string, args map[string]string) {
+func ByKeyword(ctx context.Context) (context.Context, error) {
 
-	start := time.Now()
-
-	// Check the args
-	s, ok := providers[provider]
-	if !ok {
-		log.Fatalf("invalid provider. Possible providers are %s", Providers())
+	// Init query
+	var query = Query{}
+	if ctx.Value("searchQuery") != nil {
+		query = ctx.Value("searchQuery").(Query)
 	}
-	if keyword == "" {
-		log.Fatal("missing keyword")
+
+	// Provider
+	s, ok := providers[query.Provider]
+	if !ok {
+		return ctx, fmt.Errorf("invalid provider. Possible providers are %s", Providers())
+	}
+
+	// Keyword
+	if query.Keyword == "" {
+		return ctx, errors.New("missing keyword")
 	}
 
 	// Page
 	page := 1
-	p, ok := args["page"]
-	if ok {
-		i, err := strconv.Atoi(p)
+	if query.Page != "" {
+		i, err := strconv.Atoi(query.Page)
 		if err != nil || i <= 0 {
-			log.Fatal("invalid page #. It should be greater than 0")
+			return ctx, errors.New("invalid page #. It should be greater than 0")
 		}
 		page = i
 	}
 
 	// Timeout
 	var timeout = 5000 * time.Millisecond
-	to, ok := args["timeout"]
-	if ok {
-		d, err := time.ParseDuration(to)
+	if query.Timeout != "" {
+		d, err := time.ParseDuration(query.Timeout)
 		if err != nil {
-			log.Fatal("invalid timeout. It should be a duration (i.e. 5000ms)")
+			return ctx, errors.New("invalid timeout. It should be a duration (i.e. 5000ms)")
 		}
 		timeout = d
 	} else {
@@ -105,35 +114,30 @@ func ByKeyword(provider, keyword string, args map[string]string) {
 	}
 
 	// Search
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx = context.WithValue(ctx, "timeStart", time.Now())
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	results, err := s.Search(ctx, keyword, page)
+	results, err := s.Search(ctx, query.Keyword, page)
 	if err != nil {
-		log.Fatalf("failed to search due to %s", err.Error())
+		return ctx, errors.New("failed to search due to " + err.Error())
 	}
-	elapsed := time.Since(start)
+	ctx = context.WithValue(ctx, "results", results)
+	ctx = context.WithValue(ctx, "timeElapsed", time.Since(ctx.Value("timeStart").(time.Time)))
 
 	// Goto
-	if n, ok := args["goto"]; ok {
-		i, err := strconv.Atoi(n)
+	if query.Goto != "" {
+		i, err := strconv.Atoi(query.Goto)
 		if err != nil || (i <= 0 || len(results) < i) {
-			log.Fatalf("invalid result # to go. It should be between 1 and %d", len(results))
+			return ctx, fmt.Errorf("invalid result # to go. It should be between 1 and %d", len(results))
 		}
 		link := results[i-1].Link
 		if _, err = exec.Command(goCommand, link).Output(); err != nil {
-			log.Fatalf("failed to go to %s due to %s. Check FERRET_GOTO_CMD environment variable", link, err.Error())
+			return ctx, fmt.Errorf("failed to go to %s due to %s. Check FERRET_GOTO_CMD environment variable", link, err.Error())
 		}
-		return
+		return ctx, nil
 	}
 
-	// Prepare output
-	var t = gocli.Table{}
-	t.AddRow(1, "#", "DESCRIPTION")
-	for i, v := range results {
-		t.AddRow(i+2, fmt.Sprintf("%d", i+1), v.Description)
-	}
-	t.PrintData()
-	fmt.Printf("\n%dms\n", int64(elapsed/time.Millisecond))
+	return ctx, nil
 }
 
 // DoRequest makes a HTTP request with contex
@@ -151,5 +155,33 @@ func DoRequest(ctx context.Context, req *http.Request, f func(*http.Response, er
 		return ctx.Err()
 	case err := <-c:
 		return err
+	}
+}
+
+// PrintResults prints the given search results
+func PrintResults(ctx context.Context, err error) {
+	if err != nil {
+		Logger.Fatal(err)
+	}
+
+	if results := ctx.Value("results"); results != nil {
+		results := ctx.Value("results").(Results)
+
+		// Init query
+		var query = Query{}
+		if ctx.Value("searchQuery") != nil {
+			query = ctx.Value("searchQuery").(Query)
+		}
+
+		if query.Goto == "" {
+			var t = gocli.Table{}
+			t.AddRow(1, "#", "DESCRIPTION")
+			for i, v := range results {
+				t.AddRow(i+2, fmt.Sprintf("%d", i+1), v.Description)
+			}
+			t.PrintData()
+			elapsed := ctx.Value("timeElapsed").(time.Duration)
+			fmt.Printf("\n%dms\n", int64(elapsed/time.Millisecond))
+		}
 	}
 }
