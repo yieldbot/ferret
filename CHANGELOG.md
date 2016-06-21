@@ -1,5 +1,9 @@
 ## Changelog
 
+### v1.5.0 [2016-07-21]
+
+* Refactor search package and add query package
+
 ### v1.4.0 [2016-07-20]
 
 * Add timeout feature for search
