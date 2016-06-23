@@ -62,15 +62,12 @@ type SearchResultMessagesMatches struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
+func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
 
-	var result search.Results
-	var err error
-
-	query := fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, page, url.QueryEscape(keyword), provider.token)
-	req, err := http.NewRequest("GET", query, nil)
+	var u = fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, query.Page, url.QueryEscape(query.Keyword), provider.token)
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
-		return nil, errors.New("failed to prepare request. Error: " + err.Error())
+		return query, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 
 	err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
@@ -99,12 +96,12 @@ func (provider *Provider) Search(ctx context.Context, keyword string, page int) 
 					Description: fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
 					Link:        v.Permalink,
 				}
-				result = append(result, ri)
+				query.Results = append(query.Results, ri)
 			}
 		}
 
 		return nil
 	})
 
-	return result, err
+	return query, err
 }

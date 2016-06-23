@@ -64,18 +64,15 @@ type SearchResultItemsRepository struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
+func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
 
-	var result search.Results
-	var err error
-
-	query := fmt.Sprintf("%s/search/code?page=%d&per_page=10&q=%s", provider.url, page, url.QueryEscape(keyword))
+	var u = fmt.Sprintf("%s/search/code?page=%d&per_page=10&q=%s", provider.url, query.Page, url.QueryEscape(query.Keyword))
 	if provider.searchUser != "" {
-		query += fmt.Sprintf("+user:%s", url.QueryEscape(provider.searchUser))
+		u += fmt.Sprintf("+user:%s", url.QueryEscape(provider.searchUser))
 	}
-	req, err := http.NewRequest("GET", query, nil)
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
-		return nil, errors.New("failed to prepare request. Error: " + err.Error())
+		return query, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 	if provider.token != "" {
 		req.Header.Set("Authorization", "token "+provider.token)
@@ -102,11 +99,11 @@ func (provider *Provider) Search(ctx context.Context, keyword string, page int) 
 				Description: fmt.Sprintf("%s: %s", v.Repository.Fullname, v.Path),
 				Link:        v.HTMLUrl,
 			}
-			result = append(result, ri)
+			query.Results = append(query.Results, ri)
 		}
 
 		return nil
 	})
 
-	return result, err
+	return query, err
 }

@@ -43,21 +43,18 @@ type Provider struct {
 type SearchResult map[string][]string
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
-
-	var result search.Results
-	var err error
+func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
 
 	dcs, err := provider.datacenter()
 	if err != nil {
-		return nil, errors.New("failed to fetch data. Error: " + err.Error())
+		return query, errors.New("failed to fetch data. Error: " + err.Error())
 	}
 	for _, dc := range dcs {
 
-		query := fmt.Sprintf("%s/v1/catalog/services?dc=%s", provider.url, url.QueryEscape(dc))
-		req, err := http.NewRequest("GET", query, nil)
+		var u = fmt.Sprintf("%s/v1/catalog/services?dc=%s", provider.url, url.QueryEscape(dc))
+		req, err := http.NewRequest("GET", u, nil)
 		if err != nil {
-			return nil, errors.New("failed to prepare request. Error: " + err.Error())
+			return query, errors.New("failed to prepare request. Error: " + err.Error())
 		}
 
 		err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
@@ -79,21 +76,21 @@ func (provider *Provider) Search(ctx context.Context, keyword string, page int) 
 			for k, v := range sr {
 				if len(v) > 0 {
 					for _, vv := range v {
-						if strings.Contains(vv, keyword) || strings.Contains(k, keyword) {
+						if strings.Contains(vv, query.Keyword) || strings.Contains(k, query.Keyword) {
 							ri := search.Result{
 								Description: fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
 								Link:        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 							}
-							result = append(result, ri)
+							query.Results = append(query.Results, ri)
 						}
 					}
 				} else {
-					if strings.Contains(k, keyword) {
+					if strings.Contains(k, query.Keyword) {
 						ri := search.Result{
 							Description: fmt.Sprintf("%s.service.%s.consul", k, dc),
 							Link:        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 						}
-						result = append(result, ri)
+						query.Results = append(query.Results, ri)
 					}
 				}
 			}
@@ -101,24 +98,24 @@ func (provider *Provider) Search(ctx context.Context, keyword string, page int) 
 			return nil
 		})
 		if err != nil {
-			return result, err
+			return query, err
 		}
 	}
 
-	if len(result) > 0 {
-		sort.Sort(result)
+	if len(query.Results) > 0 {
+		sort.Sort(query.Results)
 		var l, h = 0, 10
-		if page > 1 {
-			h = (page * 10)
+		if query.Page > 1 {
+			h = (query.Page * 10)
 			l = h - 10
 		}
-		if h > len(result) {
-			h = len(result)
+		if h > len(query.Results) {
+			h = len(query.Results)
 		}
-		result = result[l:h]
+		query.Results = query.Results[l:h]
 	}
 
-	return result, err
+	return query, err
 }
 
 // datacenter gets the list of the datacenters

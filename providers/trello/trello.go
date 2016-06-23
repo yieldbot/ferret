@@ -54,16 +54,12 @@ type SearchResultCards struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
+func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
 
-	var result search.Results
-	var err error
-
-	page = page - 1
-	query := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, page, url.QueryEscape(keyword))
-	req, err := http.NewRequest("GET", query, nil)
+	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, (query.Page - 1), url.QueryEscape(query.Keyword))
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
-		return nil, errors.New("failed to prepare request. Error: " + err.Error())
+		return query, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 
 	err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
@@ -87,11 +83,11 @@ func (provider *Provider) Search(ctx context.Context, keyword string, page int) 
 				Description: v.Name,
 				Link:        v.URL,
 			}
-			result = append(result, ri)
+			query.Results = append(query.Results, ri)
 		}
 
 		return nil
 	})
 
-	return result, err
+	return query, err
 }

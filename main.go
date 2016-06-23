@@ -53,9 +53,9 @@ func main() {
 	} else if cli.SubCommand == "search" {
 		// Search
 		var q = search.Query{
-			Page:    cli.SubCommandArgsMap["page"],
-			Goto:    cli.SubCommandArgsMap["goto"],
-			Timeout: cli.SubCommandArgsMap["timeout"],
+			Page:    search.ParsePage(cli.SubCommandArgsMap["page"]),
+			Goto:    search.ParseGoto(cli.SubCommandArgsMap["goto"]),
+			Timeout: search.ParseTimeout(cli.SubCommandArgsMap["timeout"]),
 		}
 		if len(cli.SubCommandArgs) > 0 {
 			q.Provider = cli.SubCommandArgs[0]
@@ -63,7 +63,7 @@ func main() {
 				q.Keyword = cli.SubCommandArgs[1]
 			}
 		}
-		search.PrintResults(search.ByKeyword(context.WithValue(context.Background(), "searchQuery", q)))
+		search.PrintResults(search.Do(context.WithValue(context.Background(), "searchQuery", q)))
 	} else {
 		// Default
 		cli.PrintUsage()

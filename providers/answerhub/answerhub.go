@@ -63,15 +63,12 @@ type SearchResultList struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, keyword string, page int) (search.Results, error) {
+func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
 
-	var result search.Results
-	var err error
-
-	query := fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=10&q=%s*", provider.url, page, url.QueryEscape(keyword))
-	req, err := http.NewRequest("GET", query, nil)
+	var u = fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=10&q=%s*", provider.url, query.Page, url.QueryEscape(query.Keyword))
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
-		return nil, errors.New("failed to prepare request. Error: " + err.Error())
+		return query, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 	if provider.username != "" || provider.password != "" {
 		req.SetBasicAuth(provider.username, provider.password)
@@ -98,11 +95,11 @@ func (provider *Provider) Search(ctx context.Context, keyword string, page int) 
 				Description: v.Title,
 				Link:        fmt.Sprintf("%s/questions/%d/", provider.url, v.ID),
 			}
-			result = append(result, ri)
+			query.Results = append(query.Results, ri)
 		}
 
 		return nil
 	})
 
-	return result, err
+	return query, err
 }
