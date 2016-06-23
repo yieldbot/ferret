@@ -9,8 +9,6 @@ Distributed knowledge and avoiding context switching are very important for
 efficiency. Ferret provides a unified search interface for retrieving and
 accessing to information with minimal effort.
 
-## IT'S STILL UNDER DEVELOPMENT
-
 
 ### Installation
 
