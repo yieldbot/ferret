@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/yieldbot/ferret/providers"
 	"github.com/yieldbot/gocli"
 	"golang.org/x/net/context"
 )
@@ -28,7 +29,7 @@ var (
 
 	goCommand     = "open"
 	searchTimeout = "5000ms"
-	providers     = make(map[string]Searcher)
+	searchers     = make(map[string]Searcher)
 )
 
 func init() {
@@ -41,46 +42,42 @@ func init() {
 	if e := os.Getenv("FERRET_SEARCH_TIMEOUT"); e != "" {
 		searchTimeout = e
 	}
+
+	providers.Register(Register)
 }
 
 // Searcher is the interface that must be implemented by a search provider
 type Searcher interface {
 	// Search makes a search
-	Search(ctx context.Context, query Query) (Query, error)
+	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
 }
 
 // Register registers a search provider
-func Register(name string, provider Searcher) error {
-	if _, ok := providers[name]; ok {
-		return errors.New("provider " + name + " is already registered")
+func Register(name string, provider interface{}) error {
+	if _, ok := searchers[name]; ok {
+		return errors.New("search provider " + name + " is already registered")
 	}
-	providers[name] = provider
+	searchers[name] = provider.(Searcher)
 	return nil
 }
 
-// Providers returns a sorted list of the names of the registered providers
-func Providers() []string {
+// Searchers returns a sorted list of the names of the registered searchers
+func Searchers() []string {
 	var list = []string{}
-	for name := range providers {
+	for name := range searchers {
 		list = append(list, name)
 	}
 	sort.Strings(list)
 	return list
 }
 
-// Do makes a search
-func Do(ctx context.Context) (Query, error) {
-
-	// Init query
-	var query = Query{}
-	if ctx.Value("searchQuery") != nil {
-		query = ctx.Value("searchQuery").(Query)
-	}
+// Do makes a query by the given context and query
+func Do(ctx context.Context, query Query) (Query, error) {
 
 	// Provider
-	s, ok := providers[query.Provider]
+	s, ok := searchers[query.Provider]
 	if !ok {
-		return query, fmt.Errorf("invalid provider. Possible providers are %s", Providers())
+		return query, fmt.Errorf("invalid search provider. Possible search providers are %s", Searchers())
 	}
 
 	// Keyword
@@ -97,7 +94,14 @@ func Do(ctx context.Context) (Query, error) {
 	query.Start = time.Now()
 	ctx, cancel := context.WithTimeout(ctx, query.Timeout)
 	defer cancel()
-	query, err := s.Search(ctx, query)
+	sq := map[string]interface{}{"page": query.Page, "keyword": query.Keyword}
+	sr, err := s.Search(ctx, sq)
+	for _, srv := range sr {
+		query.Results = append(query.Results, Result{
+			Description: srv["Description"].(string),
+			Link:        srv["Link"].(string),
+		})
+	}
 	if err != nil {
 		return query, errors.New("failed to search due to " + err.Error())
 	}
@@ -118,7 +122,7 @@ func Do(ctx context.Context) (Query, error) {
 	return query, nil
 }
 
-// DoRequest makes a HTTP request with contex
+// DoRequest makes a HTTP request with context
 func DoRequest(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
 	tr := &http.Transport{}
 	client := &http.Client{Transport: tr}

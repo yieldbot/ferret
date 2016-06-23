@@ -15,21 +15,20 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"sort"
 	"strings"
 
-	"github.com/yieldbot/ferret/search"
 	"golang.org/x/net/context"
 )
 
-func init() {
+// Register registers the provider
+func Register(f func(name string, provider interface{}) error) {
 	// Init the provider
 	var p = Provider{
 		url: strings.TrimSuffix(os.Getenv("FERRET_CONSUL_URL"), "/"),
 	}
 
 	// Register the provider
-	if err := search.Register("consul", &p); err != nil {
+	if err := f("consul", &p); err != nil {
 		panic(err)
 	}
 }
@@ -43,21 +42,28 @@ type Provider struct {
 type SearchResult map[string][]string
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
+func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
+
+	var results = []map[string]interface{}{}
+	page, ok := args["page"].(int)
+	if page < 1 || !ok {
+		page = 1
+	}
+	keyword, ok := args["keyword"].(string)
 
 	dcs, err := provider.datacenter()
 	if err != nil {
-		return query, errors.New("failed to fetch data. Error: " + err.Error())
+		return nil, errors.New("failed to fetch data. Error: " + err.Error())
 	}
 	for _, dc := range dcs {
 
 		var u = fmt.Sprintf("%s/v1/catalog/services?dc=%s", provider.url, url.QueryEscape(dc))
 		req, err := http.NewRequest("GET", u, nil)
 		if err != nil {
-			return query, errors.New("failed to prepare request. Error: " + err.Error())
+			return nil, errors.New("failed to prepare request. Error: " + err.Error())
 		}
 
-		err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
+		err = doRequest(ctx, req, func(res *http.Response, err error) error {
 
 			if err != nil {
 				return errors.New("failed to fetch data. Error: " + err.Error())
@@ -76,21 +82,21 @@ func (provider *Provider) Search(ctx context.Context, query search.Query) (searc
 			for k, v := range sr {
 				if len(v) > 0 {
 					for _, vv := range v {
-						if strings.Contains(vv, query.Keyword) || strings.Contains(k, query.Keyword) {
-							ri := search.Result{
-								Description: fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
-								Link:        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
+						if strings.Contains(vv, keyword) || strings.Contains(k, keyword) {
+							ri := map[string]interface{}{
+								"Description": fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
+								"Link":        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 							}
-							query.Results = append(query.Results, ri)
+							results = append(results, ri)
 						}
 					}
 				} else {
-					if strings.Contains(k, query.Keyword) {
-						ri := search.Result{
-							Description: fmt.Sprintf("%s.service.%s.consul", k, dc),
-							Link:        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
+					if strings.Contains(k, keyword) {
+						ri := map[string]interface{}{
+							"Description": fmt.Sprintf("%s.service.%s.consul", k, dc),
+							"Link":        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 						}
-						query.Results = append(query.Results, ri)
+						results = append(results, ri)
 					}
 				}
 			}
@@ -98,24 +104,24 @@ func (provider *Provider) Search(ctx context.Context, query search.Query) (searc
 			return nil
 		})
 		if err != nil {
-			return query, err
+			return nil, err
 		}
 	}
 
-	if len(query.Results) > 0 {
-		sort.Sort(query.Results)
+	if len(results) > 0 {
+		// TODO: implement sort
 		var l, h = 0, 10
-		if query.Page > 1 {
-			h = (query.Page * 10)
+		if page > 1 {
+			h = (page * 10)
 			l = h - 10
 		}
-		if h > len(query.Results) {
-			h = len(query.Results)
+		if h > len(results) {
+			h = len(results)
 		}
-		query.Results = query.Results[l:h]
+		results = results[l:h]
 	}
 
-	return query, err
+	return results, err
 }
 
 // datacenter gets the list of the datacenters
@@ -146,4 +152,22 @@ func (provider *Provider) datacenter() ([]string, error) {
 	}
 
 	return result, nil
+}
+
+// doRequest makes a HTTP request with context
+func doRequest(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
+	tr := &http.Transport{}
+	client := &http.Client{Transport: tr}
+	c := make(chan error, 1)
+	go func() {
+		c <- f(client.Do(req))
+	}()
+	select {
+	case <-ctx.Done():
+		tr.CancelRequest(req)
+		<-c
+		return ctx.Err()
+	case err := <-c:
+		return err
+	}
 }

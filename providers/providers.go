@@ -8,10 +8,18 @@
 package providers
 
 import (
-	// For triggering init()
-	_ "github.com/yieldbot/ferret/providers/answerhub"
-	_ "github.com/yieldbot/ferret/providers/consul"
-	_ "github.com/yieldbot/ferret/providers/github"
-	_ "github.com/yieldbot/ferret/providers/slack"
-	_ "github.com/yieldbot/ferret/providers/trello"
+	"github.com/yieldbot/ferret/providers/answerhub"
+	"github.com/yieldbot/ferret/providers/consul"
+	"github.com/yieldbot/ferret/providers/github"
+	"github.com/yieldbot/ferret/providers/slack"
+	"github.com/yieldbot/ferret/providers/trello"
 )
+
+// Register registers the providers
+func Register(f func(name string, provider interface{}) error) {
+	answerhub.Register(f)
+	consul.Register(f)
+	github.Register(f)
+	slack.Register(f)
+	trello.Register(f)
+}

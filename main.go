@@ -63,7 +63,7 @@ func main() {
 				q.Keyword = cli.SubCommandArgs[1]
 			}
 		}
-		search.PrintResults(search.Do(context.WithValue(context.Background(), "searchQuery", q)))
+		search.PrintResults(search.Do(context.Background(), q))
 	} else {
 		// Default
 		cli.PrintUsage()

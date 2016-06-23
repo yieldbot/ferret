@@ -16,11 +16,11 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/yieldbot/ferret/search"
 	"golang.org/x/net/context"
 )
 
-func init() {
+// Register registers the provider
+func Register(f func(name string, provider interface{}) error) {
 	// Init the provider
 	var p = Provider{
 		url:   "https://api.trello.com/1",
@@ -29,7 +29,7 @@ func init() {
 	}
 
 	// Register the provider
-	if err := search.Register("trello", &p); err != nil {
+	if err := f("trello", &p); err != nil {
 		panic(err)
 	}
 }
@@ -54,15 +54,22 @@ type SearchResultCards struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
+func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
 
-	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, (query.Page - 1), url.QueryEscape(query.Keyword))
+	var results = []map[string]interface{}{}
+	page, ok := args["page"].(int)
+	if page < 1 || !ok {
+		page = 1
+	}
+	keyword, ok := args["keyword"].(string)
+
+	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
-		return query, errors.New("failed to prepare request. Error: " + err.Error())
+		return nil, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 
-	err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
+	err = doRequest(ctx, req, func(res *http.Response, err error) error {
 
 		if err != nil {
 			return errors.New("failed to fetch data. Error: " + err.Error())
@@ -79,15 +86,33 @@ func (provider *Provider) Search(ctx context.Context, query search.Query) (searc
 			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 		}
 		for _, v := range sr.Cards {
-			ri := search.Result{
-				Description: v.Name,
-				Link:        v.URL,
+			ri := map[string]interface{}{
+				"Description": v.Name,
+				"Link":        v.URL,
 			}
-			query.Results = append(query.Results, ri)
+			results = append(results, ri)
 		}
 
 		return nil
 	})
 
-	return query, err
+	return results, err
+}
+
+// doRequest makes a HTTP request with context
+func doRequest(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
+	tr := &http.Transport{}
+	client := &http.Client{Transport: tr}
+	c := make(chan error, 1)
+	go func() {
+		c <- f(client.Do(req))
+	}()
+	select {
+	case <-ctx.Done():
+		tr.CancelRequest(req)
+		<-c
+		return ctx.Err()
+	case err := <-c:
+		return err
+	}
 }

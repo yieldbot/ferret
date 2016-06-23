@@ -4,8 +4,8 @@
  * For the full copyright and license information, please view the LICENSE.txt file.
  */
 
-// Package answerhub implements AnswerHub provider
-package answerhub
+// Package slack implements Slack provider
+package slack
 
 import (
 	"encoding/json"
@@ -16,11 +16,11 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/yieldbot/ferret/search"
 	"golang.org/x/net/context"
 )
 
-func init() {
+// Register registers the provider
+func Register(f func(name string, provider interface{}) error) {
 	// Init the provider
 	var p = Provider{
 		url:   "https://slack.com/api",
@@ -28,7 +28,7 @@ func init() {
 	}
 
 	// Register the provider
-	if err := search.Register("slack", &p); err != nil {
+	if err := f("slack", &p); err != nil {
 		panic(err)
 	}
 }
@@ -62,15 +62,22 @@ type SearchResultMessagesMatches struct {
 }
 
 // Search makes a search
-func (provider *Provider) Search(ctx context.Context, query search.Query) (search.Query, error) {
+func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
 
-	var u = fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, query.Page, url.QueryEscape(query.Keyword), provider.token)
+	var results = []map[string]interface{}{}
+	page, ok := args["page"].(int)
+	if page < 1 || !ok {
+		page = 1
+	}
+	keyword, ok := args["keyword"].(string)
+
+	var u = fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, page, url.QueryEscape(keyword), provider.token)
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
-		return query, errors.New("failed to prepare request. Error: " + err.Error())
+		return nil, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 
-	err = search.DoRequest(ctx, req, func(res *http.Response, err error) error {
+	err = doRequest(ctx, req, func(res *http.Response, err error) error {
 
 		if err != nil {
 			return errors.New("failed to fetch data. Error: " + err.Error())
@@ -88,20 +95,39 @@ func (provider *Provider) Search(ctx context.Context, query search.Query) (searc
 		}
 		if sr.Messages != nil {
 			for _, v := range sr.Messages.Matches {
+				// TODO: Improve partial text (i.e. ... keyword ...)
 				l := len(v.Text)
 				if l > 120 {
 					l = 120
 				}
-				ri := search.Result{
-					Description: fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
-					Link:        v.Permalink,
+				ri := map[string]interface{}{
+					"Description": fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
+					"Link":        v.Permalink,
 				}
-				query.Results = append(query.Results, ri)
+				results = append(results, ri)
 			}
 		}
 
 		return nil
 	})
 
-	return query, err
+	return results, err
+}
+
+// doRequest makes a HTTP request with context
+func doRequest(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
+	tr := &http.Transport{}
+	client := &http.Client{Transport: tr}
+	c := make(chan error, 1)
+	go func() {
+		c <- f(client.Do(req))
+	}()
+	select {
+	case <-ctx.Done():
+		tr.CancelRequest(req)
+		<-c
+		return ctx.Err()
+	case err := <-c:
+		return err
+	}
 }
