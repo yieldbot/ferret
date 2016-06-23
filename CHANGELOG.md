@@ -1,5 +1,9 @@
 ## Changelog
 
+### v1.5.1 [2016-07-22]
+
+* Refactor search and provider packages
+
 ### v1.5.0 [2016-07-21]
 
 * Refactor search package and add query package
