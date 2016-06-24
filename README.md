@@ -64,23 +64,21 @@ ferret search trello milestone
 ferret search trello milestone --goto 2
 ```
 
+#### REST API
+
+```bash
+# Listen for HTTP requests
+ferret listen
+
+# Search by REST API
+curl 'http://localhost:3030/search?provider=answerhub&keyword=intent&page=1&timeout=5000ms'
+```
+
 
 ### Configuration
 
 Add the following environment variable definitions in `~/.bash_profile`
 (OSX and Linux) file. Replace `export` command with `set` for Windows.
-
-#### Global Configuration
-
-```bash
-# The command is used by `--goto` argument for opening links.
-# Default is `open`
-export FERRET_GOTO_CMD=open
-
-# Default timeout for search command
-# Default is `5000ms`
-export FERRET_SEARCH_TIMEOUT=5000ms
-```
 
 #### Configurations for Providers
 
@@ -120,6 +118,22 @@ export FERRET_ANSWERHUB_PASSWORD=
 
 # Consul
 export FERRET_CONSUL_URL=http://consul.service.consul
+```
+
+#### Global Configuration
+
+```bash
+# The command is used by `--goto` argument for opening links.
+# Default is `open`
+export FERRET_GOTO_CMD=open
+
+# Default timeout for search command
+# Default is `5000ms`
+export FERRET_SEARCH_TIMEOUT=5000ms
+
+# HTTP REST API port
+# Default is 3030
+FERRET_LISTEN_PORT=3030
 ```
 
 
