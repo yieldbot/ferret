@@ -12,14 +12,15 @@ import (
 
 // Query represents a search query
 type Query struct {
-	Provider string
-	Keyword  string
-	Page     int
-	Goto     int
-	Timeout  time.Duration
-	Start    time.Time
-	Elapsed  time.Duration
-	Results  Results
+	Provider   string
+	Keyword    string
+	Page       int
+	Goto       int
+	Timeout    time.Duration
+	HTTPStatus int
+	Start      time.Time
+	Elapsed    time.Duration
+	Results    Results
 }
 
 // Result represents a search result

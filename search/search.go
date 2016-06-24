@@ -71,22 +71,25 @@ func Searchers() []string {
 	return list
 }
 
-// Do makes a query by the given context and query
+// Do makes a search query by the given context and query
 func Do(ctx context.Context, query Query) (Query, error) {
 
 	// Provider
 	s, ok := searchers[query.Provider]
 	if !ok {
+		query.HTTPStatus = http.StatusBadRequest
 		return query, fmt.Errorf("invalid search provider. Possible search providers are %s", Searchers())
 	}
 
 	// Keyword
 	if query.Keyword == "" {
+		query.HTTPStatus = http.StatusBadRequest
 		return query, errors.New("missing keyword")
 	}
 
 	// Page
 	if query.Page <= 0 {
+		query.HTTPStatus = http.StatusBadRequest
 		return query, errors.New("invalid page #. It should be greater than 0")
 	}
 
@@ -96,16 +99,24 @@ func Do(ctx context.Context, query Query) (Query, error) {
 	defer cancel()
 	sq := map[string]interface{}{"page": query.Page, "keyword": query.Keyword}
 	sr, err := s.Search(ctx, sq)
+	if err != nil {
+		if err == context.DeadlineExceeded {
+			query.HTTPStatus = http.StatusGatewayTimeout
+			return query, errors.New("timeout")
+		} else if err == context.Canceled {
+			query.HTTPStatus = http.StatusInternalServerError
+			return query, errors.New("cancelled")
+		}
+		query.HTTPStatus = http.StatusInternalServerError
+		return query, errors.New("failed to search due to " + err.Error())
+	}
+	query.Elapsed = time.Since(query.Start)
 	for _, srv := range sr {
 		query.Results = append(query.Results, Result{
 			Description: srv["Description"].(string),
 			Link:        srv["Link"].(string),
 		})
 	}
-	if err != nil {
-		return query, errors.New("failed to search due to " + err.Error())
-	}
-	query.Elapsed = time.Since(query.Start)
 
 	// Goto
 	if query.Goto != 0 {
@@ -120,24 +131,6 @@ func Do(ctx context.Context, query Query) (Query, error) {
 	}
 
 	return query, nil
-}
-
-// DoRequest makes a HTTP request with context
-func DoRequest(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
-	tr := &http.Transport{}
-	client := &http.Client{Transport: tr}
-	c := make(chan error, 1)
-	go func() {
-		c <- f(client.Do(req))
-	}()
-	select {
-	case <-ctx.Done():
-		tr.CancelRequest(req)
-		<-c
-		return ctx.Err()
-	case err := <-c:
-		return err
-	}
 }
 
 // PrintResults prints the given search results

@@ -81,7 +81,7 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 		req.SetBasicAuth(provider.username, provider.password)
 	}
 
-	err = doRequest(ctx, req, func(res *http.Response, err error) error {
+	err = DoWithContext(ctx, nil, req, func(res *http.Response, err error) error {
 
 		if err != nil {
 			return errors.New("failed to fetch data. Error: " + err.Error())
@@ -111,10 +111,12 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	return results, err
 }
 
-// doRequest makes a HTTP request with context
-func doRequest(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
+// DoWithContext makes a HTTP request with the given context
+func DoWithContext(ctx context.Context, client *http.Client, req *http.Request, f func(*http.Response, error) error) error {
 	tr := &http.Transport{}
-	client := &http.Client{Transport: tr}
+	if client == nil {
+		client = &http.Client{Transport: tr}
+	}
 	c := make(chan error, 1)
 	go func() {
 		c <- f(client.Do(req))
