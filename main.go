@@ -10,6 +10,7 @@ package main
 import (
 	"flag"
 
+	"github.com/yieldbot/ferret/api"
 	_ "github.com/yieldbot/ferret/providers"
 	"github.com/yieldbot/ferret/search"
 	"github.com/yieldbot/gocli"
@@ -41,6 +42,7 @@ func main() {
 		Version:     version,
 		Description: "Ferret is a search engine",
 		Commands: map[string]string{
+			"listen": "Listen for the REST API requests (Usage: ferret listen)",
 			"search": "Search by the given provider (Usage: ferret search PROVIDER KEYWORD)",
 		},
 	}
@@ -64,6 +66,9 @@ func main() {
 			}
 		}
 		search.PrintResults(search.Do(context.Background(), q))
+	} else if cli.SubCommand == "listen" {
+		// Listen
+		api.Listen()
 	} else {
 		// Default
 		cli.PrintUsage()
