@@ -159,8 +159,8 @@ For the full copyright and license information, please view the LICENSE.txt file
 [godoc-image]: https://godoc.org/github.com/yieldbot/ferret?status.svg
 
 [release-url]: https://github.com/yieldbot/ferret/releases/latest
-[release-image]: https://img.shields.io/badge/release-1.5.2-blue.svg
+[release-image]: https://img.shields.io/badge/release-v1.6.0-blue.svg
 
-[download-darwin-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.5.2/ferret-darwin-amd64.zip
-[download-linux-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.5.2/ferret-linux-amd64.zip
-[download-windows-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.5.2/ferret-windows-amd64.zip
+[download-darwin-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.6.0/ferret-darwin-amd64.zip
+[download-linux-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.6.0/ferret-linux-amd64.zip
+[download-windows-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v1.6.0/ferret-windows-amd64.zip

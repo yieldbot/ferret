@@ -1,5 +1,9 @@
 ## Changelog
 
+### v1.6.0 [2016-07-27]
+
+* Add REST API
+
 ### v1.5.2 [2016-07-23]
 
 * Refactor provider packages
