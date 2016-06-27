@@ -47,8 +47,9 @@ func Listen() {
 
 // SearchHandler is the handler for search route
 func SearchHandler(w http.ResponseWriter, req *http.Request) {
+
 	// Search
-	var q = search.Query{
+	q := search.Query{
 		Provider: req.URL.Query().Get("provider"),
 		Keyword:  req.URL.Query().Get("keyword"),
 		Page:     search.ParsePage(req.URL.Query().Get("page")),
@@ -61,10 +62,17 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Prepare data
-	data, err := json.MarshalIndent(q.Results, "", "  ")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	var data []byte
+	if len(q.Results) > 0 {
+		if req.URL.Query().Get("output") == "pretty" {
+			data, err = json.MarshalIndent(q.Results, "", "  ")
+		} else {
+			data, err = json.Marshal(q.Results)
+		}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Return
