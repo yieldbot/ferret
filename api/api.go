@@ -19,15 +19,10 @@ import (
 )
 
 var (
-	// Logger is the logger
-	Logger *log.Logger
-
 	listenPort = "3030"
 )
 
 func init() {
-	Logger = log.New(os.Stderr, "", log.LstdFlags)
-
 	if e := os.Getenv("FERRET_LISTEN_PORT"); e != "" {
 		listenPort = e
 	}
