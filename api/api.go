@@ -22,6 +22,12 @@ var (
 	listenPort = "3030"
 )
 
+type httpError struct {
+	StatusCode int    `json:"statusCode"`
+	Error      string `json:"error"`
+	Message    string `json:"message"`
+}
+
 func init() {
 	if e := os.Getenv("FERRET_LISTEN_PORT"); e != "" {
 		listenPort = e
@@ -52,7 +58,13 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	q, err := search.Do(context.Background(), q)
 	if err != nil {
-		http.Error(w, err.Error(), q.HTTPStatus)
+		w.WriteHeader(q.HTTPStatus)
+		data, _ := json.Marshal(httpError{
+			StatusCode: q.HTTPStatus,
+			Error:      http.StatusText(q.HTTPStatus),
+			Message:    err.Error(),
+		})
+		HandleResponse(w, req, data)
 		return
 	}
 
@@ -65,12 +77,22 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 			data, err = json.Marshal(q.Results)
 		}
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			data, _ := json.Marshal(httpError{
+				StatusCode: http.StatusInternalServerError,
+				Error:      http.StatusText(http.StatusInternalServerError),
+				Message:    err.Error(),
+			})
+			HandleResponse(w, req, data)
 			return
 		}
 	}
 
-	// Return
+	HandleResponse(w, req, data)
+}
+
+// HandleResponse handles HTTP responses
+func HandleResponse(w http.ResponseWriter, req *http.Request, data []byte) {
 	cb := req.URL.Query().Get("callback")
 	if cb != "" {
 		w.Header().Set("Content-Type", "application/javascript")
