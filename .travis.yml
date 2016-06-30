@@ -12,7 +12,7 @@ install:
 
 script:
   - OUT=`gofmt -l .`; if [ "$OUT" ]; then echo $OUT; exit 1; fi
-  - golint --set_exit_status ./...
+  - OUT=`golint ./... | grep -v '^vendor\/'`; if [ "$OUT" ]; then echo $OUT; exit 1; fi
   - go vet ./...
   - #go test -v -coverprofile=reports/cover.out -covermode=count
 
