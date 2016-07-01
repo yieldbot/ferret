@@ -6,8 +6,10 @@ go:
 
 before_install:
   - go get github.com/golang/lint/golint
+  - go get github.com/rakyll/statik
 
 install:
+  - go generate ./assets/
   - go get -t -v ./...
 
 script:

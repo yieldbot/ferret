@@ -1,0 +1,32 @@
+body {
+  padding-bottom: 20px;
+}
+
+.logo-main {
+  margin-bottom: 30px;
+  width: 260px;
+  height: 80px;
+}
+
+.logo-navbar {
+  margin-bottom: 0;
+  width: 65px;
+  height: 20px;
+}
+
+.search-navbar-holder {
+  padding: 10px 15px;
+}
+
+.input-group-search {
+  width: 60%;
+  margin: 0 auto;
+}
+
+.input-group-search-navbar {
+  margin: 0 0;
+}
+
+.input-group .search-input {
+  display: inline;
+}

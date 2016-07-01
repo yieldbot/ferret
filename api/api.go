@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/yieldbot/ferret/assets"
 	"github.com/yieldbot/ferret/search"
 	"golang.org/x/net/context"
 )
@@ -37,6 +38,7 @@ func init() {
 // Listen initializes HTTP handlers and listens for the requests
 func Listen() {
 	// Init handlers
+	http.Handle("/", assets.PublicHandler())
 	http.HandleFunc("/search", SearchHandler)
 
 	// Listen

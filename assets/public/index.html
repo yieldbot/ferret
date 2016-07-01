@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Ferret</title>
+
+    <!-- style -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/app.css" rel="stylesheet">
+    <!-- /style -->
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a id="logoNavbarHolder" class="navbar-brand" href="/"></a>
+          <div id="searchNavbarHolder" class="search-navbar-holder"></div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <img id="logoMain" src="img/ferret-green.png" class="logo-main">
+        </div>
+        <div class="col-md-12 text-center">
+          <div id="searchMain" class="input-group input-group-search">
+            <input id="searchInput" type="text" class="form-control search-input" placeholder="Searching for...">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+              </button>
+            </span>
+          </div><!-- /input-group -->
+        </div>
+      </div><!-- /.row -->
+
+      <div class="row">
+        <div class="col-md-12">
+          <div id="searchResults"></div>
+        </div>
+      </div><!-- /.row -->
+
+    </div> <!-- /container -->
+
+    <!-- scripts -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="vendor/rx/rx.lite.min.js"></script>
+    <script src="js/app.js"></script>
+    <!-- /scripts -->
+  </body>
+</html>
