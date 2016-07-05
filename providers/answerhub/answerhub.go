@@ -57,22 +57,30 @@ type SearchResult struct {
 
 // SearchResultList represent the structure of the search result list
 type SearchResultList struct {
-	ID    int
-	Type  string
-	Title string
+	ID     int
+	Type   string
+	Title  string
+	Body   string
+	Author *SearchResultListAuthor
+}
+
+// SearchResultListAuthor represent the structure of the search result list author field
+type SearchResultListAuthor struct {
+	Username string
+	Realname string
 }
 
 // Search makes a search
 func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
 
-	var results = []map[string]interface{}{}
+	results := []map[string]interface{}{}
 	page, ok := args["page"].(int)
 	if page < 1 || !ok {
 		page = 1
 	}
 	keyword, ok := args["keyword"].(string)
 
-	var u = fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=10&q=%s*", provider.url, page, url.QueryEscape(keyword))
+	u := fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=10&q=%s*", provider.url, page, url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, errors.New("failed to prepare request. Error: " + err.Error())
@@ -98,9 +106,20 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 		}
 		for _, v := range sr.List {
+			d := strings.TrimSpace(v.Body)
+			if len(d) > 255 {
+				d = d[0:252] + "..."
+			} else if len(d) == 0 {
+				if v.Author.Realname != "" {
+					d = "Asked by " + v.Author.Realname
+				} else {
+					d = "Asked by " + v.Author.Username
+				}
+			}
 			ri := map[string]interface{}{
-				"Title": v.Title,
-				"Link":  fmt.Sprintf("%s/questions/%d/", provider.url, v.ID),
+				"Link":        fmt.Sprintf("%s/questions/%d/", provider.url, v.ID),
+				"Title":       v.Title,
+				"Description": d,
 			}
 			results = append(results, ri)
 		}
