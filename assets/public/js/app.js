@@ -20,6 +20,7 @@ var app = function app() {
 
   // Get dom elements
   var $inputElm           = $('#searchInput'),
+      $buttonElm          = $('#searchButton'),
       $resultsElm         = $('#searchResults'),
       $logoMain           = $("#logoMain"),
       $logoNavbarHolder   = $('#logoNavbarHolder'),
@@ -36,14 +37,18 @@ var app = function app() {
   // init initializes the app
   function init() {
 
-    // Create an observable from the keyup event
-    var observable = Rx.Observable
+    // Create the observable from the input and click events
+    var clickSource = Rx.Observable
+      .fromEvent($buttonElm, 'click')
+      .map(function() { return true; });
+    var inputSource = Rx.Observable
       .fromEvent($inputElm, 'keyup')
       .filter(function(e) { return (e.keyCode == 13); })
       .map(function(e) { return e.target.value; })
       .filter(function(text) { return text.length > 2; })
       .distinctUntilChanged()
       .throttle(1000);
+    var observable = Rx.Observable.merge(clickSource, inputSource);
 
     // Iterate search providers
     [
