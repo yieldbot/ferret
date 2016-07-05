@@ -84,8 +84,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 					for _, vv := range v {
 						if strings.Contains(vv, keyword) || strings.Contains(k, keyword) {
 							ri := map[string]interface{}{
-								"Description": fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
-								"Link":        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
+								"Title": fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
+								"Link":  fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 							}
 							results = append(results, ri)
 						}
@@ -93,8 +93,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 				} else {
 					if strings.Contains(k, keyword) {
 						ri := map[string]interface{}{
-							"Description": fmt.Sprintf("%s.service.%s.consul", k, dc),
-							"Link":        fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
+							"Title": fmt.Sprintf("%s.service.%s.consul", k, dc),
+							"Link":  fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
 						}
 						results = append(results, ri)
 					}

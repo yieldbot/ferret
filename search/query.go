@@ -25,8 +25,8 @@ type Query struct {
 
 // Result represents a search result
 type Result struct {
-	Description string
-	Link        string
+	Title string
+	Link  string
 }
 
 // Results represents a list of search results
@@ -40,5 +40,5 @@ func (r Results) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
 }
 func (r Results) Less(i, j int) bool {
-	return r[i].Description < r[j].Description
+	return r[i].Title < r[j].Title
 }

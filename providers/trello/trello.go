@@ -87,8 +87,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 		}
 		for _, v := range sr.Cards {
 			ri := map[string]interface{}{
-				"Description": v.Name,
-				"Link":        v.URL,
+				"Title": v.Name,
+				"Link":  v.URL,
 			}
 			results = append(results, ri)
 		}

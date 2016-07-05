@@ -40,17 +40,23 @@ var app = function app() {
       .throttle(1000);
 
     // Iterate search providers
-    ['answerhub', 'trello', 'slack', 'github'].forEach(function(provider) {
+    [
+      {name: 'answerhub', title: 'AnswerHub'},
+      {name: 'github',    title: 'Github', keywordSuffix: '+extension:md'},
+      {name: 'slack',     title: 'Slack'},
+      {name: 'trello',    title: 'Trello'}
+    ].forEach(function(provider) {
       observable.flatMapLatest(function(keyword) {
         beforeSearch();
-        return search(provider, keyword);
+        keyword = (provider.keywordSuffix) ? keyword + (''+provider.keywordSuffix) : keyword;
+        return search(provider.name, keyword);
       })
       .subscribe(
         function(data) {
-          afterSearch(null, {provider: provider, data: data});
+          afterSearch(null, {provider: provider.title, data: data});
         },
         function(err) {
-          afterSearch(err, {provider: provider});
+          afterSearch(err, {provider: provider.title});
         }
       );
     });
@@ -101,7 +107,7 @@ var app = function app() {
     if(result && typeof result == 'object' && result.data instanceof Array) {
       $resultsElm.append($('<h3>').text(provider));
       $resultsElm.append($.map(result.data, function (v) {
-        return $('<li>').html('<a href="'+v.Link+'" target="_blank">'+v.Description+'</a>');
+        return $('<li>').html('<a href="'+v.Link+'" target="_blank">'+v.Title+'</a>');
       }));
       $resultsElm.append($('<hr>'));
     }

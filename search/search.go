@@ -113,8 +113,8 @@ func Do(ctx context.Context, query Query) (Query, error) {
 	query.Elapsed = time.Since(query.Start)
 	for _, srv := range sr {
 		query.Results = append(query.Results, Result{
-			Description: srv["Description"].(string),
-			Link:        srv["Link"].(string),
+			Title: srv["Title"].(string),
+			Link:  srv["Link"].(string),
 		})
 	}
 
@@ -141,9 +141,9 @@ func PrintResults(query Query, err error) {
 
 	if query.Goto == 0 {
 		var t = gocli.Table{}
-		t.AddRow(1, "#", "DESCRIPTION")
+		t.AddRow(1, "#", "TITLE")
 		for i, v := range query.Results {
-			t.AddRow(i+2, fmt.Sprintf("%d", i+1), v.Description)
+			t.AddRow(i+2, fmt.Sprintf("%d", i+1), v.Title)
 		}
 		t.PrintData()
 		fmt.Printf("\n%dms\n", int64(query.Elapsed/time.Millisecond))

@@ -103,8 +103,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 		}
 		for _, v := range sr.Items {
 			ri := map[string]interface{}{
-				"Description": fmt.Sprintf("%s/%s", v.Repository.Fullname, strings.TrimPrefix(v.Path, "/")),
-				"Link":        v.HTMLUrl,
+				"Title": fmt.Sprintf("%s/%s", v.Repository.Fullname, strings.TrimPrefix(v.Path, "/")),
+				"Link":  v.HTMLUrl,
 			}
 			results = append(results, ri)
 		}

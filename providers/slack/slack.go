@@ -101,8 +101,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 					l = 120
 				}
 				ri := map[string]interface{}{
-					"Description": fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
-					"Link":        v.Permalink,
+					"Title": fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
+					"Link":  v.Permalink,
 				}
 				results = append(results, ri)
 			}
