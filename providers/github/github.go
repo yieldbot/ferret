@@ -51,10 +51,11 @@ type SearchResult struct {
 
 // SearchResultItems represent the structure of the search result items
 type SearchResultItems struct {
-	Name       string                       `json:"name"`
-	Path       string                       `json:"path"`
-	HTMLUrl    string                       `json:"html_url"`
-	Repository *SearchResultItemsRepository `json:"repository"`
+	Name        string                         `json:"name"`
+	Path        string                         `json:"path"`
+	HTMLUrl     string                         `json:"html_url"`
+	Repository  *SearchResultItemsRepository   `json:"repository"`
+	TextMatches []*SearchResultItemTextMatches `json:"text_matches"`
 }
 
 // SearchResultItemsRepository represent the structure of the search result items repository
@@ -63,10 +64,15 @@ type SearchResultItemsRepository struct {
 	Description string `json:"description"`
 }
 
+// SearchResultItemTextMatches represent the structure of the search result items text matches field
+type SearchResultItemTextMatches struct {
+	Fragment string `json:"fragment"`
+}
+
 // Search makes a search
 func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
 
-	var results = []map[string]interface{}{}
+	results := []map[string]interface{}{}
 	page, ok := args["page"].(int)
 	if page < 1 || !ok {
 		page = 1
@@ -84,6 +90,7 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	if provider.token != "" {
 		req.Header.Set("Authorization", "token "+provider.token)
 	}
+	req.Header.Set("Accept", "application/vnd.github.v3.text-match+json")
 
 	err = DoWithContext(ctx, nil, req, func(res *http.Response, err error) error {
 
@@ -102,9 +109,22 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 		}
 		for _, v := range sr.Items {
+			var d string
+			if len(v.TextMatches) > 0 {
+				for _, tm := range v.TextMatches {
+					d = d + tm.Fragment + "..."
+				}
+			} else {
+				d = v.Repository.Description
+			}
+			d = strings.TrimSpace(strings.TrimSuffix(d, "..."))
+			if len(d) > 255 {
+				d = d[0:252] + "..."
+			}
 			ri := map[string]interface{}{
-				"Title": fmt.Sprintf("%s/%s", v.Repository.Fullname, strings.TrimPrefix(v.Path, "/")),
-				"Link":  v.HTMLUrl,
+				"Link":        v.HTMLUrl,
+				"Title":       fmt.Sprintf("%s/%s", v.Repository.Fullname, strings.TrimPrefix(v.Path, "/")),
+				"Description": d,
 			}
 			results = append(results, ri)
 		}
