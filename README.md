@@ -142,6 +142,7 @@ FERRET_LISTEN_PORT=3030
 ```
 go get -u -v github.com/yieldbot/ferret
 cd $GOPATH/src/github.com/yieldbot/ferret
+go generate ./assets
 go build
 ```
 
