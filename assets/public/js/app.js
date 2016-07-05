@@ -26,6 +26,12 @@ var app = function app() {
       $searchMain         = $("#searchMain"),
       $searchNavbarHolder = $("#searchNavbarHolder");
 
+  // Encode HTML entity
+  var encodeHtmlEntity = function(str) {
+    return str.replace(/[\u00A0-\u9999\\<\>\&\'\"\\\/]/gim, function(c){
+      return '&#' + c.charCodeAt(0) + ';' ;
+    });
+  };
 
   // init initializes the app
   function init() {
@@ -53,10 +59,10 @@ var app = function app() {
       })
       .subscribe(
         function(data) {
-          afterSearch(null, {provider: provider.title, data: data});
+          afterSearch(null, {provider: provider, data: data});
         },
         function(err) {
-          afterSearch(err, {provider: provider.title});
+          afterSearch(err, {provider: provider});
         }
       );
     });
@@ -89,7 +95,7 @@ var app = function app() {
 
   // afterSearch prepares UI after search event
   function afterSearch(err, result) {
-    var provider = (result && result.provider || 'unknown');
+    var provider = (result && result.provider && result.provider.title || 'unknown');
 
     if(err) {
       var errMsg = 'unknown error';
@@ -107,7 +113,7 @@ var app = function app() {
     if(result && typeof result == 'object' && result.data instanceof Array) {
       $resultsElm.append($('<h3>').text(provider));
       $resultsElm.append($.map(result.data, function (v) {
-        return $('<li>').html('<a href="'+v.Link+'" target="_blank">'+v.Title+'</a>');
+        return $('<li class="search-results-li">').html('<a href="'+v.Link+'" target="_blank">'+v.Title+'</a><p>'+encodeHtmlEntity(v.Description)+'</p>');
       }));
       $resultsElm.append($('<hr>'));
     }
