@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"golang.org/x/net/context"
 )
@@ -55,10 +56,16 @@ type SearchResultMessages struct {
 
 // SearchResultMessagesMatches represent the structure of the search result messages matches
 type SearchResultMessagesMatches struct {
-	Type      string `json:"type"`
-	Username  string `json:"username"`
-	Text      string `json:"text"`
-	Permalink string `json:"permalink"`
+	Type      string                              `json:"type"`
+	Username  string                              `json:"username"`
+	Text      string                              `json:"text"`
+	Permalink string                              `json:"permalink"`
+	Channel   *SearchResultMessagesMatchesChannel `json:"channel"`
+}
+
+// SearchResultMessagesMatchesChannel represent the structure of the search result messages matches channel field
+type SearchResultMessagesMatchesChannel struct {
+	Name string `json:"name"`
 }
 
 // Search makes a search
@@ -96,13 +103,14 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 		if sr.Messages != nil {
 			for _, v := range sr.Messages.Matches {
 				// TODO: Improve partial text (i.e. ... keyword ...)
-				l := len(v.Text)
-				if l > 120 {
-					l = 120
+				d := strings.TrimSpace(v.Text)
+				if len(d) > 255 {
+					d = d[0:252] + "..."
 				}
 				ri := map[string]interface{}{
-					"Title": fmt.Sprintf("%s: %s", v.Username, v.Text[0:l]),
-					"Link":  v.Permalink,
+					"Link":        v.Permalink,
+					"Title":       fmt.Sprintf("@%s in #%s", v.Username, v.Channel.Name),
+					"Description": d,
 				}
 				results = append(results, ri)
 			}
