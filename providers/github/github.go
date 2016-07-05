@@ -102,9 +102,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 		}
 		for _, v := range sr.Items {
-			// TODO: Improve alignment (repo: path)
 			ri := map[string]interface{}{
-				"Description": fmt.Sprintf("%s: %s", v.Repository.Fullname, v.Path),
+				"Description": fmt.Sprintf("%s/%s", v.Repository.Fullname, strings.TrimPrefix(v.Path, "/")),
 				"Link":        v.HTMLUrl,
 			}
 			results = append(results, ri)
