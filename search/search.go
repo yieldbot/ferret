@@ -112,9 +112,14 @@ func Do(ctx context.Context, query Query) (Query, error) {
 	}
 	query.Elapsed = time.Since(query.Start)
 	for _, srv := range sr {
+		var d string
+		if _, ok := srv["Description"]; ok {
+			d = srv["Description"].(string)
+		}
 		query.Results = append(query.Results, Result{
-			Title: srv["Title"].(string),
-			Link:  srv["Link"].(string),
+			Link:        srv["Link"].(string),
+			Title:       srv["Title"].(string),
+			Description: d,
 		})
 	}
 

@@ -25,8 +25,9 @@ type Query struct {
 
 // Result represents a search result
 type Result struct {
-	Title string
-	Link  string
+	Link        string
+	Title       string
+	Description string
 }
 
 // Results represents a list of search results
