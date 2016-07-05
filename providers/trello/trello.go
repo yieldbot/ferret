@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"golang.org/x/net/context"
 )
@@ -48,22 +49,23 @@ type SearchResult struct {
 
 // SearchResultCards represent the structure of the search result list
 type SearchResultCards struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	URL  string `json:"shortUrl"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	URL         string `json:"shortUrl"`
+	Description string `json:"desc"`
 }
 
 // Search makes a search
 func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
 
-	var results = []map[string]interface{}{}
+	results := []map[string]interface{}{}
 	page, ok := args["page"].(int)
 	if page < 1 || !ok {
 		page = 1
 	}
 	keyword, ok := args["keyword"].(string)
 
-	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), url.QueryEscape(keyword))
+	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl,desc&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, errors.New("failed to prepare request. Error: " + err.Error())
@@ -86,9 +88,14 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 		}
 		for _, v := range sr.Cards {
+			d := strings.TrimSpace(v.Description)
+			if len(d) > 255 {
+				d = d[0:252] + "..."
+			}
 			ri := map[string]interface{}{
-				"Title": v.Name,
-				"Link":  v.URL,
+				"Link":        v.URL,
+				"Title":       v.Name,
+				"Description": d,
 			}
 			results = append(results, ri)
 		}
