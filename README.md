@@ -64,6 +64,15 @@ ferret search trello milestone
 ferret search trello milestone --goto 2
 ```
 
+#### UI
+
+```bash
+ferret listen
+
+# open http://localhost:3030/
+```
+<p align="center"><img src="assets/public/img/ferret-ui.png" alt="Ferret UI" width="600" height="498" style="border: 1px solid #ddd;"></p>
+
 #### REST API
 
 ```bash
@@ -131,7 +140,7 @@ export FERRET_GOTO_CMD=open
 # Default is `5000ms`
 export FERRET_SEARCH_TIMEOUT=5000ms
 
-# HTTP REST API port
+# HTTP port for UI and the REST API
 # Default is 3030
 FERRET_LISTEN_PORT=3030
 ```
