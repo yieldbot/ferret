@@ -1,5 +1,10 @@
 ## Changelog
 
+### v1.7.0 [2016-07-05]
+
+* Add UI
+* Improve response and error handling
+
 ### v1.6.0 [2016-06-27]
 
 * Add REST API
