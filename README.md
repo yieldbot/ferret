@@ -3,11 +3,12 @@
 [![Build Status][travis-image]][travis-url] [![GoDoc][godoc-image]][godoc-url] [![Release][release-image]][release-url]
 
 Ferret is a search engine that unifies search results from different resources
-such as Github, Slack, Trello, AnswerHub and Consul.
+such as Github, Slack, Trello, AnswerHub and more.
 
 Distributed knowledge and avoiding context switching are very important for
 efficiency. Ferret provides a unified search interface for retrieving and
-accessing to information with minimal effort.
+accessing to information with minimal effort. Ferret can be used via
+[CLI](#cli), [UI](#ui) or [REST API](#rest-api)
 
 
 ### Installation
@@ -31,7 +32,7 @@ accessible from anywhere in the command line.
 ferret -h
 ```
 
-#### Search
+#### CLI
 
 ```bash
 # Search Github
