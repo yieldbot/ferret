@@ -40,7 +40,7 @@ var app = function app() {
     // Create the observable from the input and click events
     var clickSource = Rx.Observable
       .fromEvent($buttonElm, 'click')
-      .map(function() { return true; });
+      .map(function() { return $inputElm.val(); });
     var inputSource = Rx.Observable
       .fromEvent($inputElm, 'keyup')
       .filter(function(e) { return (e.keyCode == 13); })
