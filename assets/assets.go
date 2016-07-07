@@ -27,7 +27,7 @@ func init() {
 	var err error
 	statikFS, err = fs.New()
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 	}
 }
 
