@@ -13,7 +13,7 @@ accessing to information with minimal effort. Ferret can be used via
 
 ### Installation
 
-| OSX | Linux | Win |
+| Mac | Linux | Win |
 |:---:|:---:|:---:|
 | [64bit][download-darwin-amd64-url] | [64bit][download-linux-amd64-url] | [64bit][download-windows-amd64-url] |
 
