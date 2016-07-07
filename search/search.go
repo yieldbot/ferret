@@ -116,10 +116,17 @@ func Do(ctx context.Context, query Query) (Query, error) {
 		if _, ok := srv["Description"]; ok {
 			d = srv["Description"].(string)
 		}
+
+		var t time.Time
+		if _, ok := srv["Date"]; ok {
+			t = srv["Date"].(time.Time)
+		}
+
 		query.Results = append(query.Results, Result{
 			Link:        srv["Link"].(string),
 			Title:       srv["Title"].(string),
 			Description: d,
+			Date:        t,
 		})
 	}
 
@@ -145,10 +152,14 @@ func PrintResults(query Query, err error) {
 	}
 
 	if query.Goto == 0 {
-		var t = gocli.Table{}
+		t := gocli.Table{}
 		t.AddRow(1, "#", "TITLE")
 		for i, v := range query.Results {
-			t.AddRow(i+2, fmt.Sprintf("%d", i+1), v.Title)
+			ts := ""
+			if !v.Date.IsZero() {
+				ts = fmt.Sprintf(" (%d-%02d-%02d)", v.Date.Year(), v.Date.Month(), v.Date.Day())
+			}
+			t.AddRow(i+2, fmt.Sprintf("%d", i+1), fmt.Sprintf("%s%s", v.Title, ts))
 		}
 		t.PrintData()
 		fmt.Printf("\n%dms\n", int64(query.Elapsed/time.Millisecond))
@@ -157,7 +168,7 @@ func PrintResults(query Query, err error) {
 
 // ParsePage parses page from a given string
 func ParsePage(p string) int {
-	var page = 1
+	page := 1
 	if p != "" {
 		i, err := strconv.Atoi(p)
 		if err == nil && i > 0 {
@@ -169,7 +180,7 @@ func ParsePage(p string) int {
 
 // ParseGoto parses goto from a given string
 func ParseGoto(g string) int {
-	var goo = 0
+	goo := 0
 	if g != "" {
 		i, err := strconv.Atoi(g)
 		if err == nil && i > 0 {
@@ -181,7 +192,7 @@ func ParseGoto(g string) int {
 
 // ParseTimeout parses timeout from a given string
 func ParseTimeout(t string) time.Duration {
-	var timeout = 5000 * time.Millisecond
+	timeout := 5000 * time.Millisecond
 	if t != "" {
 		d, err := time.ParseDuration(t)
 		if err == nil {

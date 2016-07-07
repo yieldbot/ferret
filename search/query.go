@@ -28,6 +28,7 @@ type Result struct {
 	Link        string
 	Title       string
 	Description string
+	Date        time.Time
 }
 
 // Results represents a list of search results
