@@ -44,9 +44,9 @@ type Provider struct {
 
 // SearchResult represent the structure of the search result
 type SearchResult struct {
-	TotalCount        int  `json:"total_count"`
-	IncompleteResults bool `json:"incomplete_results"`
-	Items             []*SearchResultItems
+	TotalCount        int                  `json:"total_count"`
+	IncompleteResults bool                 `json:"incomplete_results"`
+	Items             []*SearchResultItems `json:"items"`
 }
 
 // SearchResultItems represent the structure of the search result items
