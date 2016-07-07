@@ -15,7 +15,9 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 )
@@ -42,9 +44,9 @@ type Provider struct {
 
 // SearchResult represent the structure of the search result
 type SearchResult struct {
-	Ok       bool   `json:"ok"`
-	Query    string `json:"query"`
-	Messages *SearchResultMessages
+	Ok       bool                  `json:"ok"`
+	Query    string                `json:"query"`
+	Messages *SearchResultMessages `json:"messages"`
 }
 
 // SearchResultMessages represent the structure of the search result messages
@@ -60,6 +62,7 @@ type SearchResultMessagesMatches struct {
 	Username  string                              `json:"username"`
 	Text      string                              `json:"text"`
 	Permalink string                              `json:"permalink"`
+	Ts        string                              `json:"ts"`
 	Channel   *SearchResultMessagesMatchesChannel `json:"channel"`
 }
 
@@ -107,10 +110,17 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 				if len(d) > 255 {
 					d = d[0:252] + "..."
 				}
+
+				var t time.Time
+				if ts, err := strconv.ParseFloat(v.Ts, 64); err == nil {
+					t = time.Unix(int64(ts), 0)
+				}
+
 				ri := map[string]interface{}{
 					"Link":        v.Permalink,
 					"Title":       fmt.Sprintf("@%s in #%s", v.Username, v.Channel.Name),
 					"Description": d,
+					"Date":        t,
 				}
 				results = append(results, ri)
 			}

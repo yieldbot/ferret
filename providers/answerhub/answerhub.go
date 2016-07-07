@@ -16,6 +16,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 )
@@ -44,30 +45,22 @@ type Provider struct {
 
 // SearchResult represent the structure of the search result
 type SearchResult struct {
-	Name       string
-	Sort       string
-	Page       int
-	PageSize   int
-	PageCount  int
-	ListCount  int
-	TotalCount int
-	Sorts      []string
-	List       []*SearchResultList
+	List []*SearchResultList `json:"list"`
 }
 
 // SearchResultList represent the structure of the search result list
 type SearchResultList struct {
-	ID     int
-	Type   string
-	Title  string
-	Body   string
-	Author *SearchResultListAuthor
+	ID           int                     `json:"id"`
+	Title        string                  `json:"title"`
+	Body         string                  `json:"body"`
+	Author       *SearchResultListAuthor `json:"author"`
+	CreationDate int64                   `json:"creationDate"`
 }
 
 // SearchResultListAuthor represent the structure of the search result list author field
 type SearchResultListAuthor struct {
-	Username string
-	Realname string
+	Username string `json:"username"`
+	Realname string `json:"realname"`
 }
 
 // Search makes a search
@@ -120,6 +113,7 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 				"Link":        fmt.Sprintf("%s/questions/%d/", provider.url, v.ID),
 				"Title":       v.Title,
 				"Description": d,
+				"Date":        time.Unix(0, v.CreationDate*int64(time.Millisecond)),
 			}
 			results = append(results, ri)
 		}
