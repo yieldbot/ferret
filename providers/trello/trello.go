@@ -22,25 +22,37 @@ import (
 )
 
 // Register registers the provider
-func Register(f func(name string, provider interface{}) error) {
+func Register(f func(provider interface{}) error) {
 	// Init the provider
 	var p = Provider{
+		name:  "trello",
+		title: "Trello",
 		url:   "https://api.trello.com/1",
 		key:   os.Getenv("FERRET_TRELLO_KEY"),
 		token: os.Getenv("FERRET_TRELLO_TOKEN"),
 	}
 
 	// Register the provider
-	if err := f("trello", &p); err != nil {
+	if err := f(&p); err != nil {
 		panic(err)
 	}
 }
 
 // Provider represents the provider
 type Provider struct {
+	name  string
+	title string
 	url   string
 	key   string
 	token string
+}
+
+// Info returns information
+func (provider *Provider) Info() map[string]interface{} {
+	return map[string]interface{}{
+		"name":  provider.name,
+		"title": provider.title,
+	}
 }
 
 // SearchResult represent the structure of the search result

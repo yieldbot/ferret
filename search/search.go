@@ -48,16 +48,27 @@ func init() {
 
 // Searcher is the interface that must be implemented by a search provider
 type Searcher interface {
+	// Info returns information
+	Info() map[string]interface{}
 	// Search makes a search
 	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
 }
 
 // Register registers a search provider
-func Register(name string, provider interface{}) error {
-	if _, ok := searchers[name]; ok {
-		return errors.New("search provider " + name + " is already registered")
+func Register(provider interface{}) error {
+	p, ok := provider.(Searcher)
+	if !ok {
+		return errors.New("invalid provider")
 	}
-	searchers[name] = provider.(Searcher)
+	i := p.Info()
+	n, ok := i["name"].(string)
+	if !ok {
+		return errors.New("provider name is missing")
+	}
+	if _, ok := searchers[n]; ok {
+		return errors.New("search provider " + n + " is already registered")
+	}
+	searchers[n] = p
 	return nil
 }
 

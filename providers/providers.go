@@ -16,7 +16,7 @@ import (
 )
 
 // Register registers the providers
-func Register(f func(name string, provider interface{}) error) {
+func Register(f func(provider interface{}) error) {
 	answerhub.Register(f)
 	consul.Register(f)
 	github.Register(f)

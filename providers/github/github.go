@@ -21,25 +21,37 @@ import (
 )
 
 // Register registers the provider
-func Register(f func(name string, provider interface{}) error) {
+func Register(f func(provider interface{}) error) {
 	// Init the provider
 	var p = Provider{
+		name:       "github",
+		title:      "Github",
 		url:        strings.TrimSuffix(os.Getenv("FERRET_GITHUB_URL"), "/"),
 		token:      os.Getenv("FERRET_GITHUB_TOKEN"),
 		searchUser: os.Getenv("FERRET_GITHUB_SEARCH_USER"),
 	}
 
 	// Register the provider
-	if err := f("github", &p); err != nil {
+	if err := f(&p); err != nil {
 		panic(err)
 	}
 }
 
 // Provider represents the provider
 type Provider struct {
+	name       string
+	title      string
 	url        string
 	token      string
 	searchUser string
+}
+
+// Info returns information
+func (provider *Provider) Info() map[string]interface{} {
+	return map[string]interface{}{
+		"name":  provider.name,
+		"title": provider.title,
+	}
 }
 
 // SearchResult represent the structure of the search result
