@@ -40,6 +40,9 @@ body {
 }
 
 .search-results-li p {
-  font-size: small;
   color: #222222;
+}
+
+.search-results-li p .ts {
+  color: #999999;
 }

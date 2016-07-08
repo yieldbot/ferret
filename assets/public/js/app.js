@@ -118,7 +118,13 @@ var app = function app() {
     if(result && typeof result == 'object' && result.data instanceof Array) {
       $resultsElm.append($('<h3>').text(provider));
       $resultsElm.append($.map(result.data, function (v) {
-        return $('<li class="search-results-li">').html('<a href="'+v.Link+'" target="_blank">'+v.Title+'</a><p>'+encodeHtmlEntity(v.Description)+'</p>');
+        var content  = '<a href="'+v.Link+'" target="_blank">'+v.Title+'</a>';
+            content += '<p>';
+            content += (v.Description) ? encodeHtmlEntity(v.Description)+'<br>' : '';
+            content += (v.Date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.Date)).toISOString()).substr(0, 10)+'</span>' : '';
+            content += '</p>';
+
+        return $('<li class="search-results-li">').html(content);
       }));
       $resultsElm.append($('<hr>'));
     }
