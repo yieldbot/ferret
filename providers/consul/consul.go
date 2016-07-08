@@ -18,7 +18,15 @@ import (
 	"strings"
 
 	"golang.org/x/net/context"
+	"golang.org/x/net/context/ctxhttp"
 )
+
+// Provider represents the provider
+type Provider struct {
+	name  string
+	title string
+	url   string
+}
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
@@ -33,13 +41,6 @@ func Register(f func(provider interface{}) error) {
 	if err := f(&p); err != nil {
 		panic(err)
 	}
-}
-
-// Provider represents the provider
-type Provider struct {
-	name  string
-	title string
-	url   string
 }
 
 // Info returns information
@@ -75,46 +76,43 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 			return nil, errors.New("failed to prepare request. Error: " + err.Error())
 		}
 
-		err = DoWithContext(ctx, nil, req, func(res *http.Response, err error) error {
-
-			if err != nil {
-				return errors.New("failed to fetch data. Error: " + err.Error())
-			} else if res.StatusCode < 200 || res.StatusCode > 299 {
-				return errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
-			}
-			defer res.Body.Close()
-			data, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				return err
-			}
-			var sr SearchResult
-			if err = json.Unmarshal(data, &sr); err != nil {
-				return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
-			}
-			for k, v := range sr {
-				if len(v) > 0 {
-					for _, vv := range v {
-						if strings.Contains(vv, keyword) || strings.Contains(k, keyword) {
-							ri := map[string]interface{}{
-								"Link":  fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
-								"Title": fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
-							}
-							results = append(results, ri)
-						}
-					}
-				} else {
-					if strings.Contains(k, keyword) {
+		res, err := ctxhttp.Do(ctx, nil, req)
+		if err != nil {
+			return nil, errors.New("failed to fetch data. Error: " + err.Error())
+		} else if res.StatusCode < 200 || res.StatusCode > 299 {
+			return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
+		}
+		defer res.Body.Close()
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		var sr SearchResult
+		if err = json.Unmarshal(data, &sr); err != nil {
+			return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
+		}
+		for k, v := range sr {
+			if len(v) > 0 {
+				for _, vv := range v {
+					if strings.Contains(vv, keyword) || strings.Contains(k, keyword) {
 						ri := map[string]interface{}{
 							"Link":  fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
-							"Title": fmt.Sprintf("%s.service.%s.consul", k, dc),
+							"Title": fmt.Sprintf("%s.%s.service.%s.consul", vv, k, dc),
 						}
 						results = append(results, ri)
 					}
 				}
+			} else {
+				if strings.Contains(k, keyword) {
+					ri := map[string]interface{}{
+						"Link":  fmt.Sprintf("%s/ui/#/%s/services/%s", provider.url, dc, k),
+						"Title": fmt.Sprintf("%s.service.%s.consul", k, dc),
+					}
+					results = append(results, ri)
+				}
 			}
+		}
 
-			return nil
-		})
 		if err != nil {
 			return nil, err
 		}
@@ -164,24 +162,4 @@ func (provider *Provider) datacenter() ([]string, error) {
 	}
 
 	return result, nil
-}
-
-// DoWithContext makes a HTTP request with the given context
-func DoWithContext(ctx context.Context, client *http.Client, req *http.Request, f func(*http.Response, error) error) error {
-	tr := &http.Transport{}
-	if client == nil {
-		client = &http.Client{Transport: tr}
-	}
-	c := make(chan error, 1)
-	go func() {
-		c <- f(client.Do(req))
-	}()
-	select {
-	case <-ctx.Done():
-		tr.CancelRequest(req)
-		<-c
-		return ctx.Err()
-	case err := <-c:
-		return err
-	}
 }

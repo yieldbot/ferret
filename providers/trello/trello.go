@@ -19,7 +19,17 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
+	"golang.org/x/net/context/ctxhttp"
 )
+
+// Provider represents the provider
+type Provider struct {
+	name  string
+	title string
+	url   string
+	key   string
+	token string
+}
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
@@ -38,35 +48,12 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// Provider represents the provider
-type Provider struct {
-	name  string
-	title string
-	url   string
-	key   string
-	token string
-}
-
 // Info returns information
 func (provider *Provider) Info() map[string]interface{} {
 	return map[string]interface{}{
 		"name":  provider.name,
 		"title": provider.title,
 	}
-}
-
-// SearchResult represent the structure of the search result
-type SearchResult struct {
-	Cards []*SearchResultCards `json:"cards"`
-}
-
-// SearchResultCards represent the structure of the search result list
-type SearchResultCards struct {
-	ID               string `json:"id"`
-	Name             string `json:"name"`
-	URL              string `json:"shortUrl"`
-	Description      string `json:"desc"`
-	DateLastActivity string `json:"dateLastActivity"`
 }
 
 // Search makes a search
@@ -85,64 +72,54 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 		return nil, errors.New("failed to prepare request. Error: " + err.Error())
 	}
 
-	err = DoWithContext(ctx, nil, req, func(res *http.Response, err error) error {
-
-		if err != nil {
-			return errors.New("failed to fetch data. Error: " + err.Error())
-		} else if res.StatusCode < 200 || res.StatusCode > 299 {
-			return errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
-		}
-		defer res.Body.Close()
-		data, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return err
-		}
-		var sr SearchResult
-		if err = json.Unmarshal(data, &sr); err != nil {
-			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
-		}
-		for _, v := range sr.Cards {
-			d := strings.TrimSpace(v.Description)
-			if len(d) > 255 {
-				d = d[0:252] + "..."
-			}
-
-			var t time.Time
-			if ts, err := time.Parse("2006-01-02T15:04:05.000Z", v.DateLastActivity); err == nil {
-				t = ts
-			}
-
-			ri := map[string]interface{}{
-				"Link":        v.URL,
-				"Title":       v.Name,
-				"Description": d,
-				"Date":        t,
-			}
-			results = append(results, ri)
+	res, err := ctxhttp.Do(ctx, nil, req)
+	if err != nil {
+		return nil, errors.New("failed to fetch data. Error: " + err.Error())
+	} else if res.StatusCode < 200 || res.StatusCode > 299 {
+		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
+	}
+	defer res.Body.Close()
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	var sr SearchResult
+	if err = json.Unmarshal(data, &sr); err != nil {
+		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
+	}
+	for _, v := range sr.Cards {
+		d := strings.TrimSpace(v.Description)
+		if len(d) > 255 {
+			d = d[0:252] + "..."
 		}
 
-		return nil
-	})
+		var t time.Time
+		if ts, err := time.Parse("2006-01-02T15:04:05.000Z", v.DateLastActivity); err == nil {
+			t = ts
+		}
+
+		ri := map[string]interface{}{
+			"Link":        v.URL,
+			"Title":       v.Name,
+			"Description": d,
+			"Date":        t,
+		}
+		results = append(results, ri)
+	}
 
 	return results, err
 }
 
-// DoWithContext makes a HTTP request with the given context
-func DoWithContext(ctx context.Context, client *http.Client, req *http.Request, f func(*http.Response, error) error) error {
-	tr := &http.Transport{}
-	if client == nil {
-		client = &http.Client{Transport: tr}
-	}
-	c := make(chan error, 1)
-	go func() {
-		c <- f(client.Do(req))
-	}()
-	select {
-	case <-ctx.Done():
-		tr.CancelRequest(req)
-		<-c
-		return ctx.Err()
-	case err := <-c:
-		return err
-	}
+// SearchResult represent the structure of the search result
+type SearchResult struct {
+	Cards []*SearchResultCards `json:"cards"`
+}
+
+// SearchResultCards represent the structure of the search result list
+type SearchResultCards struct {
+	ID               string `json:"id"`
+	Name             string `json:"name"`
+	URL              string `json:"shortUrl"`
+	Description      string `json:"desc"`
+	DateLastActivity string `json:"dateLastActivity"`
 }

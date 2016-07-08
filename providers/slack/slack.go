@@ -20,7 +20,16 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
+	"golang.org/x/net/context/ctxhttp"
 )
+
+// Provider represents the provider
+type Provider struct {
+	name  string
+	title string
+	url   string
+	token string
+}
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
@@ -38,20 +47,69 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// Provider represents the provider
-type Provider struct {
-	name  string
-	title string
-	url   string
-	token string
-}
-
 // Info returns information
 func (provider *Provider) Info() map[string]interface{} {
 	return map[string]interface{}{
 		"name":  provider.name,
 		"title": provider.title,
 	}
+}
+
+// Search makes a search
+func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
+
+	var results = []map[string]interface{}{}
+	page, ok := args["page"].(int)
+	if page < 1 || !ok {
+		page = 1
+	}
+	keyword, ok := args["keyword"].(string)
+
+	var u = fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, page, url.QueryEscape(keyword), provider.token)
+	req, err := http.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, errors.New("failed to prepare request. Error: " + err.Error())
+	}
+
+	res, err := ctxhttp.Do(ctx, nil, req)
+	if err != nil {
+		return nil, errors.New("failed to fetch data. Error: " + err.Error())
+	} else if res.StatusCode < 200 || res.StatusCode > 299 {
+		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
+	}
+	defer res.Body.Close()
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	var sr SearchResult
+	if err = json.Unmarshal(data, &sr); err != nil {
+		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
+	}
+	if sr.Messages != nil {
+		for _, v := range sr.Messages.Matches {
+			// TODO: Improve partial text (i.e. ... keyword ...)
+			d := strings.TrimSpace(v.Text)
+			if len(d) > 255 {
+				d = d[0:252] + "..."
+			}
+
+			var t time.Time
+			if ts, err := strconv.ParseFloat(v.Ts, 64); err == nil {
+				t = time.Unix(int64(ts), 0)
+			}
+
+			ri := map[string]interface{}{
+				"Link":        v.Permalink,
+				"Title":       fmt.Sprintf("@%s in #%s", v.Username, v.Channel.Name),
+				"Description": d,
+				"Date":        t,
+			}
+			results = append(results, ri)
+		}
+	}
+
+	return results, err
 }
 
 // SearchResult represent the structure of the search result
@@ -81,85 +139,4 @@ type SearchResultMessagesMatches struct {
 // SearchResultMessagesMatchesChannel represent the structure of the search result messages matches channel field
 type SearchResultMessagesMatchesChannel struct {
 	Name string `json:"name"`
-}
-
-// Search makes a search
-func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
-
-	var results = []map[string]interface{}{}
-	page, ok := args["page"].(int)
-	if page < 1 || !ok {
-		page = 1
-	}
-	keyword, ok := args["keyword"].(string)
-
-	var u = fmt.Sprintf("%s/search.all?page=%d&count=10&query=%s&token=%s", provider.url, page, url.QueryEscape(keyword), provider.token)
-	req, err := http.NewRequest("GET", u, nil)
-	if err != nil {
-		return nil, errors.New("failed to prepare request. Error: " + err.Error())
-	}
-
-	err = DoWithContext(ctx, nil, req, func(res *http.Response, err error) error {
-
-		if err != nil {
-			return errors.New("failed to fetch data. Error: " + err.Error())
-		} else if res.StatusCode < 200 || res.StatusCode > 299 {
-			return errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
-		}
-		defer res.Body.Close()
-		data, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return err
-		}
-		var sr SearchResult
-		if err = json.Unmarshal(data, &sr); err != nil {
-			return errors.New("failed to unmarshal JSON data. Error: " + err.Error())
-		}
-		if sr.Messages != nil {
-			for _, v := range sr.Messages.Matches {
-				// TODO: Improve partial text (i.e. ... keyword ...)
-				d := strings.TrimSpace(v.Text)
-				if len(d) > 255 {
-					d = d[0:252] + "..."
-				}
-
-				var t time.Time
-				if ts, err := strconv.ParseFloat(v.Ts, 64); err == nil {
-					t = time.Unix(int64(ts), 0)
-				}
-
-				ri := map[string]interface{}{
-					"Link":        v.Permalink,
-					"Title":       fmt.Sprintf("@%s in #%s", v.Username, v.Channel.Name),
-					"Description": d,
-					"Date":        t,
-				}
-				results = append(results, ri)
-			}
-		}
-
-		return nil
-	})
-
-	return results, err
-}
-
-// DoWithContext makes a HTTP request with the given context
-func DoWithContext(ctx context.Context, client *http.Client, req *http.Request, f func(*http.Response, error) error) error {
-	tr := &http.Transport{}
-	if client == nil {
-		client = &http.Client{Transport: tr}
-	}
-	c := make(chan error, 1)
-	go func() {
-		c <- f(client.Do(req))
-	}()
-	select {
-	case <-ctx.Done():
-		tr.CancelRequest(req)
-		<-c
-		return ctx.Err()
-	case err := <-c:
-		return err
-	}
 }
