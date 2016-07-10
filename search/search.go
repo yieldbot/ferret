@@ -112,6 +112,15 @@ func Providers() []string {
 	return list
 }
 
+// ProviderByName gets a provider by the given name
+func ProviderByName(n string) (Provider, error) {
+	p, ok := providers[n]
+	if !ok {
+		return p, errors.New("provider " + n + " couldn't be found")
+	}
+	return p, nil
+}
+
 // Do makes a search query by the given context and query
 func Do(ctx context.Context, query Query) (Query, error) {
 
