@@ -42,7 +42,7 @@ func main() {
 		Version:     version,
 		Description: "Ferret is a search engine",
 		Commands: map[string]string{
-			"listen": "Listen for the REST API requests (Usage: ferret listen)",
+			"listen": "Listen for the UI and REST API requests (Usage: ferret listen)",
 			"search": "Search by the given provider (Usage: ferret search PROVIDER KEYWORD)",
 		},
 	}
