@@ -21,6 +21,7 @@ import (
 
 var (
 	listenPort = "3030"
+	providers  []provider
 )
 
 type httpError struct {
@@ -29,9 +30,24 @@ type httpError struct {
 	Message    string `json:"message"`
 }
 
+type provider struct {
+	Name  string `json:"name"`
+	Title string `json:"title"`
+}
+
 func init() {
 	if e := os.Getenv("FERRET_LISTEN_PORT"); e != "" {
 		listenPort = e
+	}
+
+	// Prepare providers
+	for _, v := range search.Providers() {
+		if p, err := search.ProviderByName(v); err == nil {
+			providers = append(providers, provider{
+				Name:  p.Name,
+				Title: p.Title,
+			})
+		}
 	}
 }
 
@@ -40,6 +56,7 @@ func Listen() {
 	// Init handlers
 	http.Handle("/", assets.PublicHandler())
 	http.HandleFunc("/search", SearchHandler)
+	http.HandleFunc("/providers", ProvidersHandler)
 
 	// Listen
 	log.Printf("listening on %s", listenPort)
@@ -48,7 +65,7 @@ func Listen() {
 	}
 }
 
-// SearchHandler is the handler for search route
+// SearchHandler is the handler for the search route
 func SearchHandler(w http.ResponseWriter, req *http.Request) {
 
 	// Search
@@ -88,6 +105,31 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 			HandleResponse(w, req, data)
 			return
 		}
+	}
+
+	HandleResponse(w, req, data)
+}
+
+// ProvidersHandler is the handler for the providers route
+func ProvidersHandler(w http.ResponseWriter, req *http.Request) {
+
+	// Prepare data
+	var data []byte
+	var err error
+	if req.URL.Query().Get("output") == "pretty" {
+		data, err = json.MarshalIndent(providers, "", "  ")
+	} else {
+		data, err = json.Marshal(providers)
+	}
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		data, _ := json.Marshal(httpError{
+			StatusCode: http.StatusInternalServerError,
+			Error:      http.StatusText(http.StatusInternalServerError),
+			Message:    err.Error(),
+		})
+		HandleResponse(w, req, data)
+		return
 	}
 
 	HandleResponse(w, req, data)
