@@ -47,12 +47,33 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// Info returns information
-func (provider *Provider) Info() map[string]interface{} {
-	return map[string]interface{}{
-		"name":  provider.name,
-		"title": provider.title,
-	}
+// SearchResult represent the structure of the search result
+type SearchResult struct {
+	Ok       bool        `json:"ok"`
+	Query    string      `json:"query"`
+	Messages *SRMessages `json:"messages"`
+}
+
+// SRMessages represent the structure of the search result messages
+type SRMessages struct {
+	Total   int           `json:"total"`
+	Path    string        `json:"path"`
+	Matches []*SRMMatches `json:"matches"`
+}
+
+// SRMMatches represent the structure of the search result messages matches
+type SRMMatches struct {
+	Type      string       `json:"type"`
+	Username  string       `json:"username"`
+	Text      string       `json:"text"`
+	Permalink string       `json:"permalink"`
+	Ts        string       `json:"ts"`
+	Channel   *SRMMChannel `json:"channel"`
+}
+
+// SRMMChannel represent the structure of the search result messages matches channel field
+type SRMMChannel struct {
+	Name string `json:"name"`
 }
 
 // Search makes a search
@@ -110,33 +131,4 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
-}
-
-// SearchResult represent the structure of the search result
-type SearchResult struct {
-	Ok       bool                  `json:"ok"`
-	Query    string                `json:"query"`
-	Messages *SearchResultMessages `json:"messages"`
-}
-
-// SearchResultMessages represent the structure of the search result messages
-type SearchResultMessages struct {
-	Total   int                            `json:"total"`
-	Path    string                         `json:"path"`
-	Matches []*SearchResultMessagesMatches `json:"matches"`
-}
-
-// SearchResultMessagesMatches represent the structure of the search result messages matches
-type SearchResultMessagesMatches struct {
-	Type      string                              `json:"type"`
-	Username  string                              `json:"username"`
-	Text      string                              `json:"text"`
-	Permalink string                              `json:"permalink"`
-	Ts        string                              `json:"ts"`
-	Channel   *SearchResultMessagesMatchesChannel `json:"channel"`
-}
-
-// SearchResultMessagesMatchesChannel represent the structure of the search result messages matches channel field
-type SearchResultMessagesMatchesChannel struct {
-	Name string `json:"name"`
 }

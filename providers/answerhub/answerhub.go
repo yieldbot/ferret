@@ -48,12 +48,24 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// Info returns information
-func (provider *Provider) Info() map[string]interface{} {
-	return map[string]interface{}{
-		"name":  provider.name,
-		"title": provider.title,
-	}
+// SearchResult represent the structure of the search result
+type SearchResult struct {
+	List []*SRList `json:"list"`
+}
+
+// SRList represent the structure of the search result list
+type SRList struct {
+	ID           int        `json:"id"`
+	Title        string     `json:"title"`
+	Body         string     `json:"body"`
+	Author       *SRLAuthor `json:"author"`
+	CreationDate int64      `json:"creationDate"`
+}
+
+// SRLAuthor represent the structure of the search result list author field
+type SRLAuthor struct {
+	Username string `json:"username"`
+	Realname string `json:"realname"`
 }
 
 // Search makes a search
@@ -111,24 +123,4 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
-}
-
-// SearchResult represent the structure of the search result
-type SearchResult struct {
-	List []*SearchResultList `json:"list"`
-}
-
-// SearchResultList represent the structure of the search result list
-type SearchResultList struct {
-	ID           int                     `json:"id"`
-	Title        string                  `json:"title"`
-	Body         string                  `json:"body"`
-	Author       *SearchResultListAuthor `json:"author"`
-	CreationDate int64                   `json:"creationDate"`
-}
-
-// SearchResultListAuthor represent the structure of the search result list author field
-type SearchResultListAuthor struct {
-	Username string `json:"username"`
-	Realname string `json:"realname"`
 }

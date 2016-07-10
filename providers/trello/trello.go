@@ -48,12 +48,18 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// Info returns information
-func (provider *Provider) Info() map[string]interface{} {
-	return map[string]interface{}{
-		"name":  provider.name,
-		"title": provider.title,
-	}
+// SearchResult represent the structure of the search result
+type SearchResult struct {
+	Cards []*SRCards `json:"cards"`
+}
+
+// SRCards represent the structure of the search result list
+type SRCards struct {
+	ID               string `json:"id"`
+	Name             string `json:"name"`
+	URL              string `json:"shortUrl"`
+	Description      string `json:"desc"`
+	DateLastActivity string `json:"dateLastActivity"`
 }
 
 // Search makes a search
@@ -108,18 +114,4 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
-}
-
-// SearchResult represent the structure of the search result
-type SearchResult struct {
-	Cards []*SearchResultCards `json:"cards"`
-}
-
-// SearchResultCards represent the structure of the search result list
-type SearchResultCards struct {
-	ID               string `json:"id"`
-	Name             string `json:"name"`
-	URL              string `json:"shortUrl"`
-	Description      string `json:"desc"`
-	DateLastActivity string `json:"dateLastActivity"`
 }

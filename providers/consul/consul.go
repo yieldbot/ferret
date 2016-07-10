@@ -43,14 +43,6 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// Info returns information
-func (provider *Provider) Info() map[string]interface{} {
-	return map[string]interface{}{
-		"name":  provider.name,
-		"title": provider.title,
-	}
-}
-
 // SearchResult represent the structure of the search result
 type SearchResult map[string][]string
 

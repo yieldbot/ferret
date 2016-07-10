@@ -14,11 +14,12 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"reflect"
 	"sort"
 	"strconv"
 	"time"
 
-	"github.com/yieldbot/ferret/providers"
+	prov "github.com/yieldbot/ferret/providers"
 	"github.com/yieldbot/gocli"
 	"golang.org/x/net/context"
 )
@@ -29,7 +30,7 @@ var (
 
 	goCommand     = "open"
 	searchTimeout = "5000ms"
-	searchers     = make(map[string]Searcher)
+	providers     = make(map[string]Provider)
 )
 
 func init() {
@@ -43,13 +44,18 @@ func init() {
 		searchTimeout = e
 	}
 
-	providers.Register(Register)
+	prov.Register(Register)
+}
+
+// Provider represents a provider
+type Provider struct {
+	Name  string
+	Title string
+	Searcher
 }
 
 // Searcher is the interface that must be implemented by a search provider
 type Searcher interface {
-	// Info returns information
-	Info() map[string]interface{}
 	// Search makes a search
 	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
 }
@@ -60,22 +66,46 @@ func Register(provider interface{}) error {
 	if !ok {
 		return errors.New("invalid provider")
 	}
-	i := p.Info()
-	n, ok := i["name"].(string)
-	if !ok {
-		return errors.New("provider name is missing")
+
+	// Determine provider info
+	var name, title string
+	v := reflect.Indirect(reflect.ValueOf(p))
+	for i := 0; i < v.NumField(); i++ {
+		fn := v.Type().Field(i).Name
+		ft := v.Field(i).Type().Name()
+		if ft == "string" {
+			if fn == "name" {
+				name = v.Field(i).String()
+			} else if fn == "title" {
+				title = v.Field(i).String()
+			}
+		}
 	}
-	if _, ok := searchers[n]; ok {
-		return errors.New("search provider " + n + " is already registered")
+	if name == "" {
+		return errors.New("invalid provider name")
 	}
-	searchers[n] = p
+	if title == "" {
+		title = name
+	}
+
+	// Check the provider
+	if _, ok := providers[name]; ok {
+		return errors.New("search provider " + name + " is already registered")
+	}
+	np := Provider{
+		Name:     name,
+		Title:    title,
+		Searcher: p,
+	}
+	providers[name] = np
+
 	return nil
 }
 
-// Searchers returns a sorted list of the names of the registered searchers
-func Searchers() []string {
+// Providers returns a sorted list of the names of the providers
+func Providers() []string {
 	var list = []string{}
-	for name := range searchers {
+	for name := range providers {
 		list = append(list, name)
 	}
 	sort.Strings(list)
@@ -86,10 +116,10 @@ func Searchers() []string {
 func Do(ctx context.Context, query Query) (Query, error) {
 
 	// Provider
-	s, ok := searchers[query.Provider]
+	p, ok := providers[query.Provider]
 	if !ok {
 		query.HTTPStatus = http.StatusBadRequest
-		return query, fmt.Errorf("invalid search provider. Possible search providers are %s", Searchers())
+		return query, fmt.Errorf("invalid search provider. Possible search providers are %s", Providers())
 	}
 
 	// Keyword
@@ -109,14 +139,14 @@ func Do(ctx context.Context, query Query) (Query, error) {
 	ctx, cancel := context.WithTimeout(ctx, query.Timeout)
 	defer cancel()
 	sq := map[string]interface{}{"page": query.Page, "keyword": query.Keyword}
-	sr, err := s.Search(ctx, sq)
+	sr, err := p.Search(ctx, sq)
 	if err != nil {
 		if err == context.DeadlineExceeded {
 			query.HTTPStatus = http.StatusGatewayTimeout
 			return query, errors.New("timeout")
 		} else if err == context.Canceled {
 			query.HTTPStatus = http.StatusInternalServerError
-			return query, errors.New("cancelled")
+			return query, errors.New("canceled")
 		}
 		query.HTTPStatus = http.StatusInternalServerError
 		return query, errors.New("failed to search due to " + err.Error())

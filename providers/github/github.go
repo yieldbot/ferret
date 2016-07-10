@@ -47,12 +47,31 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// Info returns information
-func (provider *Provider) Info() map[string]interface{} {
-	return map[string]interface{}{
-		"name":  provider.name,
-		"title": provider.title,
-	}
+// SearchResult represent the structure of the search result
+type SearchResult struct {
+	TotalCount        int        `json:"total_count"`
+	IncompleteResults bool       `json:"incomplete_results"`
+	Items             []*SRItems `json:"items"`
+}
+
+// SRItems represent the structure of the search result items
+type SRItems struct {
+	Name        string         `json:"name"`
+	Path        string         `json:"path"`
+	HTMLUrl     string         `json:"html_url"`
+	Repository  *SRIRepository `json:"repository"`
+	TextMatches []*SRITMatches `json:"text_matches"`
+}
+
+// SRIRepository represent the structure of the search result items repository
+type SRIRepository struct {
+	Fullname    string `json:"full_name"`
+	Description string `json:"description"`
+}
+
+// SRITMatches represent the structure of the search result items text matches field
+type SRITMatches struct {
+	Fragment string `json:"fragment"`
 }
 
 // Search makes a search
@@ -115,31 +134,4 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
-}
-
-// SearchResult represent the structure of the search result
-type SearchResult struct {
-	TotalCount        int                  `json:"total_count"`
-	IncompleteResults bool                 `json:"incomplete_results"`
-	Items             []*SearchResultItems `json:"items"`
-}
-
-// SearchResultItems represent the structure of the search result items
-type SearchResultItems struct {
-	Name        string                         `json:"name"`
-	Path        string                         `json:"path"`
-	HTMLUrl     string                         `json:"html_url"`
-	Repository  *SearchResultItemsRepository   `json:"repository"`
-	TextMatches []*SearchResultItemTextMatches `json:"text_matches"`
-}
-
-// SearchResultItemsRepository represent the structure of the search result items repository
-type SearchResultItemsRepository struct {
-	Fullname    string `json:"full_name"`
-	Description string `json:"description"`
-}
-
-// SearchResultItemTextMatches represent the structure of the search result items text matches field
-type SearchResultItemTextMatches struct {
-	Fragment string `json:"fragment"`
 }
