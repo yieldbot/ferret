@@ -94,7 +94,7 @@ func parseProviderList(providerList string, defaults bool) ([]string, error) {
 	if providerList == "" && defaults == true {
 		for _, v := range search.Providers() {
 			if p, err := search.ProviderByName(v); err == nil {
-				if p.Enabled == true {
+				if p.Enabled == true && p.Noui == false {
 					providerList += p.Name + ","
 				}
 			}
