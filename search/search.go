@@ -162,7 +162,7 @@ func Do(ctx context.Context, query Query) (Query, error) {
 	query.Start = time.Now()
 	ctx, cancel := context.WithTimeout(ctx, query.Timeout)
 	defer cancel()
-	sq := map[string]interface{}{"page": query.Page, "keyword": query.Keyword}
+	sq := map[string]interface{}{"page": query.Page, "limit": 10, "keyword": query.Keyword}
 	sr, err := p.Search(ctx, sq)
 	if err != nil {
 		if strings.Contains(err.Error(), "context deadline exceeded") {

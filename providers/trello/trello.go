@@ -72,9 +72,13 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	if page < 1 || !ok {
 		page = 1
 	}
+	limit, ok := args["limit"].(int)
+	if limit < 1 || !ok {
+		limit = 10
+	}
 	keyword, ok := args["keyword"].(string)
 
-	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl,desc,dateLastActivity&cards_limit=10&cards_page=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), url.QueryEscape(keyword))
+	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl,desc,dateLastActivity&cards_page=%d&cards_limit=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), limit, url.QueryEscape(keyword))
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, errors.New("failed to prepare request. Error: " + err.Error())

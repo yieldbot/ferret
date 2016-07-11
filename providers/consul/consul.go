@@ -58,6 +58,10 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	if page < 1 || !ok {
 		page = 1
 	}
+	limit, ok := args["limit"].(int)
+	if limit < 1 || !ok {
+		limit = 10
+	}
 	keyword, ok := args["keyword"].(string)
 
 	dcs, err := provider.datacenter()
@@ -116,10 +120,10 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 
 	if len(results) > 0 {
 		// TODO: implement sort
-		var l, h = 0, 10
+		var l, h = 0, limit
 		if page > 1 {
-			h = (page * 10)
-			l = h - 10
+			h = (page * limit)
+			l = h - limit
 		}
 		if h > len(results) {
 			h = len(results)

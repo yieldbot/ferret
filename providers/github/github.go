@@ -84,9 +84,13 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	if page < 1 || !ok {
 		page = 1
 	}
+	limit, ok := args["limit"].(int)
+	if limit < 1 || !ok {
+		limit = 10
+	}
 	keyword, ok := args["keyword"].(string)
 
-	var u = fmt.Sprintf("%s/search/code?page=%d&per_page=10&q=%s", provider.url, page, url.QueryEscape(keyword))
+	var u = fmt.Sprintf("%s/search/code?page=%d&per_page=%d&q=%s", provider.url, page, limit, url.QueryEscape(keyword))
 	if provider.searchUser != "" {
 		u += fmt.Sprintf("+user:%s", url.QueryEscape(provider.searchUser))
 	}
