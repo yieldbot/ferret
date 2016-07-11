@@ -27,6 +27,7 @@ type Provider struct {
 	name    string
 	title   string
 	url     string
+	noui    bool
 }
 
 // Register registers the provider
@@ -35,6 +36,7 @@ func Register(f func(provider interface{}) error) {
 		name:  "consul",
 		title: "Consul",
 		url:   strings.TrimSuffix(os.Getenv("FERRET_CONSUL_URL"), "/"),
+		noui:  true,
 	}
 	if p.url != "" {
 		p.enabled = true

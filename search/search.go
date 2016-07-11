@@ -52,6 +52,7 @@ type Provider struct {
 	Name    string
 	Title   string
 	Enabled bool
+	Noui    bool
 	Searcher
 }
 
@@ -72,7 +73,7 @@ func Register(provider interface{}) error {
 
 	// Determine the provider info
 	var name, title string
-	var enabled bool
+	var enabled, noui bool
 	// Get the value of the provider
 	v := reflect.Indirect(reflect.ValueOf(p))
 	// Iterate the provider fields
@@ -85,8 +86,12 @@ func Register(provider interface{}) error {
 			} else if fn == "title" {
 				title = v.Field(i).String()
 			}
-		} else if fn == "enabled" && ft == "bool" {
-			enabled = v.Field(i).Bool()
+		} else if ft == "bool" {
+			if fn == "enabled" {
+				enabled = v.Field(i).Bool()
+			} else if fn == "noui" {
+				noui = v.Field(i).Bool()
+			}
 		}
 	}
 	if name == "" {
@@ -104,6 +109,7 @@ func Register(provider interface{}) error {
 		Name:     name,
 		Title:    title,
 		Enabled:  enabled,
+		Noui:     noui,
 		Searcher: p,
 	}
 	providers[name] = np
