@@ -24,6 +24,7 @@ import (
 
 // Provider represents the provider
 type Provider struct {
+	enabled  bool
 	name     string
 	title    string
 	url      string
@@ -33,7 +34,6 @@ type Provider struct {
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
-	// Init the provider
 	var p = Provider{
 		name:     "answerhub",
 		title:    "AnswerHub",
@@ -41,8 +41,10 @@ func Register(f func(provider interface{}) error) {
 		username: os.Getenv("FERRET_ANSWERHUB_USERNAME"),
 		password: os.Getenv("FERRET_ANSWERHUB_PASSWORD"),
 	}
+	if p.url != "" {
+		p.enabled = true
+	}
 
-	// Register the provider
 	if err := f(&p); err != nil {
 		panic(err)
 	}

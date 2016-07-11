@@ -23,6 +23,7 @@ import (
 
 // Provider represents the provider
 type Provider struct {
+	enabled    bool
 	name       string
 	title      string
 	url        string
@@ -32,7 +33,6 @@ type Provider struct {
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
-	// Init the provider
 	var p = Provider{
 		name:       "github",
 		title:      "Github",
@@ -40,8 +40,10 @@ func Register(f func(provider interface{}) error) {
 		token:      os.Getenv("FERRET_GITHUB_TOKEN"),
 		searchUser: os.Getenv("FERRET_GITHUB_SEARCH_USER"),
 	}
+	if p.token != "" {
+		p.enabled = true
+	}
 
-	// Register the provider
 	if err := f(&p); err != nil {
 		panic(err)
 	}

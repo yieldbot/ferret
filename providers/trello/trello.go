@@ -24,16 +24,16 @@ import (
 
 // Provider represents the provider
 type Provider struct {
-	name  string
-	title string
-	url   string
-	key   string
-	token string
+	enabled bool
+	name    string
+	title   string
+	url     string
+	key     string
+	token   string
 }
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
-	// Init the provider
 	var p = Provider{
 		name:  "trello",
 		title: "Trello",
@@ -41,8 +41,10 @@ func Register(f func(provider interface{}) error) {
 		key:   os.Getenv("FERRET_TRELLO_KEY"),
 		token: os.Getenv("FERRET_TRELLO_TOKEN"),
 	}
+	if p.token != "" {
+		p.enabled = true
+	}
 
-	// Register the provider
 	if err := f(&p); err != nil {
 		panic(err)
 	}

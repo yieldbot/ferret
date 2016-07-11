@@ -23,21 +23,23 @@ import (
 
 // Provider represents the provider
 type Provider struct {
-	name  string
-	title string
-	url   string
+	enabled bool
+	name    string
+	title   string
+	url     string
 }
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
-	// Init the provider
 	var p = Provider{
 		name:  "consul",
 		title: "Consul",
 		url:   strings.TrimSuffix(os.Getenv("FERRET_CONSUL_URL"), "/"),
 	}
+	if p.url != "" {
+		p.enabled = true
+	}
 
-	// Register the provider
 	if err := f(&p); err != nil {
 		panic(err)
 	}

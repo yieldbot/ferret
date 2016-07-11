@@ -25,23 +25,25 @@ import (
 
 // Provider represents the provider
 type Provider struct {
-	name  string
-	title string
-	url   string
-	token string
+	enabled bool
+	name    string
+	title   string
+	url     string
+	token   string
 }
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
-	// Init the provider
 	var p = Provider{
 		name:  "slack",
 		title: "Slack",
 		url:   "https://slack.com/api",
 		token: os.Getenv("FERRET_SLACK_TOKEN"),
 	}
+	if p.token != "" {
+		p.enabled = true
+	}
 
-	// Register the provider
 	if err := f(&p); err != nil {
 		panic(err)
 	}
