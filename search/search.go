@@ -122,10 +122,10 @@ func Providers() []string {
 }
 
 // ProviderByName gets a provider by the given name
-func ProviderByName(n string) (Provider, error) {
-	p, ok := providers[n]
+func ProviderByName(name string) (Provider, error) {
+	p, ok := providers[name]
 	if !ok {
-		return p, errors.New("provider " + n + " couldn't be found")
+		return p, errors.New("provider " + name + " couldn't be found")
 	}
 	return p, nil
 }
@@ -227,42 +227,42 @@ func PrintResults(query Query, err error) {
 }
 
 // ParsePage parses page from a given string
-func ParsePage(p string) int {
-	page := 1
-	if p != "" {
-		i, err := strconv.Atoi(p)
+func ParsePage(page string) int {
+	p := 1
+	if page != "" {
+		i, err := strconv.Atoi(page)
 		if err == nil && i > 0 {
-			page = i
+			p = i
 		}
 	}
-	return page
+	return p
 }
 
 // ParseGoto parses goto from a given string
-func ParseGoto(g string) int {
-	goo := 0
-	if g != "" {
-		i, err := strconv.Atoi(g)
+func ParseGoto(gt string) int {
+	g := 0
+	if gt != "" {
+		i, err := strconv.Atoi(gt)
 		if err == nil && i > 0 {
-			goo = i
+			g = i
 		}
 	}
-	return goo
+	return g
 }
 
 // ParseTimeout parses timeout from a given string
-func ParseTimeout(t string) time.Duration {
-	timeout := 5000 * time.Millisecond
-	if t != "" {
-		d, err := time.ParseDuration(t)
+func ParseTimeout(timeout string) time.Duration {
+	t := 5000 * time.Millisecond
+	if timeout != "" {
+		d, err := time.ParseDuration(timeout)
 		if err == nil {
-			timeout = d
+			t = d
 		}
 	} else {
 		d, err := time.ParseDuration(searchTimeout)
 		if err == nil {
-			timeout = d
+			t = d
 		}
 	}
-	return timeout
+	return t
 }
