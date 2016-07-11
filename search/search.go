@@ -39,7 +39,6 @@ func init() {
 	if e := os.Getenv("FERRET_GOTO_CMD"); e != "" {
 		goCommand = e
 	}
-
 	if e := os.Getenv("FERRET_SEARCH_TIMEOUT"); e != "" {
 		searchTimeout = e
 	}
@@ -49,8 +48,9 @@ func init() {
 
 // Provider represents a provider
 type Provider struct {
-	Name  string
-	Title string
+	Name    string
+	Title   string
+	Enabled bool
 	Searcher
 }
 
@@ -62,14 +62,19 @@ type Searcher interface {
 
 // Register registers a search provider
 func Register(provider interface{}) error {
+
+	// Init provider
 	p, ok := provider.(Searcher)
 	if !ok {
 		return errors.New("invalid provider")
 	}
 
-	// Determine provider info
+	// Determine the provider info
 	var name, title string
+	var enabled bool
+	// Get the value of the provider
 	v := reflect.Indirect(reflect.ValueOf(p))
+	// Iterate the provider fields
 	for i := 0; i < v.NumField(); i++ {
 		fn := v.Type().Field(i).Name
 		ft := v.Field(i).Type().Name()
@@ -79,6 +84,8 @@ func Register(provider interface{}) error {
 			} else if fn == "title" {
 				title = v.Field(i).String()
 			}
+		} else if fn == "enabled" && ft == "bool" {
+			enabled = v.Field(i).Bool()
 		}
 	}
 	if name == "" {
@@ -88,13 +95,14 @@ func Register(provider interface{}) error {
 		title = name
 	}
 
-	// Check the provider
+	// Check and init the provider
 	if _, ok := providers[name]; ok {
 		return errors.New("search provider " + name + " is already registered")
 	}
 	np := Provider{
 		Name:     name,
 		Title:    title,
+		Enabled:  enabled,
 		Searcher: p,
 	}
 	providers[name] = np
