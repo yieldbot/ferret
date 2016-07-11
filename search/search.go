@@ -17,6 +17,7 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	prov "github.com/yieldbot/ferret/providers"
@@ -158,10 +159,11 @@ func Do(ctx context.Context, query Query) (Query, error) {
 	sq := map[string]interface{}{"page": query.Page, "keyword": query.Keyword}
 	sr, err := p.Search(ctx, sq)
 	if err != nil {
-		if err == context.DeadlineExceeded {
+		if strings.Contains(err.Error(), "context deadline exceeded") {
 			query.HTTPStatus = http.StatusGatewayTimeout
 			return query, errors.New("timeout")
-		} else if err == context.Canceled {
+		}
+		if strings.Contains(err.Error(), "context canceled") {
 			query.HTTPStatus = http.StatusInternalServerError
 			return query, errors.New("canceled")
 		}
