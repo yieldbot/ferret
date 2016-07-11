@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/yieldbot/ferret/assets"
 	"github.com/yieldbot/ferret/search"
@@ -20,34 +21,56 @@ import (
 )
 
 var (
-	listenPort = "3030"
-	providers  []provider
+	options   Options
+	providers []provider
 )
 
+// Options represents options
+type Options struct {
+	listenPort    string
+	providersList string
+}
+
+// httpError represents an HTTP error
 type httpError struct {
 	StatusCode int    `json:"statusCode"`
 	Error      string `json:"error"`
 	Message    string `json:"message"`
 }
 
+// provider represents a provider
 type provider struct {
 	Name  string `json:"name"`
 	Title string `json:"title"`
 }
 
 func init() {
+
+	// Options
+	options = Options{
+		listenPort: "3030",
+	}
 	if e := os.Getenv("FERRET_LISTEN_PORT"); e != "" {
-		listenPort = e
+		options.listenPort = e
+	}
+	if e := os.Getenv("FERRET_LISTEN_PROVIDERS"); e != "" {
+		options.providersList = e
 	}
 
 	// Prepare providers
-	for _, v := range search.Providers() {
-		if p, err := search.ProviderByName(v); err == nil {
-			providers = append(providers, provider{
-				Name:  p.Name,
-				Title: p.Title,
-			})
+	pl, err := parseProviderList(options.providersList, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, v := range pl {
+		p, err := search.ProviderByName(v)
+		if err != nil {
+			log.Fatal(err)
 		}
+		providers = append(providers, provider{
+			Name:  p.Name,
+			Title: p.Title,
+		})
 	}
 }
 
@@ -59,10 +82,43 @@ func Listen() {
 	http.HandleFunc("/providers", ProvidersHandler)
 
 	// Listen
-	log.Printf("listening on %s", listenPort)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", listenPort), nil); err != nil {
+	log.Printf("listening on %s", options.listenPort)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", options.listenPort), nil); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// parseProviderList parses the provider list from a given string
+func parseProviderList(providerList string, defaults bool) ([]string, error) {
+	// If the provider list is empty and defaults is true then create the list
+	if providerList == "" && defaults == true {
+		for _, v := range search.Providers() {
+			if p, err := search.ProviderByName(v); err == nil {
+				if p.Enabled == true {
+					providerList += p.Name + ","
+				}
+			}
+		}
+	}
+
+	// Iterate the provider list and check them
+	s := strings.Split(strings.TrimSpace(strings.Trim(providerList, ",")), ",")
+	for _, v := range s {
+		if _, err := search.ProviderByName(v); err != nil {
+			return nil, err
+		}
+	}
+	return s, nil
+}
+
+// CheckProvider checks whether the given provider is acceptable or not
+func checkProvider(provider string) bool {
+	for _, v := range providers {
+		if v.Name == provider {
+			return true
+		}
+	}
+	return false
 }
 
 // SearchHandler is the handler for the search route
@@ -75,6 +131,19 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 		Page:     search.ParsePage(req.URL.Query().Get("page")),
 		Timeout:  search.ParseTimeout(req.URL.Query().Get("timeout")),
 	}
+
+	// Check the provider
+	if !checkProvider(q.Provider) {
+		w.WriteHeader(http.StatusBadRequest)
+		data, _ := json.Marshal(httpError{
+			StatusCode: http.StatusBadRequest,
+			Error:      http.StatusText(http.StatusBadRequest),
+			Message:    "invalid provider",
+		})
+		HandleResponse(w, req, data)
+		return
+	}
+
 	q, err := search.Do(context.Background(), q)
 	if err != nil {
 		w.WriteHeader(q.HTTPStatus)
@@ -116,10 +185,12 @@ func ProvidersHandler(w http.ResponseWriter, req *http.Request) {
 	// Prepare data
 	var data []byte
 	var err error
-	if req.URL.Query().Get("output") == "pretty" {
-		data, err = json.MarshalIndent(providers, "", "  ")
-	} else {
-		data, err = json.Marshal(providers)
+	if len(providers) > 0 {
+		if req.URL.Query().Get("output") == "pretty" {
+			data, err = json.MarshalIndent(providers, "", "  ")
+		} else {
+			data, err = json.Marshal(providers)
+		}
 	}
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
