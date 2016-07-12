@@ -2,6 +2,10 @@ body {
   padding-bottom: 20px;
 }
 
+.green {
+  color: #86b32e
+}
+
 .logo-main {
   margin-bottom: 30px;
   width: 260px;
@@ -47,6 +51,6 @@ body {
   color: #999999;
 }
 
-.green {
-  color: #86b32e
+.search-alert {
+  margin: 50px;
 }
