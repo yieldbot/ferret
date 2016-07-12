@@ -17,68 +17,105 @@ var app = function app() {
 
   // Init vars
   var serverUrl = location.protocol + '//' + location.hostname + ':' + location.port;
-
-  // Get dom elements
-  var $inputElm           = $('#searchInput'),
-      $buttonElm          = $('#searchButton'),
-      $resultsElm         = $('#searchResults'),
-      $logoMain           = $("#logoMain"),
-      $logoNavbarHolder   = $('#logoNavbarHolder'),
-      $searchMain         = $("#searchMain"),
-      $searchNavbarHolder = $("#searchNavbarHolder");
-
-  // Encode HTML entity
-  var encodeHtmlEntity = function(str) {
-    return str.replace(/[\u00A0-\u9999\\<\>\&\'\"\\\/]/gim, function(c){
-      return '&#' + c.charCodeAt(0) + ';' ;
-    });
-  };
+  serverUrl = (location.protocol == 'file:') ? 'http://localhost:3030' : serverUrl; // for debug
 
   // init initializes the app
   function init() {
+    // Get providers
+    getProviders().then(
+      function(data) {
+        if(data && data instanceof Array && data.length > 0) {
+          // Listen for search requests
+          listen(data);
+        } else {
+          critical("There is no any available provider to search");
+        }
+      },
+      function(err) {
+        var e = parseError(err);
+        critical("Could not get the available providers due to " + e.message  + " (" + e.code + ")");
+      }
+    );
+  }
 
-    // Create the observable from the input and click events
+  // listen listens search requests for the given providers
+  function listen(providers) {
+    // Create the observables
+
+    // Click button
     var clickSource = Rx.Observable
-      .fromEvent($buttonElm, 'click')
-      .map(function() { return $inputElm.val(); });
+      .fromEvent($('#searchButton'), 'click')
+      .map(function() { return $('#searchInput').val(); });
+
+    // Input field
     var inputSource = Rx.Observable
-      .fromEvent($inputElm, 'keyup')
+      .fromEvent($('#searchInput'), 'keyup')
       .filter(function(e) { return (e.keyCode == 13); })
       .map(function(e) { return e.target.value; })
       .filter(function(text) { return text.length > 2; })
       .distinctUntilChanged()
       .throttle(1000);
+
+    // Merge observables
     var observable = Rx.Observable.merge(clickSource, inputSource);
 
-    // Iterate search providers
-    [
-      {name: 'answerhub', title: 'AnswerHub'},
-      {name: 'github',    title: 'Github', keywordSuffix: '+extension:md'},
-      {name: 'slack',     title: 'Slack'},
-      {name: 'trello',    title: 'Trello'}
-    ].forEach(function(provider) {
-      observable.flatMapLatest(function(keyword) {
-        beforeSearch();
-        keyword = (provider.keywordSuffix) ? keyword + (''+provider.keywordSuffix) : keyword;
-        return search(provider.name, keyword);
-      })
-      .subscribe(
-        function(data) {
-          afterSearch(null, {provider: provider, data: data});
-        },
-        function(err) {
-          afterSearch(err, {provider: provider});
-        }
-      );
-    });
+    // Check providers
+    if(providers instanceof Array && providers.length > 0) {
 
-    $inputElm.focus();
+      // Iterate providers
+      providers.forEach(function(provider) {
+        observable
+          .flatMapLatest(function(keyword) {
+            // Prepare UI
+            $("#logoMain").detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
+            $("#searchMain").detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
+            $('#searchResults').empty();
+
+            // Exceptions
+            keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword;
+
+            // Search
+            return search(provider.name, keyword);
+          })
+          .subscribe(
+            function(data) {
+              if(data && data instanceof Array) {
+                $('#searchResults').append($('<h3>').text((provider.title || '')));
+                $('#searchResults').append($.map(data, function (v) {
+                  var content  = '<a href="'+v.Link+'" target="_blank">'+v.Title+'</a>';
+                      content += '<p>';
+                      content += (v.Description) ? encodeHtmlEntity(v.Description)+'<br>' : '';
+                      content += (v.Date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.Date)).toISOString()).substr(0, 10)+'</span>' : '';
+                      content += '</p>';
+
+                  return $('<li class="search-results-li">').html(content);
+                }));
+                $('#searchResults').append($('<hr>'));
+              }
+            },
+            function(err) {
+              var e = parseError(err);
+              $('#searchResults').append($('<h3>').text(provider));
+              $('#searchResults').append($('<div class="alert alert-danger" role="alert">').text(e.message));
+            }
+          );
+      });
+    }
+
+    $('#searchInput').focus();
+  }
+
+  // getProviders gets the provider list
+  function getProviders() {
+    return $.ajax({
+      url:      serverUrl+'/providers',
+      dataType: 'jsonp',
+      method:   'GET',
+    }).promise();
   }
 
   // search makes a search by the given provider and keyword
   function search(provider, keyword) {
-    serverUrl = (location.protocol == 'file:') ? 'http://localhost:3030' : serverUrl; // for debug
-
     return $.ajax({
       url:      serverUrl+'/search',
       dataType: 'jsonp',
@@ -91,45 +128,41 @@ var app = function app() {
     }).promise();
   }
 
-  // beforeSearch prepares UI before search event
-  function beforeSearch() {
-    $logoMain.detach().appendTo($logoNavbarHolder).addClass('logo-navbar');
-    $searchMain.detach().appendTo($searchNavbarHolder).addClass('input-group-search-navbar');
-    $resultsElm.empty();
+  // warning shows a warning message
+  function warning(message) {
+    $('#searchAlerts')
+      .html($('<div class="alert alert-warning search-alert" role="alert">')
+        .text(message));
   }
 
-  // afterSearch prepares UI after search event
-  function afterSearch(err, result) {
-    var provider = (result && result.provider && result.provider.title || 'unknown');
+  // critical shows a critical message
+  function critical(message) {
+    $('#searchAlerts')
+      .html($('<div class="alert alert-danger search-alert" role="alert">')
+        .text(message));
+  }
 
-    if(err) {
-      var errMsg = 'unknown error';
-      if(typeof err == 'object') {
-        errMsg = err.statusText || errMsg;
-        if(typeof err.responseJSON == 'object') {
-          errMsg = err.responseJSON.message || err.responseJSON.error || errMsg;
-        }
+  // parseError parses the given error message and returns an object
+  function parseError(err) {
+    var code    = 0,
+        message = 'unknown error';
+
+    if(err && typeof err == 'object') {
+      code    = err.status || code;
+      message = err.statusText || err.message || message;
+      if(typeof err.responseJSON == 'object') {
+        message = err.responseJSON.message || err.responseJSON.error || message;
       }
-      $resultsElm.append($('<h3>').text(provider));
-      $resultsElm.append($('<div class="alert alert-danger" role="alert">').text('search failed due to ' + errMsg));
-      return;
     }
 
-    if(result && typeof result == 'object' && result.data instanceof Array) {
-      $resultsElm.append($('<h3>').text(provider));
-      $resultsElm.append($.map(result.data, function (v) {
-        var content  = '<a href="'+v.Link+'" target="_blank">'+v.Title+'</a>';
-            content += '<p>';
-            content += (v.Description) ? encodeHtmlEntity(v.Description)+'<br>' : '';
-            content += (v.Date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.Date)).toISOString()).substr(0, 10)+'</span>' : '';
-            content += '</p>';
+    return {code: code, message: message}
+  }
 
-        return $('<li class="search-results-li">').html(content);
-      }));
-      $resultsElm.append($('<hr>'));
-    }
-
-    return;
+  // encodeHtmlEntity encodes HTML entity
+  function encodeHtmlEntity(str) {
+    return str.replace(/[\u00A0-\u9999\\<\>\&\'\"\\\/]/gim, function(c){
+      return '&#' + c.charCodeAt(0) + ';' ;
+    });
   }
 
   // Return
