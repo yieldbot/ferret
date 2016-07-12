@@ -102,13 +102,17 @@ func parseProviderList(providerList string, defaults bool) ([]string, error) {
 	}
 
 	// Iterate the provider list and check them
+	var pl []string
 	s := strings.Split(strings.TrimSpace(strings.Trim(providerList, ",")), ",")
 	for _, v := range s {
-		if _, err := search.ProviderByName(v); err != nil {
-			return nil, err
+		if v != "" {
+			if _, err := search.ProviderByName(v); err != nil {
+				return nil, err
+			}
+			pl = append(pl, v)
 		}
 	}
-	return s, nil
+	return pl, nil
 }
 
 // CheckProvider checks whether the given provider is acceptable or not
