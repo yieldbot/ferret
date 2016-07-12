@@ -155,7 +155,7 @@ var app = function app() {
       }
     }
 
-    return {code: code, message: message}
+    return {code: code, message: message};
   }
 
   // encodeHtmlEntity encodes HTML entity
@@ -167,7 +167,9 @@ var app = function app() {
 
   // Return
   return {
-    init: init
+    init: init,
+    warning: warning,
+    critical: critical
   };
 };
 
