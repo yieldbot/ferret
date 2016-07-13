@@ -95,7 +95,7 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 
 	res, err := ctxhttp.Do(ctx, nil, req)
 	if err != nil {
-		return nil, errors.New("failed to fetch data. Error: " + err.Error())
+		return nil, err
 	} else if res.StatusCode < 200 || res.StatusCode > 299 {
 		return nil, errors.New("bad response: " + fmt.Sprintf("%d", res.StatusCode))
 	}
