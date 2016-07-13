@@ -1,5 +1,13 @@
 ## Changelog
 
+### v1.8.0 [2016-07-13]
+
+* Add date info to search results
+* Add FERRET_LISTEN_PROVIDERS environment variable
+* Implement dynamic provider list for UI
+* Refactoring UI
+* Refactoring due to ctxhttp.Do
+
 ### v1.7.0 [2016-07-05]
 
 * Add UI
