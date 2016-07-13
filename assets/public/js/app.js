@@ -95,7 +95,7 @@ var app = function app() {
             },
             function(err) {
               var e = parseError(err);
-              $('#searchResults').append($('<h3>').text(provider));
+              $('#searchResults').append($('<h3>').text((provider.title || '')));
               $('#searchResults').append($('<div class="alert alert-danger" role="alert">').text(e.message));
             }
           );
