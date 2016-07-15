@@ -59,6 +59,9 @@ ferret search trello milestone --page 2
 # Timeout
 ferret search trello milestone --timeout 5000ms
 
+# Limit
+ferret search trello epics --limit 100
+
 # Opening search results
 # Search for 'milestone' keyword on Trello and go to the second search result
 ferret search trello milestone
