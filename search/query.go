@@ -17,6 +17,7 @@ type Query struct {
 	Page       int
 	Goto       int
 	Timeout    time.Duration
+	Limit      int
 	HTTPStatus int
 	Start      time.Time
 	Elapsed    time.Duration

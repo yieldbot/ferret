@@ -157,11 +157,17 @@ func Do(ctx context.Context, query Query) (Query, error) {
 		return query, errors.New("invalid page #. It should be greater than 0")
 	}
 
+	// Limit
+	if query.Limit <= 0 {
+		query.HTTPStatus = http.StatusBadRequest
+		return query, errors.New("invalid limit. It should be greater than 0")
+	}
+
 	// Search
 	query.Start = time.Now()
 	ctx, cancel := context.WithTimeout(ctx, query.Timeout)
 	defer cancel()
-	sq := map[string]interface{}{"page": query.Page, "limit": 10, "keyword": query.Keyword}
+	sq := map[string]interface{}{"page": query.Page, "limit": query.Limit, "keyword": query.Keyword}
 	sr, err := p.Search(ctx, sq)
 	if err != nil {
 		if err == context.DeadlineExceeded {
@@ -269,4 +275,16 @@ func ParseTimeout(timeout string) time.Duration {
 		}
 	}
 	return t
+}
+
+// ParseLimit parses limit from a given string
+func ParseLimit(limit string) int {
+	l := 0
+	if limit != "" {
+		i, err := strconv.Atoi(limit)
+		if err == nil && i > 0 {
+			l = i
+		}
+	}
+	return l
 }

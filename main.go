@@ -58,6 +58,7 @@ func main() {
 			Page:    search.ParsePage(cli.SubCommandArgsMap["page"]),
 			Goto:    search.ParseGoto(cli.SubCommandArgsMap["goto"]),
 			Timeout: search.ParseTimeout(cli.SubCommandArgsMap["timeout"]),
+			Limit:   search.ParseLimit(cli.SubCommandArgsMap["limit"]),
 		}
 		if len(cli.SubCommandArgs) > 0 {
 			q.Provider = cli.SubCommandArgs[0]
