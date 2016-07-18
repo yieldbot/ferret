@@ -123,7 +123,8 @@ var app = function app() {
       data: {
         provider: (''+provider),
         keyword:  (''+keyword),
-        timeout:  '5000ms'
+        timeout:  '5000ms',
+        limit:    10
       }
     }).promise();
   }

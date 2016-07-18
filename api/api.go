@@ -134,6 +134,7 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 		Keyword:  req.URL.Query().Get("keyword"),
 		Page:     search.ParsePage(req.URL.Query().Get("page")),
 		Timeout:  search.ParseTimeout(req.URL.Query().Get("timeout")),
+		Limit:    search.ParsePage(req.URL.Query().Get("limit")),
 	}
 
 	// Check the provider
