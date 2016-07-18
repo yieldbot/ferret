@@ -75,7 +75,15 @@ var app = function app() {
             keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword;
 
             // Search
-            return search(provider.name, keyword);
+            return Rx.Observable.onErrorResumeNext(
+              Rx.Observable.fromPromise(
+                search(provider.name, keyword)
+                  .then(function(data) {
+                      return data;
+                    }, function(err) {
+                      return err;
+                    }
+                  )));
           })
           .subscribe(
             function(data) {
