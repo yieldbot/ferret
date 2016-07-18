@@ -66,10 +66,7 @@ var app = function app() {
       providers.forEach(function(provider) {
         observable
           .flatMapLatest(function(keyword) {
-            // Prepare UI
-            $("#logoMain").detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
-            $("#searchMain").detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
-            $('#searchResults').empty();
+            searchPrepare();
 
             // Exceptions
             keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword;
@@ -81,30 +78,16 @@ var app = function app() {
                   .then(function(data) {
                       return data;
                     }, function(err) {
-                      return err;
+                      searchError(err, provider);
                     }
                   )));
           })
           .subscribe(
             function(data) {
-              if(data && data instanceof Array) {
-                $('#searchResults').append($('<h3>').text((provider.title || '')));
-                $('#searchResults').append($.map(data, function (v) {
-                  var content  = '<a href="'+v.link+'" target="_blank">'+v.title+'</a>';
-                      content += '<p>';
-                      content += (v.description) ? encodeHtmlEntity(v.description)+'<br>' : '';
-                      content += (v.date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.date)).toISOString()).substr(0, 10)+'</span>' : '';
-                      content += '</p>';
-
-                  return $('<li class="search-results-li">').html(content);
-                }));
-                $('#searchResults').append($('<hr>'));
-              }
+              searchResults(data, provider);
             },
             function(err) {
-              var e = parseError(err);
-              $('#searchResults').append($('<h3>').text((provider.title || '')));
-              $('#searchResults').append($('<div class="alert alert-danger" role="alert">').text(e.message));
+              searchError(err, provider);
             }
           );
       });
@@ -135,6 +118,42 @@ var app = function app() {
         limit:    10
       }
     }).promise();
+  }
+
+  // searchPrepare prepares UI for search
+  function searchPrepare() {
+    // Prepare UI
+    $("#logoMain").detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
+    $("#searchMain").detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
+    $('#searchResults').empty();
+  }
+
+  // searchResults renders search results
+  function searchResults(data, provider) {
+    if(data && data instanceof Array) {
+      if(provider && typeof provider === 'object') {
+        $('#searchResults').append($('<h3>').text((provider.title || '')));
+      }
+      $('#searchResults').append($.map(data, function (v) {
+        var content  = '<a href="'+v.link+'" target="_blank">'+v.title+'</a>';
+            content += '<p>';
+            content += (v.description) ? encodeHtmlEntity(v.description)+'<br>' : '';
+            content += (v.date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.date)).toISOString()).substr(0, 10)+'</span>' : '';
+            content += '</p>';
+
+        return $('<li class="search-results-li">').html(content);
+      }));
+      $('#searchResults').append($('<hr>'));
+    }
+  }
+
+  // searchError shows a search error
+  function searchError(err, provider) {
+    var e = parseError(err);
+    if(provider && typeof provider === 'object') {
+      $('#searchResults').append($('<h3>').text((provider.title || '')));
+    }
+    $('#searchResults').append($('<div class="alert alert-danger" role="alert">').text(e.message));
   }
 
   // warning shows a warning message
