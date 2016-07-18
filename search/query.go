@@ -26,10 +26,11 @@ type Query struct {
 
 // Result represents a search result
 type Result struct {
-	Link        string
-	Title       string
-	Description string
-	Date        time.Time
+	Link        string    `json:"link"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Date        time.Time `json:"date"`
+	From        string    `json:"from"`
 }
 
 // Results represents a list of search results

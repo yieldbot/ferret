@@ -197,6 +197,7 @@ func Do(ctx context.Context, query Query) (Query, error) {
 			Title:       srv["Title"].(string),
 			Description: d,
 			Date:        t,
+			From:        p.Title,
 		})
 	}
 
