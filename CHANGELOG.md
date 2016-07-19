@@ -1,5 +1,10 @@
 ## Changelog
 
+### v1.9.0 [2016-07-19]
+
+* Add limit option for search results
+* Misc. UI improvements
+
 ### v1.8.0 [2016-07-13]
 
 * Add date info to search results
