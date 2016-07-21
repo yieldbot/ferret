@@ -1,5 +1,10 @@
 ## Changelog
 
+### v2.0.0 [2016-07-21]
+
+* Add FERRET_LISTEN_PATHPREFIX
+* Replace FERRET_LISTEN_PORT with FERRET_LISTEN_ADDRESS
+
 ### v1.9.0 [2016-07-19]
 
 * Add limit option for search results
