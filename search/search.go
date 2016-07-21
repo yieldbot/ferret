@@ -280,7 +280,7 @@ func ParseTimeout(timeout string) time.Duration {
 
 // ParseLimit parses limit from a given string
 func ParseLimit(limit string) int {
-	l := 0
+	l := 10
 	if limit != "" {
 		i, err := strconv.Atoi(limit)
 		if err == nil && i > 0 {
