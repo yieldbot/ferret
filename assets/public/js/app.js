@@ -18,6 +18,7 @@ var app = function app() {
   // Init vars
   var serverUrl = location.protocol + '//' + location.hostname + ':' + location.port;
   serverUrl = (location.protocol == 'file:') ? 'http://localhost:3030' : serverUrl; // for debug
+  var appPath = location.pathname || '/';
 
   // init initializes the app
   function init() {
@@ -99,7 +100,7 @@ var app = function app() {
   // getProviders gets the provider list
   function getProviders() {
     return $.ajax({
-      url:      serverUrl+'/providers',
+      url:      serverUrl+appPath+'providers',
       dataType: 'jsonp',
       method:   'GET',
     }).promise();
@@ -108,7 +109,7 @@ var app = function app() {
   // search makes a search by the given provider and keyword
   function search(provider, keyword) {
     return $.ajax({
-      url:      serverUrl+'/search',
+      url:      serverUrl+appPath+'search',
       dataType: 'jsonp',
       method:   'GET',
       data: {

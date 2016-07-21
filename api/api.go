@@ -27,8 +27,9 @@ var (
 
 // Options represents options
 type Options struct {
-	listenAddr    string
-	providersList string
+	listenAddr       string
+	listenPathPrefix string
+	providersList    string
 }
 
 // httpError represents an HTTP error
@@ -52,6 +53,9 @@ func init() {
 	}
 	if e := os.Getenv("FERRET_LISTEN_ADDRESS"); e != "" {
 		options.listenAddr = e
+	}
+	if e := os.Getenv("FERRET_LISTEN_PATHPREFIX"); e != "" {
+		options.listenPathPrefix = e
 	}
 	if e := os.Getenv("FERRET_LISTEN_PROVIDERS"); e != "" {
 		options.providersList = e
@@ -77,9 +81,10 @@ func init() {
 // Listen initializes HTTP handlers and listens for the requests
 func Listen() {
 	// Init handlers
-	http.Handle("/", assets.PublicHandler())
-	http.HandleFunc("/search", SearchHandler)
-	http.HandleFunc("/providers", ProvidersHandler)
+	lpp := strings.TrimRight(options.listenPathPrefix, "/")
+	http.Handle("/", http.StripPrefix(options.listenPathPrefix, assets.PublicHandler()))
+	http.HandleFunc(fmt.Sprintf("%s/search", lpp), SearchHandler)
+	http.HandleFunc(fmt.Sprintf("%s/providers", lpp), ProvidersHandler)
 
 	// Listen
 	log.Printf("listening on %s", options.listenAddr)

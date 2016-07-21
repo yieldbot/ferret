@@ -147,6 +147,8 @@ export FERRET_SEARCH_TIMEOUT=5000ms
 # HTTP address for the UI and the REST API
 # Default is :3030
 export FERRET_LISTEN_ADDRESS=:3030
+# A URL path prefix for the UI
+FERRET_LISTEN_PATHPREFIX=
 # A comma separated list of providers
 # Default value is automatically determined from the ENV variables
 export FERRET_LISTEN_PROVIDERS=
