@@ -27,7 +27,7 @@ var (
 
 // Options represents options
 type Options struct {
-	listenPort    string
+	listenAddr    string
 	providersList string
 }
 
@@ -48,10 +48,10 @@ func init() {
 
 	// Options
 	options = Options{
-		listenPort: "3030",
+		listenAddr: ":3030",
 	}
-	if e := os.Getenv("FERRET_LISTEN_PORT"); e != "" {
-		options.listenPort = e
+	if e := os.Getenv("FERRET_LISTEN_ADDRESS"); e != "" {
+		options.listenAddr = e
 	}
 	if e := os.Getenv("FERRET_LISTEN_PROVIDERS"); e != "" {
 		options.providersList = e
@@ -82,8 +82,8 @@ func Listen() {
 	http.HandleFunc("/providers", ProvidersHandler)
 
 	// Listen
-	log.Printf("listening on %s", options.listenPort)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", options.listenPort), nil); err != nil {
+	log.Printf("listening on %s", options.listenAddr)
+	if err := http.ListenAndServe(options.listenAddr, nil); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -144,9 +144,9 @@ export FERRET_GOTO_CMD=open
 # Default is `5000ms`
 export FERRET_SEARCH_TIMEOUT=5000ms
 
-# HTTP port for UI and the REST API
-# Default is 3030
-export FERRET_LISTEN_PORT=3030
+# HTTP address for the UI and the REST API
+# Default is :3030
+export FERRET_LISTEN_ADDRESS=:3030
 # A comma separated list of providers
 # Default value is automatically determined from the ENV variables
 export FERRET_LISTEN_PROVIDERS=
