@@ -17,8 +17,13 @@ var app = function app() {
 
   // Init vars
   var serverUrl = location.protocol + '//' + location.hostname + ':' + location.port;
-  serverUrl = (location.protocol == 'file:') ? 'http://localhost:3030' : serverUrl; // for debug
   var appPath = location.pathname || '/';
+
+  // for debugging
+  if(location.protocol == 'file:') {
+    serverUrl = 'http://localhost:3030';
+    appPath = '/';
+  }
 
   // init initializes the app
   function init() {
