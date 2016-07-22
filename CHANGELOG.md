@@ -1,5 +1,10 @@
 ## Changelog
 
+### v2.0.1 [2016-07-22]
+
+* Add priority sort to UI
+* Add priority for providers
+
 ### v2.0.0 [2016-07-21]
 
 * Add FERRET_LISTEN_PATHPREFIX
