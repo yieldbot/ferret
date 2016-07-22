@@ -150,7 +150,7 @@ var app = function app() {
 
         // Iterate results
         $('#searchResults').append($.map(data, function (v) {
-          content += '<li class="search-results-li">'
+          content += '<li class="search-results-li">';
           content += '<a href="'+v.link+'" target="_blank">'+v.title+'</a>';
           content += '<p>';
           content += (v.description) ? encodeHtmlEntity(v.description)+'<br>' : '';
@@ -162,11 +162,9 @@ var app = function app() {
       }
       var pp = provider.priority || 0;
       $('#searchResults').append($('<div data-type="search-result" data-priority="' + pp + '">').html(content));
-
-      var sortedDivs =  $('div[data-type="search-result"]').sort(function(a, b) {
+      $("#searchResults").html($('div[data-type="search-result"]').sort(function(a, b) {
         return $(b).attr('data-priority') - $(a).attr('data-priority');
-      });
-      $("#searchResults").html(sortedDivs);
+      }));
     }
   }
 
