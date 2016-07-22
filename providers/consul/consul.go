@@ -23,20 +23,22 @@ import (
 
 // Provider represents the provider
 type Provider struct {
-	enabled bool
-	name    string
-	title   string
-	url     string
-	noui    bool
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	noui     bool
+	url      string
 }
 
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
 	var p = Provider{
-		name:  "consul",
-		title: "Consul",
-		url:   strings.TrimSuffix(os.Getenv("FERRET_CONSUL_URL"), "/"),
-		noui:  true,
+		name:     "consul",
+		title:    "Consul",
+		priority: 0,
+		noui:     true,
+		url:      strings.TrimSuffix(os.Getenv("FERRET_CONSUL_URL"), "/"),
 	}
 	if p.url != "" {
 		p.enabled = true

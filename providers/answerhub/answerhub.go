@@ -27,6 +27,7 @@ type Provider struct {
 	enabled  bool
 	name     string
 	title    string
+	priority int64
 	url      string
 	username string
 	password string
@@ -37,6 +38,7 @@ func Register(f func(provider interface{}) error) {
 	var p = Provider{
 		name:     "answerhub",
 		title:    "AnswerHub",
+		priority: 1000,
 		url:      strings.TrimSuffix(os.Getenv("FERRET_ANSWERHUB_URL"), "/"),
 		username: os.Getenv("FERRET_ANSWERHUB_USERNAME"),
 		password: os.Getenv("FERRET_ANSWERHUB_PASSWORD"),

@@ -41,8 +41,9 @@ type httpError struct {
 
 // provider represents a provider
 type provider struct {
-	Name  string `json:"name"`
-	Title string `json:"title"`
+	Name     string `json:"name"`
+	Title    string `json:"title"`
+	Priority int64  `json:"priority"`
 }
 
 func init() {
@@ -72,8 +73,9 @@ func init() {
 			log.Fatal(err)
 		}
 		providers = append(providers, provider{
-			Name:  p.Name,
-			Title: p.Title,
+			Name:     p.Name,
+			Title:    p.Title,
+			Priority: p.Priority,
 		})
 	}
 }
