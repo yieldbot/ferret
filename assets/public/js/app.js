@@ -16,8 +16,9 @@ var app = function app() {
   }
 
   // Init vars
-  var serverUrl = location.protocol + '//' + location.hostname + ':' + location.port;
-  var appPath = location.pathname || '/';
+  var serverUrl    = location.protocol + '//' + location.hostname + ':' + location.port,
+      appPath      = location.pathname || '/',
+      providerList = [];
 
   // for debugging
   if(location.protocol == 'file:') {
@@ -31,8 +32,12 @@ var app = function app() {
     getProviders().then(
       function(data) {
         if(data && data instanceof Array && data.length > 0) {
+          // Sort the list
+          providerList = data.sort(function(a, b) {
+            return b.priority - a.priority;
+          });
           // Listen for search requests
-          listen(data);
+          listen(providerList);
         } else {
           critical("There is no any available provider to search");
         }
@@ -137,19 +142,31 @@ var app = function app() {
   // searchResults renders search results
   function searchResults(data, provider) {
     if(data && data instanceof Array) {
-      if(provider && typeof provider === 'object') {
-        $('#searchResults').append($('<h3>').text((provider.title || '')));
-      }
-      $('#searchResults').append($.map(data, function (v) {
-        var content  = '<a href="'+v.link+'" target="_blank">'+v.title+'</a>';
-            content += '<p>';
-            content += (v.description) ? encodeHtmlEntity(v.description)+'<br>' : '';
-            content += (v.date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.date)).toISOString()).substr(0, 10)+'</span>' : '';
-            content += '</p>';
 
-        return $('<li class="search-results-li">').html(content);
-      }));
-      $('#searchResults').append($('<hr>'));
+      // Prepare result content
+      var content = '';
+      if(provider && typeof provider === 'object') {
+        content += '<h3>' + provider.title + '</h3>';
+
+        // Iterate results
+        $('#searchResults').append($.map(data, function (v) {
+          content += '<li class="search-results-li">'
+          content += '<a href="'+v.link+'" target="_blank">'+v.title+'</a>';
+          content += '<p>';
+          content += (v.description) ? encodeHtmlEntity(v.description)+'<br>' : '';
+          content += (v.date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.date)).toISOString()).substr(0, 10)+'</span>' : '';
+          content += '</p>';
+          content += '</li>';
+        }));
+        content += '<hr>';
+      }
+      var pp = provider.priority || 0;
+      $('#searchResults').append($('<div data-type="search-result" data-priority="' + pp + '">').html(content));
+
+      var sortedDivs =  $('div[data-type="search-result"]').sort(function(a, b) {
+        return $(b).attr('data-priority') - $(a).attr('data-priority');
+      });
+      $("#searchResults").html(sortedDivs);
     }
   }
 
@@ -157,7 +174,7 @@ var app = function app() {
   function searchError(err, provider) {
     var e = parseError(err);
     if(provider && typeof provider === 'object') {
-      $('#searchResults').append($('<h3>').text((provider.title || '')));
+      $('#searchResults').append($('<h3>').text(provider.title));
     }
     $('#searchResults').append($('<div class="alert alert-danger" role="alert">').text(e.message));
   }
