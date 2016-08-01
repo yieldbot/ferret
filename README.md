@@ -23,8 +23,6 @@ accessing to information with minimal effort.
 ### Usage
 
 Make sure Ferret is [configured](#configuration) properly before use it.
-Also put `ferret` binary file to a path (i.e. `/usr/local/bin`) that can be
-accessible from anywhere in the command line.
 
 #### Help
 
@@ -90,10 +88,7 @@ curl 'http://localhost:3030/search?provider=answerhub&keyword=intent&page=1&time
 
 ### Configuration
 
-Add the following environment variable definitions in `~/.bash_profile`
-(OSX and Linux) file. Replace `export` command with `set` for Windows.
-
-#### Configurations for Providers
+#### Environment Variables for Providers
 
 Each search provider needs set of environment variables for operating. You can 
 define environment variables for one or more search provider.
@@ -133,7 +128,7 @@ export FERRET_ANSWERHUB_PASSWORD=
 export FERRET_CONSUL_URL=http://consul.service.consul
 ```
 
-#### Global Configuration
+#### Environment Variables for Global Configuration
 
 ```bash
 # The command is used by `--goto` argument for opening links.
