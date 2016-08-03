@@ -71,7 +71,6 @@ func Register(provider interface{}) error {
 		return errors.New("invalid provider")
 	}
 
-	// Determine the provider info
 	var name, title string
 	var enabled, noui bool
 	var priority int64
