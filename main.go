@@ -52,7 +52,7 @@ func main() {
 		cli.PrintVersion(versionExtFlag)
 	} else if cli.SubCommand == "search" {
 		// Search
-		var q = search.Query{
+		q := search.Query{
 			Page:    search.ParsePage(cli.SubCommandArgsMap["page"]),
 			Goto:    search.ParseGoto(cli.SubCommandArgsMap["goto"]),
 			Timeout: search.ParseTimeout(cli.SubCommandArgsMap["timeout"]),
