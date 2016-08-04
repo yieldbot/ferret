@@ -75,22 +75,17 @@ func Register(provider interface{}) error {
 	for i := 0; i < v.NumField(); i++ {
 		fn := v.Type().Field(i).Name
 		ft := v.Field(i).Type().Name()
-		if ft == "string" {
-			if fn == "name" {
-				name = v.Field(i).String()
-			} else if fn == "title" {
-				title = v.Field(i).String()
-			}
-		} else if ft == "bool" {
-			if fn == "enabled" {
-				enabled = v.Field(i).Bool()
-			} else if fn == "noui" {
-				noui = v.Field(i).Bool()
-			}
-		} else if ft == "int64" {
-			if fn == "priority" {
-				priority = v.Field(i).Int()
-			}
+
+		if fn == "name" && ft == "string" {
+			name = v.Field(i).String()
+		} else if fn == "title" && ft == "string" {
+			title = v.Field(i).String()
+		} else if fn == "enabled" && ft == "bool" {
+			enabled = v.Field(i).Bool()
+		} else if fn == "noui" && ft == "bool" {
+			noui = v.Field(i).Bool()
+		} else if fn == "priority" && ft == "int64" {
+			priority = v.Field(i).Int()
 		}
 	}
 	if name == "" {
