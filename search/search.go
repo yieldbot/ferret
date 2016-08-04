@@ -30,7 +30,6 @@ var (
 )
 
 func init() {
-
 	if e := os.Getenv("FERRET_GOTO_CMD"); e != "" {
 		goCommand = e
 	}
