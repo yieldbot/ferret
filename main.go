@@ -47,7 +47,6 @@ func main() {
 		},
 	}
 	cli.Init()
-	search.Logger = cli.LogErr
 
 	if versionFlag || versionExtFlag {
 		// Version

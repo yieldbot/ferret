@@ -10,7 +10,6 @@ package search
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -25,16 +24,12 @@ import (
 )
 
 var (
-	// Logger is the logger
-	Logger *log.Logger
-
 	goCommand     = "open"
 	searchTimeout = "5000ms"
 	providers     = make(map[string]Provider)
 )
 
 func init() {
-	Logger = log.New(os.Stderr, "", log.LstdFlags)
 
 	if e := os.Getenv("FERRET_GOTO_CMD"); e != "" {
 		goCommand = e
@@ -226,7 +221,8 @@ func Do(ctx context.Context, query Query) (Query, error) {
 // PrintResults prints the given search results
 func PrintResults(query Query, err error) {
 	if err != nil {
-		Logger.Fatal(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	if query.Goto == 0 {
