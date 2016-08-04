@@ -14,7 +14,6 @@ import (
 	_ "github.com/yieldbot/ferret/providers"
 	"github.com/yieldbot/ferret/search"
 	"github.com/yieldbot/gocli"
-	"golang.org/x/net/context"
 )
 
 func init() {
@@ -65,7 +64,7 @@ func main() {
 				q.Keyword = cli.SubCommandArgs[1]
 			}
 		}
-		search.PrintResults(search.Do(context.Background(), q))
+		search.PrintResults(search.Do(q))
 	} else if cli.SubCommand == "listen" {
 		// Listen
 		api.Listen()

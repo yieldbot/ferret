@@ -138,7 +138,7 @@ func ProviderByName(name string) (Provider, error) {
 }
 
 // Do makes a search query by the given context and query
-func Do(ctx context.Context, query Query) (Query, error) {
+func Do(query Query) (Query, error) {
 
 	// Provider
 	p, ok := providers[query.Provider]
@@ -167,7 +167,7 @@ func Do(ctx context.Context, query Query) (Query, error) {
 
 	// Search
 	query.Start = time.Now()
-	ctx, cancel := context.WithTimeout(ctx, query.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), query.Timeout)
 	defer cancel()
 	sq := map[string]interface{}{"page": query.Page, "limit": query.Limit, "keyword": query.Keyword}
 	sr, err := p.Search(ctx, sq)

@@ -17,7 +17,6 @@ import (
 
 	"github.com/yieldbot/ferret/assets"
 	"github.com/yieldbot/ferret/search"
-	"golang.org/x/net/context"
 )
 
 var (
@@ -156,7 +155,7 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	q, err := search.Do(context.Background(), q)
+	q, err := search.Do(q)
 	if err != nil {
 		w.WriteHeader(q.HTTPStatus)
 		data, _ := json.Marshal(httpError{
