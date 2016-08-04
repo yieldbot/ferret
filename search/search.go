@@ -95,7 +95,7 @@ func Register(provider interface{}) error {
 		title = name
 	}
 
-	// Check and init the provider
+	// Init provider
 	if _, ok := providers[name]; ok {
 		return errors.New("search provider " + name + " is already registered")
 	}
