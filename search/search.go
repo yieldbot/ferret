@@ -135,7 +135,7 @@ func ProviderByName(name string) (Provider, error) {
 func Do(query Query) (Query, error) {
 
 	// Provider
-	p, ok := providers[query.Provider]
+	provider, ok := providers[query.Provider]
 	if !ok {
 		query.HTTPStatus = http.StatusBadRequest
 		return query, fmt.Errorf("invalid search provider. Possible search providers are %s", Providers())
@@ -164,7 +164,7 @@ func Do(query Query) (Query, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), query.Timeout)
 	defer cancel()
 	sq := map[string]interface{}{"page": query.Page, "limit": query.Limit, "keyword": query.Keyword}
-	sr, err := p.Search(ctx, sq)
+	sr, err := provider.Search(ctx, sq)
 	if err != nil {
 		if err == context.DeadlineExceeded {
 			query.HTTPStatus = http.StatusGatewayTimeout
@@ -193,7 +193,7 @@ func Do(query Query) (Query, error) {
 			Title:       srv["Title"].(string),
 			Description: d,
 			Date:        t,
-			From:        p.Title,
+			From:        provider.Title,
 		})
 	}
 
