@@ -14,13 +14,13 @@ import (
 type Query struct {
 	Provider   string
 	Keyword    string
+	Limit      int
 	Page       int
 	Goto       int
 	Timeout    time.Duration
-	Limit      int
-	HTTPStatus int
 	Start      time.Time
 	Elapsed    time.Duration
+	HTTPStatus int
 	Results    Results
 }
 
