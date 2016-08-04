@@ -114,12 +114,12 @@ func Register(provider interface{}) error {
 
 // Providers returns a sorted list of the names of the providers
 func Providers() []string {
-	var list = []string{}
-	for name := range providers {
-		list = append(list, name)
+	l := []string{}
+	for n := range providers {
+		l = append(l, n)
 	}
-	sort.Strings(list)
-	return list
+	sort.Strings(l)
+	return l
 }
 
 // ProviderByName gets a provider by the given name
