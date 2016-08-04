@@ -131,7 +131,7 @@ func ProviderByName(name string) (Provider, error) {
 	return p, nil
 }
 
-// Do makes a search query by the given context and query
+// Do makes a search query by the given query
 func Do(query Query) (Query, error) {
 
 	// Provider
