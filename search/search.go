@@ -47,11 +47,30 @@ type Provider struct {
 	Enabled  bool
 	Noui     bool
 	Priority int64
-	Searcher
+	Doer
 }
 
-// Searcher is the interface that must be implemented by a search provider
-type Searcher interface {
+// Providers returns a sorted list of the names of the providers
+func Providers() []string {
+	l := []string{}
+	for n := range providers {
+		l = append(l, n)
+	}
+	sort.Strings(l)
+	return l
+}
+
+// ProviderByName returns a provider by the given name
+func ProviderByName(name string) (Provider, error) {
+	p, ok := providers[name]
+	if !ok {
+		return p, errors.New("provider " + name + " couldn't be found")
+	}
+	return p, nil
+}
+
+// Doer is the interface that must be implemented by a search provider
+type Doer interface {
 	// Search makes a search
 	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
 }
@@ -60,7 +79,7 @@ type Searcher interface {
 func Register(provider interface{}) error {
 
 	// Init provider
-	p, ok := provider.(Searcher)
+	p, ok := provider.(Doer)
 	if !ok {
 		return errors.New("invalid provider")
 	}
@@ -105,30 +124,11 @@ func Register(provider interface{}) error {
 		Enabled:  enabled,
 		Noui:     noui,
 		Priority: priority,
-		Searcher: p,
+		Doer:     p,
 	}
 	providers[name] = np
 
 	return nil
-}
-
-// Providers returns a sorted list of the names of the providers
-func Providers() []string {
-	l := []string{}
-	for n := range providers {
-		l = append(l, n)
-	}
-	sort.Strings(l)
-	return l
-}
-
-// ProviderByName gets a provider by the given name
-func ProviderByName(name string) (Provider, error) {
-	p, ok := providers[name]
-	if !ok {
-		return p, errors.New("provider " + name + " couldn't be found")
-	}
-	return p, nil
 }
 
 // Do makes a search query by the given query
