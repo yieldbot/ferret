@@ -11,7 +11,6 @@ import (
 	"flag"
 
 	"github.com/yieldbot/ferret/api"
-	_ "github.com/yieldbot/ferret/providers"
 	"github.com/yieldbot/ferret/search"
 	"github.com/yieldbot/gocli"
 )
