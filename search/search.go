@@ -37,7 +37,7 @@ func init() {
 		searchTimeout = e
 	}
 
-	prov.Register(Register)
+	prov.Register(ProviderRegister)
 }
 
 // Provider represents a provider
@@ -69,14 +69,8 @@ func ProviderByName(name string) (Provider, error) {
 	return p, nil
 }
 
-// Doer is the interface that must be implemented by a search provider
-type Doer interface {
-	// Search makes a search
-	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
-}
-
-// Register registers a search provider
-func Register(provider interface{}) error {
+// ProviderRegister registers a search provider
+func ProviderRegister(provider interface{}) error {
 
 	// Init provider
 	p, ok := provider.(Doer)
@@ -129,6 +123,12 @@ func Register(provider interface{}) error {
 	providers[name] = np
 
 	return nil
+}
+
+// Doer is the interface that must be implemented by a search provider
+type Doer interface {
+	// Search makes a search
+	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
 }
 
 // Do makes a search query by the given query
