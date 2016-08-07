@@ -49,7 +49,7 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represent the structure of the search result
+// SearchResult represents the structure of the search result
 type SearchResult map[string][]string
 
 // Search makes a search

@@ -51,21 +51,21 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represent the structure of the search result
+// SearchResult represents the structure of the search result
 type SearchResult struct {
 	Ok       bool        `json:"ok"`
 	Query    string      `json:"query"`
 	Messages *SRMessages `json:"messages"`
 }
 
-// SRMessages represent the structure of the search result messages
+// SRMessages represents the structure of the search result messages
 type SRMessages struct {
 	Total   int           `json:"total"`
 	Path    string        `json:"path"`
 	Matches []*SRMMatches `json:"matches"`
 }
 
-// SRMMatches represent the structure of the search result messages matches
+// SRMMatches represents the structure of the search result messages matches
 type SRMMatches struct {
 	Type      string       `json:"type"`
 	Username  string       `json:"username"`
@@ -75,7 +75,7 @@ type SRMMatches struct {
 	Channel   *SRMMChannel `json:"channel"`
 }
 
-// SRMMChannel represent the structure of the search result messages matches channel field
+// SRMMChannel represents the structure of the search result messages matches channel field
 type SRMMChannel struct {
 	Name string `json:"name"`
 }

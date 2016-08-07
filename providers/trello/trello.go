@@ -52,12 +52,12 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represent the structure of the search result
+// SearchResult represents the structure of the search result
 type SearchResult struct {
 	Cards []*SRCards `json:"cards"`
 }
 
-// SRCards represent the structure of the search result list
+// SRCards represents the structure of the search result list
 type SRCards struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`

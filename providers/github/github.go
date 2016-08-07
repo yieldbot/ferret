@@ -51,14 +51,14 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represent the structure of the search result
+// SearchResult represents the structure of the search result
 type SearchResult struct {
 	TotalCount        int        `json:"total_count"`
 	IncompleteResults bool       `json:"incomplete_results"`
 	Items             []*SRItems `json:"items"`
 }
 
-// SRItems represent the structure of the search result items
+// SRItems represents the structure of the search result items
 type SRItems struct {
 	Name        string         `json:"name"`
 	Path        string         `json:"path"`
@@ -67,13 +67,13 @@ type SRItems struct {
 	TextMatches []*SRITMatches `json:"text_matches"`
 }
 
-// SRIRepository represent the structure of the search result items repository
+// SRIRepository represents the structure of the search result items repository
 type SRIRepository struct {
 	Fullname    string `json:"full_name"`
 	Description string `json:"description"`
 }
 
-// SRITMatches represent the structure of the search result items text matches field
+// SRITMatches represents the structure of the search result items text matches field
 type SRITMatches struct {
 	Fragment string `json:"fragment"`
 }
