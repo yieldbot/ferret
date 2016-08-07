@@ -159,7 +159,7 @@ func (provider *Provider) datacenter() ([]string, error) {
 
 	// Parse and prepare the result
 	var result []string
-	if err = json.Unmarshal(data, &result); err != nil {
+	if err := json.Unmarshal(data, &result); err != nil {
 		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 	}
 

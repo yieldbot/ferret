@@ -117,7 +117,7 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 		return nil, err
 	}
 	var sr SearchResult
-	if err = json.Unmarshal(data, &sr); err != nil {
+	if err := json.Unmarshal(data, &sr); err != nil {
 		return nil, errors.New("failed to unmarshal JSON data. Error: " + err.Error())
 	}
 	for _, v := range sr.Items {
