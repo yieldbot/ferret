@@ -47,7 +47,7 @@ type Provider struct {
 	Enabled  bool
 	Noui     bool
 	Priority int64
-	Doer
+	Searcher
 }
 
 // Providers returns a sorted list of the names of the providers
@@ -73,7 +73,7 @@ func ProviderByName(name string) (Provider, error) {
 func ProviderRegister(provider interface{}) error {
 
 	// Init provider
-	p, ok := provider.(Doer)
+	p, ok := provider.(Searcher)
 	if !ok {
 		return errors.New("invalid provider")
 	}
@@ -118,15 +118,15 @@ func ProviderRegister(provider interface{}) error {
 		Enabled:  enabled,
 		Noui:     noui,
 		Priority: priority,
-		Doer:     p,
+		Searcher: p,
 	}
 	providers[name] = np
 
 	return nil
 }
 
-// Doer is the interface that must be implemented by a search provider
-type Doer interface {
+// Searcher is the interface that must be implemented by a search provider
+type Searcher interface {
 	// Search makes a search
 	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
 }
