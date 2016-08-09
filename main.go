@@ -25,7 +25,7 @@ func init() {
 
 var (
 	version        = "latest"
-	gitCommit      = ""
+	commit         = ""
 	cli            gocli.Cli
 	usageFlag      bool
 	versionFlag    bool

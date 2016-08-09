@@ -2,7 +2,7 @@
 
 set -ex
 
-GO_LDFLAGS="-X main.version=`git describe --tags --exact-match || git rev-parse --short HEAD` -X main.gitCommit=`git rev-parse --short HEAD`"
+GO_LDFLAGS="-X main.version=`git describe --tags --exact-match || git rev-parse --short HEAD` -X main.commit=`git rev-parse --short HEAD`"
 BIN_NAME=$(basename `pwd`)
 PLATFORMS="darwin linux windows"
 rm -rf releases/ && mkdir releases
