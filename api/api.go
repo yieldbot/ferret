@@ -155,8 +155,7 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	q, err := search.Do(q)
-	if err != nil {
+	if err := q.Do(); err != nil {
 		w.WriteHeader(q.HTTPStatus)
 		data, _ := json.Marshal(httpError{
 			StatusCode: q.HTTPStatus,
@@ -170,6 +169,7 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 	// Prepare data
 	var data []byte
 	if len(q.Results) > 0 {
+		var err error
 		if req.URL.Query().Get("output") == "pretty" {
 			data, err = json.MarshalIndent(q.Results, "", "  ")
 		} else {

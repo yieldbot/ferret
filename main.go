@@ -63,7 +63,7 @@ func main() {
 				q.Keyword = cli.SubCommandArgs[1]
 			}
 		}
-		search.PrintResults(search.Do(q))
+		q.DoPrint(q.Do())
 	} else if cli.SubCommand == "listen" {
 		// Listen
 		api.Listen()

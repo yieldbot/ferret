@@ -131,32 +131,32 @@ type Searcher interface {
 	Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error)
 }
 
-// Do makes a search query by the given query
-func Do(query Query) (Query, error) {
+// Do runs the search query
+func (query *Query) Do() error {
 
 	// Provider
 	provider, ok := providers[query.Provider]
 	if !ok {
 		query.HTTPStatus = http.StatusBadRequest
-		return query, fmt.Errorf("invalid search provider. Possible search providers are %s", Providers())
+		return fmt.Errorf("invalid search provider. Possible search providers are %s", Providers())
 	}
 
 	// Keyword
 	if query.Keyword == "" {
 		query.HTTPStatus = http.StatusBadRequest
-		return query, errors.New("missing keyword")
+		return errors.New("missing keyword")
 	}
 
 	// Page
 	if query.Page <= 0 {
 		query.HTTPStatus = http.StatusBadRequest
-		return query, errors.New("invalid page #. It should be greater than 0")
+		return errors.New("invalid page #. It should be greater than 0")
 	}
 
 	// Limit
 	if query.Limit <= 0 {
 		query.HTTPStatus = http.StatusBadRequest
-		return query, errors.New("invalid limit. It should be greater than 0")
+		return errors.New("invalid limit. It should be greater than 0")
 	}
 
 	// Search
@@ -168,13 +168,13 @@ func Do(query Query) (Query, error) {
 	if err != nil {
 		if err == context.DeadlineExceeded {
 			query.HTTPStatus = http.StatusGatewayTimeout
-			return query, errors.New("timeout")
+			return errors.New("timeout")
 		} else if err == context.Canceled {
 			query.HTTPStatus = http.StatusInternalServerError
-			return query, errors.New("canceled")
+			return errors.New("canceled")
 		}
 		query.HTTPStatus = http.StatusInternalServerError
-		return query, errors.New("failed to search due to " + err.Error())
+		return errors.New("failed to search due to " + err.Error())
 	}
 	query.Elapsed = time.Since(query.Start)
 	for _, srv := range sr {
@@ -200,20 +200,20 @@ func Do(query Query) (Query, error) {
 	// Goto
 	if query.Goto != 0 {
 		if query.Goto < 0 || query.Goto > len(query.Results) {
-			return query, fmt.Errorf("invalid result # to go. It should be between 1 and %d", len(query.Results))
+			return fmt.Errorf("invalid result # to go. It should be between 1 and %d", len(query.Results))
 		}
 		link := query.Results[query.Goto-1].Link
 		if _, err = exec.Command(goCommand, link).Output(); err != nil {
-			return query, fmt.Errorf("failed to go to %s due to %s. Check FERRET_GOTO_CMD environment variable", link, err.Error())
+			return fmt.Errorf("failed to go to %s due to %s. Check FERRET_GOTO_CMD environment variable", link, err.Error())
 		}
-		return query, nil
+		return nil
 	}
 
-	return query, nil
+	return nil
 }
 
-// PrintResults prints the given search results
-func PrintResults(query Query, err error) {
+// DoPrint handles terminal output for Do function
+func (query *Query) DoPrint(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
