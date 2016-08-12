@@ -22,17 +22,6 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
-// Provider represents the provider
-type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	url      string
-	username string
-	password string
-}
-
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
 	var p = Provider{
@@ -52,24 +41,15 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represents the structure of the search result
-type SearchResult struct {
-	List []*SRList `json:"list"`
-}
-
-// SRList represents the structure of the search result list
-type SRList struct {
-	ID           int        `json:"id"`
-	Title        string     `json:"title"`
-	Body         string     `json:"body"`
-	Author       *SRLAuthor `json:"author"`
-	CreationDate int64      `json:"creationDate"`
-}
-
-// SRLAuthor represents the structure of the search result list author field
-type SRLAuthor struct {
-	Username string `json:"username"`
-	Realname string `json:"realname"`
+// Provider represents the provider
+type Provider struct {
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	url      string
+	username string
+	password string
 }
 
 // Search makes a search
@@ -131,4 +111,24 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
+}
+
+// SearchResult represents the structure of the search result
+type SearchResult struct {
+	List []*SRList `json:"list"`
+}
+
+// SRList represents the structure of the search result list
+type SRList struct {
+	ID           int        `json:"id"`
+	Title        string     `json:"title"`
+	Body         string     `json:"body"`
+	Author       *SRLAuthor `json:"author"`
+	CreationDate int64      `json:"creationDate"`
+}
+
+// SRLAuthor represents the structure of the search result list author field
+type SRLAuthor struct {
+	Username string `json:"username"`
+	Realname string `json:"realname"`
 }

@@ -23,16 +23,6 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
-// Provider represents the provider
-type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	url      string
-	token    string
-}
-
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
 	var p = Provider{
@@ -51,33 +41,14 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represents the structure of the search result
-type SearchResult struct {
-	Ok       bool        `json:"ok"`
-	Query    string      `json:"query"`
-	Messages *SRMessages `json:"messages"`
-}
-
-// SRMessages represents the structure of the search result messages
-type SRMessages struct {
-	Total   int           `json:"total"`
-	Path    string        `json:"path"`
-	Matches []*SRMMatches `json:"matches"`
-}
-
-// SRMMatches represents the structure of the search result messages matches
-type SRMMatches struct {
-	Type      string       `json:"type"`
-	Username  string       `json:"username"`
-	Text      string       `json:"text"`
-	Permalink string       `json:"permalink"`
-	Ts        string       `json:"ts"`
-	Channel   *SRMMChannel `json:"channel"`
-}
-
-// SRMMChannel represents the structure of the search result messages matches channel field
-type SRMMChannel struct {
-	Name string `json:"name"`
+// Provider represents the provider
+type Provider struct {
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	url      string
+	token    string
 }
 
 // Search makes a search
@@ -139,4 +110,33 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
+}
+
+// SearchResult represents the structure of the search result
+type SearchResult struct {
+	Ok       bool        `json:"ok"`
+	Query    string      `json:"query"`
+	Messages *SRMessages `json:"messages"`
+}
+
+// SRMessages represents the structure of the search result messages
+type SRMessages struct {
+	Total   int           `json:"total"`
+	Path    string        `json:"path"`
+	Matches []*SRMMatches `json:"matches"`
+}
+
+// SRMMatches represents the structure of the search result messages matches
+type SRMMatches struct {
+	Type      string       `json:"type"`
+	Username  string       `json:"username"`
+	Text      string       `json:"text"`
+	Permalink string       `json:"permalink"`
+	Ts        string       `json:"ts"`
+	Channel   *SRMMChannel `json:"channel"`
+}
+
+// SRMMChannel represents the structure of the search result messages matches channel field
+type SRMMChannel struct {
+	Name string `json:"name"`
 }

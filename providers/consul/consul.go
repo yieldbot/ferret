@@ -21,16 +21,6 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
-// Provider represents the provider
-type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	noui     bool
-	url      string
-}
-
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
 	var p = Provider{
@@ -49,8 +39,15 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represents the structure of the search result
-type SearchResult map[string][]string
+// Provider represents the provider
+type Provider struct {
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	noui     bool
+	url      string
+}
 
 // Search makes a search
 func (provider *Provider) Search(ctx context.Context, args map[string]interface{}) ([]map[string]interface{}, error) {
@@ -165,3 +162,6 @@ func (provider *Provider) datacenter() ([]string, error) {
 
 	return result, nil
 }
+
+// SearchResult represents the structure of the search result
+type SearchResult map[string][]string

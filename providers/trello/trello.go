@@ -22,17 +22,6 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
-// Provider represents the provider
-type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	url      string
-	key      string
-	token    string
-}
-
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
 	var p = Provider{
@@ -52,18 +41,15 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represents the structure of the search result
-type SearchResult struct {
-	Cards []*SRCards `json:"cards"`
-}
-
-// SRCards represents the structure of the search result list
-type SRCards struct {
-	ID               string `json:"id"`
-	Name             string `json:"name"`
-	URL              string `json:"shortUrl"`
-	Description      string `json:"desc"`
-	DateLastActivity string `json:"dateLastActivity"`
+// Provider represents the provider
+type Provider struct {
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	url      string
+	key      string
+	token    string
 }
 
 // Search makes a search
@@ -122,4 +108,18 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
+}
+
+// SearchResult represents the structure of the search result
+type SearchResult struct {
+	Cards []*SRCards `json:"cards"`
+}
+
+// SRCards represents the structure of the search result list
+type SRCards struct {
+	ID               string `json:"id"`
+	Name             string `json:"name"`
+	URL              string `json:"shortUrl"`
+	Description      string `json:"desc"`
+	DateLastActivity string `json:"dateLastActivity"`
 }

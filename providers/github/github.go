@@ -21,17 +21,6 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 )
 
-// Provider represents the provider
-type Provider struct {
-	enabled    bool
-	name       string
-	title      string
-	priority   int64
-	url        string
-	token      string
-	searchUser string
-}
-
 // Register registers the provider
 func Register(f func(provider interface{}) error) {
 	var p = Provider{
@@ -51,31 +40,15 @@ func Register(f func(provider interface{}) error) {
 	}
 }
 
-// SearchResult represents the structure of the search result
-type SearchResult struct {
-	TotalCount        int        `json:"total_count"`
-	IncompleteResults bool       `json:"incomplete_results"`
-	Items             []*SRItems `json:"items"`
-}
-
-// SRItems represents the structure of the search result items
-type SRItems struct {
-	Name        string         `json:"name"`
-	Path        string         `json:"path"`
-	HTMLUrl     string         `json:"html_url"`
-	Repository  *SRIRepository `json:"repository"`
-	TextMatches []*SRITMatches `json:"text_matches"`
-}
-
-// SRIRepository represents the structure of the search result items repository
-type SRIRepository struct {
-	Fullname    string `json:"full_name"`
-	Description string `json:"description"`
-}
-
-// SRITMatches represents the structure of the search result items text matches field
-type SRITMatches struct {
-	Fragment string `json:"fragment"`
+// Provider represents the provider
+type Provider struct {
+	enabled    bool
+	name       string
+	title      string
+	priority   int64
+	url        string
+	token      string
+	searchUser string
 }
 
 // Search makes a search
@@ -142,4 +115,31 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 
 	return results, err
+}
+
+// SearchResult represents the structure of the search result
+type SearchResult struct {
+	TotalCount        int        `json:"total_count"`
+	IncompleteResults bool       `json:"incomplete_results"`
+	Items             []*SRItems `json:"items"`
+}
+
+// SRItems represents the structure of the search result items
+type SRItems struct {
+	Name        string         `json:"name"`
+	Path        string         `json:"path"`
+	HTMLUrl     string         `json:"html_url"`
+	Repository  *SRIRepository `json:"repository"`
+	TextMatches []*SRITMatches `json:"text_matches"`
+}
+
+// SRIRepository represents the structure of the search result items repository
+type SRIRepository struct {
+	Fullname    string `json:"full_name"`
+	Description string `json:"description"`
+}
+
+// SRITMatches represents the structure of the search result items text matches field
+type SRITMatches struct {
+	Fragment string `json:"fragment"`
 }
