@@ -1,5 +1,10 @@
 ## Changelog
 
+### [UNRELEASED]
+
+* Fix error checking on json.Unmarshal
+* Misc. code refactoring
+
 ### v2.0.1 [2016-07-22]
 
 * Add priority sort to UI
