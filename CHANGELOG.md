@@ -2,6 +2,9 @@
 
 ### [UNRELEASED]
 
+* Update release.sh
+* Add test.sh
+* Update statik vendor
 * Fix error checking on json.Unmarshal
 * Misc. code refactoring
 
