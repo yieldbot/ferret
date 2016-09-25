@@ -2,6 +2,8 @@
 
 set -ex
 
+echo "test-test.sh"
+
 # Get required components
 go get github.com/golang/lint/golint
 go get github.com/rakyll/statik
