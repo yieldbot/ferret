@@ -5,19 +5,8 @@ go:
   - 1.6
   - 1.7
 
-before_install:
-  - go get github.com/golang/lint/golint
-  - go get github.com/rakyll/statik
-
-install:
-  - go generate ./assets/
-  - go get -t -v ./...
-
 script:
-  - OUT=`gofmt -l . | grep -v '^vendor\/' | grep -v '\/statik.go'`; if [ "$OUT" ]; then echo $OUT; exit 1; fi
-  - OUT=`golint ./... | grep -v '^vendor\/'`; if [ "$OUT" ]; then echo $OUT; exit 1; fi
-  - go vet ./...
-  - #go test -v -coverprofile=reports/cover.out -covermode=count
+  - ./test.sh
 
 before_deploy:
   - ./release.sh
