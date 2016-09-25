@@ -5,7 +5,6 @@ set -ex
 # Get required components
 go get github.com/golang/lint/golint
 go get github.com/rakyll/statik
-go get -t ./...
 go generate ./assets/
 
 # Check formatting
