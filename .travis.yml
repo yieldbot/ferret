@@ -5,8 +5,13 @@ go:
   - 1.6
   - 1.7
 
+before_install:
+  - go get github.com/golang/lint/golint
+  - go get github.com/rakyll/statik
+  - go generate ./assets/
+  - go get -t -v ./...
+
 script:
-  - echo ".tavis.yml"
   - ./test.sh
 
 before_deploy:

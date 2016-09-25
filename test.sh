@@ -2,12 +2,11 @@
 
 set -ex
 
-echo "test-test.sh"
-
 # Get required components
 go get github.com/golang/lint/golint
 go get github.com/rakyll/statik
 go generate ./assets/
+go get -t -v ./...
 
 # Check formatting
 OUT=`gofmt -l . | (grep -v '^vendor\/' || true)`; if [ "$OUT" ]; then echo "gofmt: $OUT"; exit 1; fi
