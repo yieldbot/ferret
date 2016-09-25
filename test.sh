@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 # Get required components
 go get github.com/golang/lint/golint
