@@ -127,7 +127,7 @@ var app = function app() {
     providerList.forEach(function(provider) {
       // Prepare navigation bar tabs
       var content = '<li role="presentation">';
-      content += '<a onclick="$.scrollTo(\'#' + provider.name + '\', 500, {offset: {top: -110}})">' + provider.title + '</a>';
+      content += '<a href="javascript:void(0)" onclick="$.scrollTo(\'#' + provider.name + '\', 500, {offset: {top: -110}})">' + provider.title + '</a>';
       content += '</li>';
       $('#searchNavbarTabs').append(content);
 
