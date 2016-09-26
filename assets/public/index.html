@@ -14,13 +14,14 @@
   </head>
   <body>
 
-    <nav class="navbar navbar-default">
+    <nav id="searchNavbar" class="navbar navbar-default navbar-fixed-top search-navbar-hide">
       <div class="container-fluid">
         <div class="navbar-header">
           <a id="logoNavbarHolder" class="navbar-brand" href="/"></a>
           <div id="searchNavbarHolder" class="search-navbar-holder"></div>
         </div>
       </div>
+      <ul id="searchNavbarTabs" class="nav nav-pills search-navbar-tabs"></ul>
     </nav>
 
     <div class="container">
@@ -54,6 +55,7 @@
 
     <!-- scripts -->
     <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/jquery-scrollto/jquery.scrollto.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
     <script src="vendor/rx/rx.all.min.js"></script>
     <script src="js/app.js"></script>
