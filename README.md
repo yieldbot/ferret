@@ -73,7 +73,8 @@ ferret listen
 
 # open http://localhost:3030/
 ```
-<p align="center"><img src="assets/public/img/ferret-ui.png" alt="Ferret UI" width="600" height="498" style="border: 1px solid #ddd;"></p>
+
+![Web UI](assets/public/img/ferret-ui.png)
 
 #### REST API
 
@@ -101,18 +102,15 @@ export FERRET_GITHUB_TOKEN=
 # It's optional for filtering specific Github user (i.e. yieldbot)
 export FERRET_GITHUB_SEARCH_USER=
 
-
 # Slack
 # For a token see https://api.slack.com/docs/oauth-test-tokens
 export FERRET_SLACK_TOKEN=
-
 
 # Trello
 # For a key see https://trello.com/app-key and visit (after update it);
 # https://trello.com/1/authorize?key=REPLACEWITHYOURKEY&expiration=never&name=SinglePurposeToken&response_type=token&scope=read
 export FERRET_TRELLO_KEY=
 export FERRET_TRELLO_TOKEN=
-
 
 # AnswerHub
 # For enabling the REST API 
@@ -122,7 +120,6 @@ export FERRET_ANSWERHUB_URL=https://answerhub.yourdomain.com
 # see 'My Preferences->Authentication Modes' page in your AnswerHub site
 export FERRET_ANSWERHUB_USERNAME=
 export FERRET_ANSWERHUB_PASSWORD=
-
 
 # Consul
 export FERRET_CONSUL_URL=http://consul.service.consul
