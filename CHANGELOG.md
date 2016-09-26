@@ -1,7 +1,8 @@
 ## Changelog
 
-### [UNRELEASED]
+### 2.1.0 [2016-09-26]
 
+* Implement navigation handling
 * Add url query parameter handling
 * Add navigation bar tabs
 * Update release.sh
