@@ -5,7 +5,7 @@
  */
 
 /* jslint browser: true */
-/* global document: false, $: false, Rx: false */
+/* global document: false, $: false, Rx: false, unescape: false */
 'use strict';
 
 // Create the module
@@ -32,13 +32,23 @@ var app = function app() {
     providersGet().then(
       function(data) {
         if(data && data instanceof Array && data.length > 0) {
-          // Sort the list
+          // Sort the provider list base on priority
           providerList = data.sort(function(a, b) {
             return b.priority - a.priority;
           });
+        } else {
+          critical('There is no any available provider to search');
+          return;
         }
+
+        // Prepare providers
+        providersPrepare();
+
         // Listen for search requests
-        listen(providerList);
+        listen();
+
+        // Handle search query
+        searchQueryHandler();
       },
       function(err) {
         var e = parseError(err);
@@ -48,7 +58,8 @@ var app = function app() {
   }
 
   // listen listens search requests for the given providers
-  function listen(providers) {
+  function listen() {
+
     // Create the observables
 
     // Click button
@@ -68,35 +79,18 @@ var app = function app() {
     // Merge observables
     var observable = Rx.Observable.merge(clickSource, inputSource);
 
-    // Check providers
-    if(!(providers instanceof Array) || providers.length < 1) {
-      critical("There is no any available provider to search");
-      return;
-    }
-    providersPrepare();
-
-    // Iterate providers
-    providers.forEach(function(provider) {
+    // Iterate providers and create observable for each provider
+    providerList.forEach(function(provider) {
       observable
         .flatMapLatest(function(keyword) {
           searchPrepare();
-
-          // Exceptions
-          keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword;
-
-          // Search
-          var searchSource = Rx.Observable.fromPromise(
+          keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword; // exception
+          return Rx.Observable.onErrorResumeNext(Rx.Observable.fromPromise(
             search(provider.name, keyword).then(
-              function(data) {
-                return data;
-              },
-              function(err) {
-                searchError(err, provider);
-              }
+              function(data) { return data; },
+              function(err) { searchError(err, provider); }
             )
-          );
-
-          return Rx.Observable.onErrorResumeNext(searchSource);
+          ));
         })
         .subscribe(
           function(data) {
@@ -107,12 +101,6 @@ var app = function app() {
           }
         );
     });
-
-    if(urlParam('q')) {
-      $('#searchInput').val(urlParam('q'));
-      $('#searchButton').click();
-    }
-    $('#searchInput').focus();
   }
 
   // providersGet gets the provider list
@@ -126,7 +114,6 @@ var app = function app() {
 
   // providersPrepare prepares UI for providers
   function providersPrepare() {
-
     // Iterate providers
     providerList.forEach(function(provider) {
       // Prepare navigation bar tabs
@@ -155,6 +142,40 @@ var app = function app() {
     }).promise();
   }
 
+  // searchQueryHandler handles search query url parameter
+  function searchQueryHandler() {
+    // Handle back/forward buttons
+    window.onpopstate = function(/*event*/) {
+      // If query parameter is not empty then
+      if(urlParam('q')) {
+        // Set input value and trigger click
+        $('#searchInput').attr('data-caller', 'onpopstate');
+        $('#searchInput').val(unescape(urlParam('q')));
+        $('#searchButton').click();
+      } else {
+        searchReset();
+      }
+    };
+
+    // If query parameter is not empty then
+    if(urlParam('q')) {
+      // Set input value and trigger click
+      $('#searchInput').val(unescape(urlParam('q')));
+      $('#searchButton').click();
+    }
+
+    $('#searchInput').focus();
+  }
+
+  // searchReset resets UI for search
+  function searchReset() {
+    $('#searchInput').val('');
+    $('div[id^=searchResults-]').empty();
+    $('#searchNavbar').addClass('search-navbar-hide');
+    $('#logoMain').detach().appendTo($('#logoMiddleHolder')).removeClass('logo-navbar');
+    $('#searchMain').detach().appendTo($("#searchMiddleHolder")).removeClass('input-group-search-navbar');
+  }
+
   // searchPrepare prepares UI for search
   function searchPrepare() {
     $('#logoMain').detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
@@ -162,11 +183,16 @@ var app = function app() {
     $('#searchNavbar').removeClass('search-navbar-hide');
     $('div[id^=searchResults-]').empty();
 
-    // Update location
-    if($('#searchInput').val()) {
-      //window.history.pushState(null, null, '/?q=' + $('#searchInput').val());
-      window.history.replaceState(null, null, '/?q=' + $('#searchInput').val());
+    // If the current search input value is different than previous value then
+    var sivc = $('#searchInput').val();
+    if(sivc !== $('#searchInput').attr('data-prev-value')) {
+      if($('#searchInput').attr('data-caller') !== 'onpopstate') {
+        window.history.pushState({q: sivc}, null, '/?q=' + sivc);
+      }
+      $('#searchInput').attr('data-caller', null);
+      $(document).prop('title', 'Ferret - ' + sivc);
     }
+    $('#searchInput').attr('data-prev-value', sivc);
   }
 
   // searchResults renders search results
@@ -198,15 +224,15 @@ var app = function app() {
   function searchError(err, provider) {
     var e = parseError(err);
     if(provider && typeof provider === 'object') {
-      $('#searchResults').append($('<h3>').text(provider.title));
+      $('#searchResults').append($('<h3 id="' + provider.name + '">').text(provider.title));
     }
     $('#searchResults').append($('<div class="alert alert-danger" role="alert">').text(e.message));
   }
 
   // warning shows a warning message
-  function warning(message) {
-    $('#searchAlerts').html($('<div class="alert alert-warning search-alert" role="alert">').text(message));
-  }
+  // function warning(message) {
+  //   $('#searchAlerts').html($('<div class="alert alert-warning search-alert" role="alert">').text(message));
+  // }
 
   // critical shows a critical message
   function critical(message) {
@@ -237,8 +263,9 @@ var app = function app() {
   }
 
   // urlParam returns URL query parameter by the given name
-  function urlParam(name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(location.href);
+  function urlParam(name, url) {
+    url = url || location.href;
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(url);
     if(!results) {
       return;
     }
