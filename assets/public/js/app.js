@@ -29,7 +29,7 @@ var app = function app() {
   // init initializes the app
   function init() {
     // Get providers
-    getProviders().then(
+    providersGet().then(
       function(data) {
         if(data && data instanceof Array && data.length > 0) {
           // Sort the list
@@ -71,8 +71,9 @@ var app = function app() {
     // Check providers
     if(!(providers instanceof Array) || providers.length < 1) {
       critical("There is no any available provider to search");
-      return
+      return;
     }
+    providersPrepare();
 
     // Iterate providers
     providers.forEach(function(provider) {
@@ -110,13 +111,29 @@ var app = function app() {
     $('#searchInput').focus();
   }
 
-  // getProviders gets the provider list
-  function getProviders() {
+  // providersGet gets the provider list
+  function providersGet() {
     return $.ajax({
       url:      serverUrl+appPath+'providers',
       dataType: 'jsonp',
       method:   'GET',
     }).promise();
+  }
+
+  // providersPrepare prepares UI for providers
+  function providersPrepare() {
+
+    // Iterate providers
+    providerList.forEach(function(provider) {
+      // Prepare navigation bar tabs
+      var content = '<li role="presentation">';
+      content += '<a onclick="$.scrollTo(\'#' + provider.name + '\', 500, {offset: {top: -110}})">' + provider.title + '</a>';
+      content += '</li>';
+      $('#searchNavbarTabs').append(content);
+
+      // Prepare search result divs
+      $('#searchResults').append('<div id="searchResults-' + provider.name + '">');
+    });
   }
 
   // search makes a search by the given provider and keyword
@@ -136,10 +153,10 @@ var app = function app() {
 
   // searchPrepare prepares UI for search
   function searchPrepare() {
-    // Prepare UI
-    $("#logoMain").detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
-    $("#searchMain").detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
-    $('#searchResults').empty();
+    $('#logoMain').detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
+    $('#searchMain').detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
+    $('#searchNavbar').removeClass('search-navbar-hide');
+    $('div[id^=searchResults-]').empty();
   }
 
   // searchResults renders search results
@@ -149,25 +166,21 @@ var app = function app() {
       // Prepare result content
       var content = '';
       if(provider && typeof provider === 'object') {
-        content += '<h3>' + provider.title + '</h3>';
+        content += '<h3 id="' + provider.name + '">' + provider.title + '</h3>';
 
         // Iterate results
-        $('#searchResults').append($.map(data, function (v) {
+        $.map(data, function (v) {
           content += '<li class="search-results-li">';
-          content += '<a href="'+v.link+'" target="_blank">'+v.title+'</a>';
+          content += '<a href="' + v.link + '" target="_blank">' + v.title + '</a>';
           content += '<p>';
           content += (v.description) ? encodeHtmlEntity(v.description)+'<br>' : '';
-          content += (v.date != "0001-01-01T00:00:00Z") ? '<span class="ts">'+(''+(new Date(v.date)).toISOString()).substr(0, 10)+'</span>' : '';
+          content += (v.date != "0001-01-01T00:00:00Z") ? '<span class="ts">' + (''+(new Date(v.date)).toISOString()).substr(0, 10) + '</span>' : '';
           content += '</p>';
           content += '</li>';
-        }));
+        });
         content += '<hr>';
       }
-      var pp = provider.priority || 0;
-      $('#searchResults').append($('<div data-type="search-result" data-priority="' + pp + '">').html(content));
-      $("#searchResults").html($('div[data-type="search-result"]').sort(function(a, b) {
-        return $(b).attr('data-priority') - $(a).attr('data-priority');
-      }));
+      $("#searchResults-" + provider.name).html(content);
     }
   }
 
@@ -182,16 +195,12 @@ var app = function app() {
 
   // warning shows a warning message
   function warning(message) {
-    $('#searchAlerts')
-      .html($('<div class="alert alert-warning search-alert" role="alert">')
-        .text(message));
+    $('#searchAlerts').html($('<div class="alert alert-warning search-alert" role="alert">').text(message));
   }
 
   // critical shows a critical message
   function critical(message) {
-    $('#searchAlerts')
-      .html($('<div class="alert alert-danger search-alert" role="alert">')
-        .text(message));
+    $('#searchAlerts').html($('<div class="alert alert-danger search-alert" role="alert">').text(message));
   }
 
   // parseError parses the given error message and returns an object
@@ -219,9 +228,7 @@ var app = function app() {
 
   // Return
   return {
-    init: init,
-    warning: warning,
-    critical: critical
+    init: init
   };
 };
 
