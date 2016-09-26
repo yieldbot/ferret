@@ -1,4 +1,5 @@
 body {
+  margin-top: 100px;
   padding-bottom: 20px;
 }
 
@@ -7,6 +8,7 @@ body {
 }
 
 .logo-main {
+  /*margin-right: 6px;*/
   margin-bottom: 30px;
   width: 260px;
   height: 80px;
@@ -18,8 +20,16 @@ body {
   height: 20px;
 }
 
+.search-navbar-hide {
+  display: none;
+}
+
 .search-navbar-holder {
   padding: 10px 15px;
+}
+
+.search-navbar-tabs {
+  padding-left: 10px;
 }
 
 .input-group-search {
