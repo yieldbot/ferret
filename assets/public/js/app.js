@@ -36,11 +36,9 @@ var app = function app() {
           providerList = data.sort(function(a, b) {
             return b.priority - a.priority;
           });
-          // Listen for search requests
-          listen(providerList);
-        } else {
-          critical("There is no any available provider to search");
         }
+        // Listen for search requests
+        listen(providerList);
       },
       function(err) {
         var e = parseError(err);
@@ -71,38 +69,43 @@ var app = function app() {
     var observable = Rx.Observable.merge(clickSource, inputSource);
 
     // Check providers
-    if(providers instanceof Array && providers.length > 0) {
-
-      // Iterate providers
-      providers.forEach(function(provider) {
-        observable
-          .flatMapLatest(function(keyword) {
-            searchPrepare();
-
-            // Exceptions
-            keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword;
-
-            // Search
-            return Rx.Observable.onErrorResumeNext(
-              Rx.Observable.fromPromise(
-                search(provider.name, keyword)
-                  .then(function(data) {
-                      return data;
-                    }, function(err) {
-                      searchError(err, provider);
-                    }
-                  )));
-          })
-          .subscribe(
-            function(data) {
-              searchResults(data, provider);
-            },
-            function(err) {
-              searchError(err, provider);
-            }
-          );
-      });
+    if(!(providers instanceof Array) || providers.length < 1) {
+      critical("There is no any available provider to search");
+      return
     }
+
+    // Iterate providers
+    providers.forEach(function(provider) {
+      observable
+        .flatMapLatest(function(keyword) {
+          searchPrepare();
+
+          // Exceptions
+          keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword;
+
+          // Search
+          var searchSource = Rx.Observable.fromPromise(
+            search(provider.name, keyword).then(
+              function(data) {
+                return data;
+              },
+              function(err) {
+                searchError(err, provider);
+              }
+            )
+          );
+
+          return Rx.Observable.onErrorResumeNext(searchSource);
+        })
+        .subscribe(
+          function(data) {
+            searchResults(data, provider);
+          },
+          function(err) {
+            searchError(err, provider);
+          }
+        );
+    });
 
     $('#searchInput').focus();
   }
