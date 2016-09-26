@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.1.1 [2016-09-26]
+
+* Fix pushState parameter
+
 ### 2.1.0 [2016-09-26]
 
 * Implement navigation handling
