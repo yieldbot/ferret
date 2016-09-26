@@ -2,6 +2,8 @@
 
 ### [UNRELEASED]
 
+* Add url query parameter handling
+* Add navigation bar tabs
 * Update release.sh
 * Add test.sh
 * Update statik vendor
