@@ -187,7 +187,7 @@ var app = function app() {
     var sivc = $('#searchInput').val();
     if(sivc !== $('#searchInput').attr('data-prev-value')) {
       if($('#searchInput').attr('data-caller') !== 'onpopstate') {
-        window.history.pushState({q: sivc}, null, '/?q=' + sivc);
+        window.history.pushState({q: sivc}, null, appPath+'?q=' + sivc);
       }
       $('#searchInput').attr('data-caller', null);
       $(document).prop('title', 'Ferret - ' + sivc);
