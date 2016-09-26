@@ -108,6 +108,10 @@ var app = function app() {
         );
     });
 
+    if(urlParam('q')) {
+      $('#searchInput').val(urlParam('q'));
+      $('#searchButton').click();
+    }
     $('#searchInput').focus();
   }
 
@@ -157,6 +161,12 @@ var app = function app() {
     $('#searchMain').detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
     $('#searchNavbar').removeClass('search-navbar-hide');
     $('div[id^=searchResults-]').empty();
+
+    // Update location
+    if($('#searchInput').val()) {
+      //window.history.pushState(null, null, '/?q=' + $('#searchInput').val());
+      window.history.replaceState(null, null, '/?q=' + $('#searchInput').val());
+    }
   }
 
   // searchResults renders search results
@@ -221,9 +231,18 @@ var app = function app() {
 
   // encodeHtmlEntity encodes HTML entity
   function encodeHtmlEntity(str) {
-    return str.replace(/[\u00A0-\u9999\\<\>\&\'\"\\\/]/gim, function(c){
-      return '&#' + c.charCodeAt(0) + ';' ;
+    return str.replace(/[\u00A0-\u9999\\<\>\&\'\"\\\/]/gim, function(c) {
+      return '&#' + c.charCodeAt(0) + ';';
     });
+  }
+
+  // urlParam returns URL query parameter by the given name
+  function urlParam(name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(location.href);
+    if(!results) {
+      return;
+    }
+    return results[1] || null;
   }
 
   // Return
