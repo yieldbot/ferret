@@ -32,7 +32,7 @@ for PLATFORM in $PLATFORMS; do
     echo "preparing ${BIN_NAME}-${PLATFORM}-${ARCH}.zip"
 
     GOOS=${PLATFORM} GOARCH=${ARCH} CGO_ENABLED=${GO_CGO_ENABLED} \
-    go build -a -tags netgo -installsuffix netgo -ldflags "$GO_LDFLAGS" -o "${BIN_NAME_F}" && \
+    go build -a -ldflags "$GO_LDFLAGS" -o "${BIN_NAME_F}" && \
     zip "releases/${BIN_NAME}-${PLATFORM}-${ARCH}.zip" "${BIN_NAME_F}" && \
     rm "${BIN_NAME_F}"
   done
