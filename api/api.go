@@ -134,7 +134,7 @@ func checkProvider(provider string) bool {
 	return false
 }
 
-// RedirectHandler
+// RedirectHandler handles redirect for listen path prefix
 func RedirectHandler(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, options.listenPathPrefix, 301)
 }
