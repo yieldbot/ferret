@@ -174,6 +174,7 @@ var app = function app() {
     $('#searchNavbar').addClass('search-navbar-hide');
     $('#logoMain').detach().appendTo($('#logoMiddleHolder')).removeClass('logo-navbar');
     $('#searchMain').detach().appendTo($("#searchMiddleHolder")).removeClass('input-group-search-navbar');
+    $('#searchInput').focus();
   }
 
   // searchPrepare prepares UI for search
@@ -193,6 +194,7 @@ var app = function app() {
       $(document).prop('title', 'Ferret - ' + sivc);
     }
     $('#searchInput').attr('data-prev-value', sivc);
+    $('#searchInput').focus();
   }
 
   // searchResults renders search results
