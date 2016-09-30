@@ -84,6 +84,9 @@ func Listen() {
 	// Init handlers
 	lpp := strings.TrimRight(options.listenPathPrefix, "/")
 	http.Handle("/", http.StripPrefix(options.listenPathPrefix, assets.PublicHandler()))
+	if lpp != "" {
+		http.HandleFunc(fmt.Sprintf("%s", lpp), RedirectHandler)
+	}
 	http.HandleFunc(fmt.Sprintf("%s/search", lpp), SearchHandler)
 	http.HandleFunc(fmt.Sprintf("%s/providers", lpp), ProvidersHandler)
 
@@ -129,6 +132,11 @@ func checkProvider(provider string) bool {
 		}
 	}
 	return false
+}
+
+// RedirectHandler
+func RedirectHandler(w http.ResponseWriter, req *http.Request) {
+	http.Redirect(w, req, options.listenPathPrefix, 301)
 }
 
 // SearchHandler is the handler for the search route
