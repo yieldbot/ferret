@@ -1,5 +1,10 @@
 ## Changelog
 
+### 2.1.2 [2016-09-29]
+
+* Add redirect for slash handling
+* Add focus handling for search input
+
 ### 2.1.1 [2016-09-26]
 
 * Fix pushState parameter
