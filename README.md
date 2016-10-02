@@ -4,7 +4,7 @@
 
 Ferret is a search engine that unifies search results from different resources
 such as Github, Slack, Trello, AnswerHub and more. It can be used via
-[CLI](#cli), [Web UI](#ui) or [REST API](#rest-api)
+[CLI](#cli), [UI](#ui) or [REST API](#rest-api)
 
 Distributed knowledge and avoiding context switching are very important for
 efficiency. Ferret provides a unified search interface for retrieving and
