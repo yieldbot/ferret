@@ -131,7 +131,7 @@ func (query *Query) DoPrint(err error) {
 			t.AddRow(i+2, fmt.Sprintf("%d", i+1), fmt.Sprintf("%s%s", v.Title, ts))
 		}
 		t.PrintData()
-		fmt.Printf("\n%dms\n", int64(query.Elapsed/time.Millisecond))
+		fmt.Printf("\n%d rows in %dms\n", len(query.Results), int64(query.Elapsed/time.Millisecond))
 	}
 }
 
