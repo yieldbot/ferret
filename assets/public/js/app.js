@@ -84,7 +84,6 @@ var app = function app() {
       observable
         .flatMapLatest(function(keyword) {
           searchPrepare();
-          keyword = (provider.name == "github") ? keyword+'+extension:md' : keyword; // exception
           return Rx.Observable.onErrorResumeNext(Rx.Observable.fromPromise(
             search(provider.name, keyword).then(
               function(data) { return data; },
