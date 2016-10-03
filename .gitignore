@@ -17,3 +17,6 @@ releases/
 /ferret
 /ferret.exe
 /assets/statik/
+
+vendor/github.com/*
+!vendor/github.com/go-yaml
