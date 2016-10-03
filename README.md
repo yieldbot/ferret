@@ -89,62 +89,59 @@ curl 'http://localhost:3030/search?provider=answerhub&keyword=intent&page=1&time
 
 ### Configuration
 
-#### Environment Variables for Providers
+#### Credentials;
 
-Each search provider needs set of environment variables for operating. You can 
-define environment variables for one or more search provider.
+- [Github token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/)
+- [Slack token](https://api.slack.com/docs/oauth-test-tokens)
+- [Trello key](https://trello.com/app-key)
+  - For Trello token visit https://trello.com/1/authorize?key=REPLACEWITHYOURKEY&expiration=never&name=SinglePurposeToken&response_type=token&scope=read
+- [AnswerHub](http://docs.answerhub.com/articles/1444/how-to-enable-and-grant-use-of-the-rest-api.html)
+  - For username and password visit 'My Preferences->Authentication Modes' in your AnswerHub site
 
-```bash
-# Github
-export FERRET_GITHUB_URL=https://api.github.com/
-# For a token see https://help.github.com/articles/creating-an-access-token-for-command-line-use/
-export FERRET_GITHUB_TOKEN=
-# It's optional for filtering specific Github user (i.e. yieldbot)
-export FERRET_GITHUB_SEARCH_USER=
+#### ferret.yml
 
-# Slack
-# For a token see https://api.slack.com/docs/oauth-test-tokens
-export FERRET_SLACK_TOKEN=
-
-# Trello
-# For a key see https://trello.com/app-key and visit (after update it);
-# https://trello.com/1/authorize?key=REPLACEWITHYOURKEY&expiration=never&name=SinglePurposeToken&response_type=token&scope=read
-export FERRET_TRELLO_KEY=
-export FERRET_TRELLO_TOKEN=
-
-# AnswerHub
-# For enabling the REST API 
-# see http://docs.answerhub.com/articles/1444/how-to-enable-and-grant-use-of-the-rest-api.html
-export FERRET_ANSWERHUB_URL=https://answerhub.yourdomain.com
-# For username and password information
-# see 'My Preferences->Authentication Modes' page in your AnswerHub site
-export FERRET_ANSWERHUB_USERNAME=
-export FERRET_ANSWERHUB_PASSWORD=
-
-# Consul
-export FERRET_CONSUL_URL=http://consul.service.consul
-```
-
-#### Environment Variables for Global Configuration
+Set `FERRET_CONFIG` environment variable;
 
 ```bash
-# The command is used by `--goto` argument for opening links.
-# Default is `open`
-export FERRET_GOTO_CMD=open
+# macOS, linux
+export FERRET_CONFIG=~/ferret.yml
 
-# Default timeout for search command
-# Default is `5000ms`
-export FERRET_SEARCH_TIMEOUT=5000ms
-
-# HTTP address for the UI and the REST API
-# Default is :3030
-export FERRET_LISTEN_ADDRESS=:3030
-# A URL path prefix for the UI
-export FERRET_LISTEN_PATHPREFIX=
-# A comma separated list of providers
-# Default value is automatically determined from the ENV variables
-export FERRET_LISTEN_PROVIDERS=
+# win
+set FERRET_CONFIG=%HOMEDRIVE%%HOMEPATH%/ferret.yml
 ```
+
+Save the following configuration into `ferret.yml` file in your home folder.
+
+```yaml
+search:
+  timeout: 5000ms # timeout for search command. Default is `5000ms`
+  gotoCmd: open   # used by `--goto` argument for opening links. Default is `open`
+listen:
+  address: :3030  # HTTP address for the UI and the REST API. Default is :3030
+  pathPrefix:     # a URL path prefix for the UI (i.e. /ferret/)
+  providers:      # a comma separated list of providers. Default is base on config.yml
+providers:
+  - provider: answerhub
+    url:      {{env "FERRET_ANSWERHUB_URL"}}
+    username: {{env "FERRET_ANSWERHUB_USERNAME"}}
+    password: {{env "FERRET_ANSWERHUB_PASSWORD"}}
+  - provider: consul
+    url: {{env "FERRET_CONSUL_URL"}}
+  - provider: github
+    url:      {{env "FERRET_GITHUB_URL"}}
+    username: {{env "FERRET_GITHUB_SEARCH_USER"}}
+    token:    {{env "FERRET_GITHUB_TOKEN"}}
+  - provider: slack
+    token: {{env "FERRET_SLACK_TOKEN"}}
+  - provider: trello
+    token: {{env "FERRET_TRELLO_TOKEN"}}
+    key:   {{env "FERRET_TRELLO_KEY"}}
+```
+
+Set the environment variables base on `ferret.yml` and credentials. 
+
+_Note: Environment directives (`{{env ...}}`) can be replaced with credentials.
+But it's not recommended for production usage._
 
 
 ### Building from source

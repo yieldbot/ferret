@@ -14,7 +14,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -23,19 +22,38 @@ import (
 )
 
 // Register registers the provider
-func Register(f func(provider interface{}) error) {
-	var p = Provider{
-		name:     "answerhub",
-		title:    "AnswerHub",
-		priority: 1000,
-		url:      strings.TrimSuffix(os.Getenv("FERRET_ANSWERHUB_URL"), "/"),
-		username: os.Getenv("FERRET_ANSWERHUB_USERNAME"),
-		password: os.Getenv("FERRET_ANSWERHUB_PASSWORD"),
+func Register(config map[string]interface{}, f func(interface{}) error) {
+
+	name, ok := config["Name"].(string)
+	if name == "" || !ok {
+		name = "answerhub"
+	}
+	title, ok := config["Title"].(string)
+	if title == "" || !ok {
+		title = "AnswerHub"
+	}
+	priority, ok := config["Priority"].(int64)
+	if priority == 0 || !ok {
+		priority = 1000
+	}
+	url, _ := config["URL"].(string)
+	username, _ := config["Username"].(string)
+	password, _ := config["Password"].(string)
+	querySuffix, _ := config["QuerySuffix"].(string)
+
+	p := Provider{
+		provider:    "answerhub",
+		name:        name,
+		title:       title,
+		priority:    priority,
+		url:         strings.TrimSuffix(url, "/"),
+		username:    username,
+		password:    password,
+		querySuffix: querySuffix,
 	}
 	if p.url != "" {
 		p.enabled = true
 	}
-
 	if err := f(&p); err != nil {
 		panic(err)
 	}
@@ -43,13 +61,15 @@ func Register(f func(provider interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	url      string
-	username string
-	password string
+	provider    string
+	enabled     bool
+	name        string
+	title       string
+	priority    int64
+	url         string
+	username    string
+	password    string
+	querySuffix string
 }
 
 // Search makes a search
@@ -67,6 +87,9 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	keyword, ok := args["keyword"].(string)
 
 	u := fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=%d&q=%s*", provider.url, page, limit, url.QueryEscape(keyword))
+	if provider.querySuffix != "" {
+		u += fmt.Sprintf("%s", provider.querySuffix)
+	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, errors.New("failed to prepare request. Error: " + err.Error())

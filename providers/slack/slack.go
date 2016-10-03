@@ -14,7 +14,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -24,13 +23,31 @@ import (
 )
 
 // Register registers the provider
-func Register(f func(provider interface{}) error) {
-	var p = Provider{
-		name:     "slack",
-		title:    "Slack",
-		priority: 500,
-		url:      "https://slack.com/api",
-		token:    os.Getenv("FERRET_SLACK_TOKEN"),
+func Register(config map[string]interface{}, f func(interface{}) error) {
+
+	name, ok := config["Name"].(string)
+	if name == "" || !ok {
+		name = "slack"
+	}
+	title, ok := config["Title"].(string)
+	if title == "" || !ok {
+		title = "Slack"
+	}
+	priority, ok := config["Priority"].(int64)
+	if priority == 0 || !ok {
+		priority = 500
+	}
+	token, _ := config["Token"].(string)
+	querySuffix, _ := config["QuerySuffix"].(string)
+
+	p := Provider{
+		provider:    "slack",
+		name:        name,
+		title:       title,
+		priority:    priority,
+		url:         "https://slack.com/api",
+		token:       token,
+		querySuffix: querySuffix,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -43,12 +60,14 @@ func Register(f func(provider interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	url      string
-	token    string
+	provider    string
+	enabled     bool
+	name        string
+	title       string
+	priority    int64
+	url         string
+	token       string
+	querySuffix string
 }
 
 // Search makes a search
@@ -65,7 +84,10 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 	keyword, ok := args["keyword"].(string)
 
-	var u = fmt.Sprintf("%s/search.all?page=%d&count=%d&query=%s&token=%s", provider.url, page, limit, url.QueryEscape(keyword), provider.token)
+	u := fmt.Sprintf("%s/search.all?page=%d&count=%d&query=%s&token=%s", provider.url, page, limit, url.QueryEscape(keyword), provider.token)
+	if provider.querySuffix != "" {
+		u += fmt.Sprintf("%s", provider.querySuffix)
+	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, errors.New("failed to prepare request. Error: " + err.Error())

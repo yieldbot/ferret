@@ -14,7 +14,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"golang.org/x/net/context"
@@ -22,13 +21,31 @@ import (
 )
 
 // Register registers the provider
-func Register(f func(provider interface{}) error) {
-	var p = Provider{
-		name:     "consul",
-		title:    "Consul",
-		priority: 0,
-		noui:     true,
-		url:      strings.TrimSuffix(os.Getenv("FERRET_CONSUL_URL"), "/"),
+func Register(config map[string]interface{}, f func(interface{}) error) {
+
+	name, ok := config["Name"].(string)
+	if name == "" || !ok {
+		name = "consul"
+	}
+	title, ok := config["Title"].(string)
+	if title == "" || !ok {
+		title = "Consul"
+	}
+	priority, ok := config["Priority"].(int64)
+	if priority == 0 || !ok {
+		priority = 0
+	}
+	url, _ := config["URL"].(string)
+	querySuffix, _ := config["QuerySuffix"].(string)
+
+	p := Provider{
+		provider:    "consul",
+		name:        name,
+		title:       title,
+		priority:    priority,
+		noui:        true,
+		url:         strings.TrimSuffix(url, "/"),
+		querySuffix: querySuffix,
 	}
 	if p.url != "" {
 		p.enabled = true
@@ -41,12 +58,14 @@ func Register(f func(provider interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	noui     bool
-	url      string
+	provider    string
+	enabled     bool
+	name        string
+	title       string
+	priority    int64
+	noui        bool
+	url         string
+	querySuffix string
 }
 
 // Search makes a search
@@ -69,7 +88,10 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 	for _, dc := range dcs {
 
-		var u = fmt.Sprintf("%s/v1/catalog/services?dc=%s", provider.url, url.QueryEscape(dc))
+		u := fmt.Sprintf("%s/v1/catalog/services?dc=%s", provider.url, url.QueryEscape(dc))
+		if provider.querySuffix != "" {
+			u += fmt.Sprintf("%s", provider.querySuffix)
+		}
 		req, err := http.NewRequest("GET", u, nil)
 		if err != nil {
 			return nil, errors.New("failed to prepare request. Error: " + err.Error())

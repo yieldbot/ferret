@@ -1,0 +1,23 @@
+search:
+  timeout: 5000ms # timeout for search command. Default is `5000ms`
+  gotoCmd: open   # used by `--goto` argument for opening links. Default is `open`
+listen:
+  address: :3030  # HTTP address for the UI and the REST API. Default is :3030
+  pathPrefix:     # a URL path prefix for the UI (i.e. /ferret/)
+  providers:      # a comma separated list of providers. Default is base on config.yml
+providers:
+  - provider: answerhub
+    url:      {{env "FERRET_ANSWERHUB_URL"}}
+    username: {{env "FERRET_ANSWERHUB_USERNAME"}}
+    password: {{env "FERRET_ANSWERHUB_PASSWORD"}}
+  - provider: consul
+    url: {{env "FERRET_CONSUL_URL"}}
+  - provider: github
+    url:      {{env "FERRET_GITHUB_URL"}}
+    username: {{env "FERRET_GITHUB_SEARCH_USER"}}
+    token:    {{env "FERRET_GITHUB_TOKEN"}}
+  - provider: slack
+    token: {{env "FERRET_SLACK_TOKEN"}}
+  - provider: trello
+    token: {{env "FERRET_TRELLO_TOKEN"}}
+    key:   {{env "FERRET_TRELLO_KEY"}}

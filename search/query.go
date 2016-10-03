@@ -39,7 +39,10 @@ func (query *Query) Do() error {
 	provider, ok := providers[query.Provider]
 	if !ok {
 		query.HTTPStatus = http.StatusBadRequest
-		return fmt.Errorf("invalid search provider. Possible search providers are %s", Providers())
+		if len(Providers()) > 0 {
+			return fmt.Errorf("invalid search provider. Possible search providers are %s", Providers())
+		}
+		return errors.New("there is no any search provider. Check the configuration file")
 	}
 
 	// Keyword
@@ -103,9 +106,12 @@ func (query *Query) Do() error {
 		if query.Goto < 0 || query.Goto > len(query.Results) {
 			return fmt.Errorf("invalid result # to go. It should be between 1 and %d", len(query.Results))
 		}
+		if config.GotoCmd == "" {
+			return errors.New("missing goto command configuration")
+		}
 		link := query.Results[query.Goto-1].Link
-		if _, err = exec.Command(goCommand, link).Output(); err != nil {
-			return fmt.Errorf("failed to go to %s due to %s. Check FERRET_GOTO_CMD environment variable", link, err.Error())
+		if _, err = exec.Command(config.GotoCmd, link).Output(); err != nil {
+			return fmt.Errorf("failed to go to %s due to %s", link, err.Error())
 		}
 		return nil
 	}

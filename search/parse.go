@@ -43,8 +43,8 @@ func ParseTimeout(timeout string) time.Duration {
 		if err == nil {
 			t = d
 		}
-	} else {
-		d, err := time.ParseDuration(searchTimeout)
+	} else if config.TimeoutStr != "" {
+		d, err := time.ParseDuration(config.TimeoutStr)
 		if err == nil {
 			t = d
 		}

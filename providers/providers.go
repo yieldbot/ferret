@@ -16,10 +16,26 @@ import (
 )
 
 // Register registers the providers
-func Register(f func(provider interface{}) error) {
-	answerhub.Register(f)
-	consul.Register(f)
-	github.Register(f)
-	slack.Register(f)
-	trello.Register(f)
+func Register(args []map[string]interface{}, f func(interface{}) error) {
+	for _, v := range args {
+		p, ok := v["Provider"].(string)
+		if !ok {
+			continue
+		}
+
+		switch p {
+		case "answerhub":
+			answerhub.Register(v, f)
+		case "consul":
+			consul.Register(v, f)
+		case "github":
+			github.Register(v, f)
+		case "slack":
+			slack.Register(v, f)
+		case "trello":
+			trello.Register(v, f)
+		default:
+			panic("invalid provider: " + p)
+		}
+	}
 }

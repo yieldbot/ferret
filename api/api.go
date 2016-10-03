@@ -12,24 +12,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/yieldbot/ferret/assets"
+	conf "github.com/yieldbot/ferret/config"
 	"github.com/yieldbot/ferret/search"
 )
 
 var (
-	options   Options
+	config    conf.Listen
 	providers []provider
 )
-
-// Options represents options
-type Options struct {
-	listenAddr       string
-	listenPathPrefix string
-	providersList    string
-}
 
 // httpError represents an HTTP error
 type httpError struct {
@@ -45,24 +38,20 @@ type provider struct {
 	Priority int64  `json:"priority"`
 }
 
-func init() {
+// Init initializes the api
+func Init(c conf.Config) {
+	if c.Listen != nil {
+		config = *c.Listen
+	} else {
+		config = conf.Listen{}
+	}
 
-	// Options
-	options = Options{
-		listenAddr: ":3030",
-	}
-	if e := os.Getenv("FERRET_LISTEN_ADDRESS"); e != "" {
-		options.listenAddr = e
-	}
-	if e := os.Getenv("FERRET_LISTEN_PATHPREFIX"); e != "" {
-		options.listenPathPrefix = e
-	}
-	if e := os.Getenv("FERRET_LISTEN_PROVIDERS"); e != "" {
-		options.providersList = e
+	if config.Address == "" {
+		config.Address = ":3030"
 	}
 
 	// Prepare providers
-	pl, err := parseProviderList(options.providersList, true)
+	pl, err := parseProviderList(config.Providers, true)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,13 +66,14 @@ func init() {
 			Priority: p.Priority,
 		})
 	}
+
 }
 
 // Listen initializes HTTP handlers and listens for the requests
 func Listen() {
 	// Init handlers
-	lpp := strings.TrimRight(options.listenPathPrefix, "/")
-	http.Handle("/", http.StripPrefix(options.listenPathPrefix, assets.PublicHandler()))
+	lpp := strings.TrimRight(config.Path, "/")
+	http.Handle("/", http.StripPrefix(config.Path, assets.PublicHandler()))
 	if lpp != "" {
 		http.HandleFunc(fmt.Sprintf("%s", lpp), RedirectHandler)
 	}
@@ -91,8 +81,8 @@ func Listen() {
 	http.HandleFunc(fmt.Sprintf("%s/providers", lpp), ProvidersHandler)
 
 	// Listen
-	log.Printf("listening on %s", options.listenAddr)
-	if err := http.ListenAndServe(options.listenAddr, nil); err != nil {
+	log.Printf("listening on %s", config.Address)
+	if err := http.ListenAndServe(config.Address, nil); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -136,7 +126,7 @@ func checkProvider(provider string) bool {
 
 // RedirectHandler handles redirect for listen path prefix
 func RedirectHandler(w http.ResponseWriter, req *http.Request) {
-	http.Redirect(w, req, options.listenPathPrefix, 301)
+	http.Redirect(w, req, config.Path, 301)
 }
 
 // SearchHandler is the handler for the search route

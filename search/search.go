@@ -8,27 +8,40 @@
 package search
 
 import (
-	"os"
+	"reflect"
 
+	conf "github.com/yieldbot/ferret/config"
 	prov "github.com/yieldbot/ferret/providers"
 	"golang.org/x/net/context"
 )
 
 var (
-	goCommand     = "open"
-	searchTimeout = "5000ms"
-	providers     = make(map[string]Provider)
+	config    conf.Search
+	providers = make(map[string]Provider)
 )
 
-func init() {
-	if e := os.Getenv("FERRET_GOTO_CMD"); e != "" {
-		goCommand = e
-	}
-	if e := os.Getenv("FERRET_SEARCH_TIMEOUT"); e != "" {
-		searchTimeout = e
+// Init initializes the search
+func Init(c conf.Config) {
+	if c.Search != nil {
+		config = *c.Search
+	} else {
+		config = conf.Search{}
 	}
 
-	prov.Register(ProviderRegister)
+	// Iterate config and create the config map for providers
+	cm := []map[string]interface{}{}
+	for _, v := range c.Providers {
+		m := map[string]interface{}{}
+		vr := reflect.Indirect(reflect.ValueOf(v))
+		for i := 0; i < vr.NumField(); i++ {
+			f := vr.Type().Field(i)
+			if !f.Anonymous {
+				m[f.Name] = vr.Field(i).Interface()
+			}
+		}
+		cm = append(cm, m)
+	}
+	prov.Register(cm, ProviderRegister)
 }
 
 // Searcher is the interface that must be implemented by a search provider

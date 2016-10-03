@@ -9,8 +9,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
 
 	"github.com/yieldbot/ferret/api"
+	conf "github.com/yieldbot/ferret/config"
 	"github.com/yieldbot/ferret/search"
 	"github.com/yieldbot/gocli"
 )
@@ -21,6 +24,7 @@ func init() {
 	flag.BoolVar(&usageFlag, "help", false, "Display usage")
 	flag.BoolVar(&versionFlag, "v", false, "Display version information")
 	flag.BoolVar(&versionExtFlag, "vv", false, "Display extended version information")
+	flag.StringVar(&configFlag, "config", "", "Config file")
 }
 
 var (
@@ -30,6 +34,8 @@ var (
 	usageFlag      bool
 	versionFlag    bool
 	versionExtFlag bool
+	configFlag     string
+	config         conf.Config
 )
 
 func main() {
@@ -46,11 +52,26 @@ func main() {
 	}
 	cli.Init()
 
+	// Config
+	config = conf.Config{}
+	if configFlag != "" {
+		config.File = configFlag
+	} else if os.Getenv("FERRET_CONFIG") != "" {
+		config.File = os.Getenv("FERRET_CONFIG")
+	}
+	if config.File != "" {
+		if err := config.Load(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+
 	if versionFlag || versionExtFlag {
 		// Version
 		cli.PrintVersion(versionExtFlag)
 	} else if cli.SubCommand == "search" {
 		// Search
+		search.Init(config)
 		q := search.Query{
 			Page:    search.ParsePage(cli.SubCommandArgsMap["page"]),
 			Goto:    search.ParseGoto(cli.SubCommandArgsMap["goto"]),
@@ -66,6 +87,8 @@ func main() {
 		q.DoPrint(q.Do())
 	} else if cli.SubCommand == "listen" {
 		// Listen
+		search.Init(config)
+		api.Init(config)
 		api.Listen()
 	} else {
 		// Default

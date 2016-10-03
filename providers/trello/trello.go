@@ -14,7 +14,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -23,14 +22,33 @@ import (
 )
 
 // Register registers the provider
-func Register(f func(provider interface{}) error) {
-	var p = Provider{
-		name:     "trello",
-		title:    "Trello",
-		priority: 800,
-		url:      "https://api.trello.com/1",
-		key:      os.Getenv("FERRET_TRELLO_KEY"),
-		token:    os.Getenv("FERRET_TRELLO_TOKEN"),
+func Register(config map[string]interface{}, f func(interface{}) error) {
+
+	name, ok := config["Name"].(string)
+	if name == "" || !ok {
+		name = "trello"
+	}
+	title, ok := config["Title"].(string)
+	if title == "" || !ok {
+		title = "Trello"
+	}
+	priority, ok := config["Priority"].(int64)
+	if priority == 0 || !ok {
+		priority = 800
+	}
+	key, _ := config["Key"].(string)
+	token, _ := config["Token"].(string)
+	querySuffix, _ := config["QuerySuffix"].(string)
+
+	p := Provider{
+		provider:    "trello",
+		name:        name,
+		title:       title,
+		priority:    priority,
+		url:         "https://api.trello.com/1",
+		key:         key,
+		token:       token,
+		querySuffix: querySuffix,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -43,13 +61,15 @@ func Register(f func(provider interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	enabled  bool
-	name     string
-	title    string
-	priority int64
-	url      string
-	key      string
-	token    string
+	provider    string
+	enabled     bool
+	name        string
+	title       string
+	priority    int64
+	url         string
+	key         string
+	token       string
+	querySuffix string
 }
 
 // Search makes a search
@@ -66,7 +86,10 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 	keyword, ok := args["keyword"].(string)
 
-	var u = fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl,desc,dateLastActivity&cards_page=%d&cards_limit=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), limit, url.QueryEscape(keyword))
+	u := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl,desc,dateLastActivity&cards_page=%d&cards_limit=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), limit, url.QueryEscape(keyword))
+	if provider.querySuffix != "" {
+		u += fmt.Sprintf("%s", provider.querySuffix)
+	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, errors.New("failed to prepare request. Error: " + err.Error())

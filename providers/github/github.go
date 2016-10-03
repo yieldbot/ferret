@@ -14,7 +14,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"golang.org/x/net/context"
@@ -22,14 +21,36 @@ import (
 )
 
 // Register registers the provider
-func Register(f func(provider interface{}) error) {
-	var p = Provider{
-		name:       "github",
-		title:      "Github",
-		priority:   100,
-		url:        strings.TrimSuffix(os.Getenv("FERRET_GITHUB_URL"), "/"),
-		token:      os.Getenv("FERRET_GITHUB_TOKEN"),
-		searchUser: os.Getenv("FERRET_GITHUB_SEARCH_USER"),
+func Register(config map[string]interface{}, f func(interface{}) error) {
+
+	name, ok := config["Name"].(string)
+	if name == "" || !ok {
+		name = "github"
+	}
+	title, ok := config["Title"].(string)
+	if title == "" || !ok {
+		title = "Github"
+	}
+	priority, ok := config["Priority"].(int64)
+	if priority == 0 || !ok {
+		priority = 100
+	}
+	url, _ := config["URL"].(string)
+	token, _ := config["Token"].(string)
+	username, _ := config["Username"].(string)
+	repo, _ := config["Repo"].(string)
+	querySuffix, _ := config["QuerySuffix"].(string)
+
+	p := Provider{
+		provider:    "github",
+		name:        name,
+		title:       title,
+		priority:    priority,
+		url:         strings.TrimSuffix(url, "/"),
+		token:       token,
+		username:    username,
+		repo:        repo,
+		querySuffix: querySuffix,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -42,13 +63,16 @@ func Register(f func(provider interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	enabled    bool
-	name       string
-	title      string
-	priority   int64
-	url        string
-	token      string
-	searchUser string
+	provider    string
+	enabled     bool
+	name        string
+	title       string
+	priority    int64
+	url         string
+	token       string
+	username    string
+	repo        string
+	querySuffix string
 }
 
 // Search makes a search
@@ -65,9 +89,16 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	}
 	keyword, ok := args["keyword"].(string)
 
-	var u = fmt.Sprintf("%s/search/code?page=%d&per_page=%d&q=%s", provider.url, page, limit, url.QueryEscape(keyword))
-	if provider.searchUser != "" {
-		u += fmt.Sprintf("+user:%s", url.QueryEscape(provider.searchUser))
+	u := fmt.Sprintf("%s/search/code?page=%d&per_page=%d&q=%s", provider.url, page, limit, url.QueryEscape(keyword))
+	if provider.repo != "" {
+		u += fmt.Sprintf("+repo:%s", url.QueryEscape(provider.repo))
+	} else {
+		if provider.username != "" {
+			u += fmt.Sprintf("+user:%s", url.QueryEscape(provider.username))
+		}
+	}
+	if provider.querySuffix != "" {
+		u += fmt.Sprintf("%s", provider.querySuffix)
 	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
