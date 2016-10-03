@@ -39,18 +39,18 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	token, _ := config["Token"].(string)
 	username, _ := config["Username"].(string)
 	repo, _ := config["Repo"].(string)
-	querySuffix, _ := config["QuerySuffix"].(string)
+	query, _ := config["Query"].(string)
 
 	p := Provider{
-		provider:    "github",
-		name:        name,
-		title:       title,
-		priority:    priority,
-		url:         strings.TrimSuffix(url, "/"),
-		token:       token,
-		username:    username,
-		repo:        repo,
-		querySuffix: querySuffix,
+		provider: "github",
+		name:     name,
+		title:    title,
+		priority: priority,
+		url:      strings.TrimSuffix(url, "/"),
+		token:    token,
+		username: username,
+		repo:     repo,
+		query:    query,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -63,16 +63,16 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	provider    string
-	enabled     bool
-	name        string
-	title       string
-	priority    int64
-	url         string
-	token       string
-	username    string
-	repo        string
-	querySuffix string
+	provider string
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	url      string
+	token    string
+	username string
+	repo     string
+	query    string
 }
 
 // Search makes a search
@@ -97,8 +97,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 			u += fmt.Sprintf("+user:%s", url.QueryEscape(provider.username))
 		}
 	}
-	if provider.querySuffix != "" {
-		u += fmt.Sprintf("%s", provider.querySuffix)
+	if provider.query != "" {
+		u += fmt.Sprintf("%s", provider.query)
 	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {

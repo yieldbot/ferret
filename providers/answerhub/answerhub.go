@@ -39,17 +39,17 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	url, _ := config["URL"].(string)
 	username, _ := config["Username"].(string)
 	password, _ := config["Password"].(string)
-	querySuffix, _ := config["QuerySuffix"].(string)
+	query, _ := config["Query"].(string)
 
 	p := Provider{
-		provider:    "answerhub",
-		name:        name,
-		title:       title,
-		priority:    priority,
-		url:         strings.TrimSuffix(url, "/"),
-		username:    username,
-		password:    password,
-		querySuffix: querySuffix,
+		provider: "answerhub",
+		name:     name,
+		title:    title,
+		priority: priority,
+		url:      strings.TrimSuffix(url, "/"),
+		username: username,
+		password: password,
+		query:    query,
 	}
 	if p.url != "" {
 		p.enabled = true
@@ -61,15 +61,15 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	provider    string
-	enabled     bool
-	name        string
-	title       string
-	priority    int64
-	url         string
-	username    string
-	password    string
-	querySuffix string
+	provider string
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	url      string
+	username string
+	password string
+	query    string
 }
 
 // Search makes a search
@@ -87,8 +87,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	keyword, ok := args["keyword"].(string)
 
 	u := fmt.Sprintf("%s/services/v2/node.json?page=%d&pageSize=%d&q=%s*", provider.url, page, limit, url.QueryEscape(keyword))
-	if provider.querySuffix != "" {
-		u += fmt.Sprintf("%s", provider.querySuffix)
+	if provider.query != "" {
+		u += fmt.Sprintf("%s", provider.query)
 	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {

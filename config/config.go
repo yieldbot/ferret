@@ -42,17 +42,17 @@ type Listen struct {
 
 // Provider represents providers field in a config struct
 type Provider struct {
-	Provider    string `yaml:"provider"`
-	Name        string `yaml:"name"`
-	Title       string `yaml:"title"`
-	Priority    int64  `yaml:"priority"`
-	URL         string `yaml:"url"`
-	Username    string `yaml:"username"`
-	Password    string `yaml:"password"`
-	Token       string `yaml:"token"`
-	Key         string `yaml:"key"`
-	Repo        string `yaml:"repo"`
-	QuerySuffix string `yaml:"querySuffix"`
+	Provider string `yaml:"provider"`
+	Name     string `yaml:"name"`
+	Title    string `yaml:"title"`
+	Priority int64  `yaml:"priority"`
+	URL      string `yaml:"url"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Token    string `yaml:"token"`
+	Key      string `yaml:"key"`
+	Repo     string `yaml:"repo"`
+	Query    string `yaml:"query"`
 }
 
 // Load loads the configuration from the given file

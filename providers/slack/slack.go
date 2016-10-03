@@ -38,16 +38,16 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 		priority = 500
 	}
 	token, _ := config["Token"].(string)
-	querySuffix, _ := config["QuerySuffix"].(string)
+	query, _ := config["Query"].(string)
 
 	p := Provider{
-		provider:    "slack",
-		name:        name,
-		title:       title,
-		priority:    priority,
-		url:         "https://slack.com/api",
-		token:       token,
-		querySuffix: querySuffix,
+		provider: "slack",
+		name:     name,
+		title:    title,
+		priority: priority,
+		url:      "https://slack.com/api",
+		token:    token,
+		query:    query,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -60,14 +60,14 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	provider    string
-	enabled     bool
-	name        string
-	title       string
-	priority    int64
-	url         string
-	token       string
-	querySuffix string
+	provider string
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	url      string
+	token    string
+	query    string
 }
 
 // Search makes a search
@@ -85,8 +85,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	keyword, ok := args["keyword"].(string)
 
 	u := fmt.Sprintf("%s/search.all?page=%d&count=%d&query=%s&token=%s", provider.url, page, limit, url.QueryEscape(keyword), provider.token)
-	if provider.querySuffix != "" {
-		u += fmt.Sprintf("%s", provider.querySuffix)
+	if provider.query != "" {
+		u += fmt.Sprintf("%s", provider.query)
 	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {

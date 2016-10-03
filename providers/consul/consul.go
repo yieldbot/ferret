@@ -36,16 +36,16 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 		priority = 0
 	}
 	url, _ := config["URL"].(string)
-	querySuffix, _ := config["QuerySuffix"].(string)
+	query, _ := config["Query"].(string)
 
 	p := Provider{
-		provider:    "consul",
-		name:        name,
-		title:       title,
-		priority:    priority,
-		noui:        true,
-		url:         strings.TrimSuffix(url, "/"),
-		querySuffix: querySuffix,
+		provider: "consul",
+		name:     name,
+		title:    title,
+		priority: priority,
+		noui:     true,
+		url:      strings.TrimSuffix(url, "/"),
+		query:    query,
 	}
 	if p.url != "" {
 		p.enabled = true
@@ -58,14 +58,14 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	provider    string
-	enabled     bool
-	name        string
-	title       string
-	priority    int64
-	noui        bool
-	url         string
-	querySuffix string
+	provider string
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	noui     bool
+	url      string
+	query    string
 }
 
 // Search makes a search
@@ -89,8 +89,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	for _, dc := range dcs {
 
 		u := fmt.Sprintf("%s/v1/catalog/services?dc=%s", provider.url, url.QueryEscape(dc))
-		if provider.querySuffix != "" {
-			u += fmt.Sprintf("%s", provider.querySuffix)
+		if provider.query != "" {
+			u += fmt.Sprintf("%s", provider.query)
 		}
 		req, err := http.NewRequest("GET", u, nil)
 		if err != nil {

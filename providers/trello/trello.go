@@ -38,17 +38,17 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	}
 	key, _ := config["Key"].(string)
 	token, _ := config["Token"].(string)
-	querySuffix, _ := config["QuerySuffix"].(string)
+	query, _ := config["Query"].(string)
 
 	p := Provider{
-		provider:    "trello",
-		name:        name,
-		title:       title,
-		priority:    priority,
-		url:         "https://api.trello.com/1",
-		key:         key,
-		token:       token,
-		querySuffix: querySuffix,
+		provider: "trello",
+		name:     name,
+		title:    title,
+		priority: priority,
+		url:      "https://api.trello.com/1",
+		key:      key,
+		token:    token,
+		query:    query,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -61,15 +61,15 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 
 // Provider represents the provider
 type Provider struct {
-	provider    string
-	enabled     bool
-	name        string
-	title       string
-	priority    int64
-	url         string
-	key         string
-	token       string
-	querySuffix string
+	provider string
+	enabled  bool
+	name     string
+	title    string
+	priority int64
+	url      string
+	key      string
+	token    string
+	query    string
 }
 
 // Search makes a search
@@ -87,8 +87,8 @@ func (provider *Provider) Search(ctx context.Context, args map[string]interface{
 	keyword, ok := args["keyword"].(string)
 
 	u := fmt.Sprintf("%s/search?key=%s&token=%s&partial=true&modelTypes=cards&card_fields=name,shortUrl,desc,dateLastActivity&cards_page=%d&cards_limit=%d&query=%s", provider.url, provider.key, provider.token, (page - 1), limit, url.QueryEscape(keyword))
-	if provider.querySuffix != "" {
-		u += fmt.Sprintf("%s", provider.querySuffix)
+	if provider.query != "" {
+		u += fmt.Sprintf("%s", provider.query)
 	}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
