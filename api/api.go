@@ -40,11 +40,7 @@ type provider struct {
 
 // Init initializes the api
 func Init(c conf.Config) {
-	if c.Listen != nil {
-		config = *c.Listen
-	} else {
-		config = conf.Listen{}
-	}
+	config = c.Listen
 
 	if config.Address == "" {
 		config.Address = ":3030"

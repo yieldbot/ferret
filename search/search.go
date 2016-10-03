@@ -22,11 +22,7 @@ var (
 
 // Init initializes the search
 func Init(c conf.Config) {
-	if c.Search != nil {
-		config = *c.Search
-	} else {
-		config = conf.Search{}
-	}
+	config = c.Search
 
 	// Iterate config and create the config map for providers
 	cm := []map[string]interface{}{}

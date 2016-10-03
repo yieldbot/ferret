@@ -21,9 +21,9 @@ import (
 // Config represents a configuration
 type Config struct {
 	File      string
-	Search    *Search     `yaml:"search"`
-	Listen    *Listen     `yaml:"listen"`
-	Providers []*Provider `yaml:"providers"`
+	Search    Search     `yaml:"search"`
+	Listen    Listen     `yaml:"listen"`
+	Providers []Provider `yaml:"providers"`
 }
 
 // Search represents the structure of the config search field
@@ -33,14 +33,14 @@ type Search struct {
 	Timeout    time.Duration `yaml:"-"`
 }
 
-// Listen represents listen field in a config struct
+// Listen represents the structure of the config listen field
 type Listen struct {
 	Address   string `yaml:"address"`
 	Path      string `yaml:"path"`
 	Providers string `yaml:"providers"`
 }
 
-// Provider represents providers field in a config struct
+// Provider represents the structure of the config provider field
 type Provider struct {
 	Provider string `yaml:"provider"`
 	Name     string `yaml:"name"`
