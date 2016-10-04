@@ -40,6 +40,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	username, _ := config["Username"].(string)
 	repo, _ := config["Repo"].(string)
 	query, _ := config["Query"].(string)
+	rewrite, _ := config["Rewrite"].(string)
 
 	p := Provider{
 		provider: "github",
@@ -51,6 +52,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 		username: username,
 		repo:     repo,
 		query:    query,
+		rewrite:  rewrite,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -73,6 +75,7 @@ type Provider struct {
 	username string
 	repo     string
 	query    string
+	rewrite  string
 }
 
 // Search makes a search

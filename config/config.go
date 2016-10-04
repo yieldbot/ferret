@@ -53,6 +53,7 @@ type Provider struct {
 	Key      string `yaml:"key"`
 	Repo     string `yaml:"repo"`
 	Query    string `yaml:"query"`
+	Rewrite  string `yaml:"rewrite"`
 }
 
 // Load loads the configuration from the given file

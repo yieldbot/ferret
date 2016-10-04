@@ -37,6 +37,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	}
 	url, _ := config["URL"].(string)
 	query, _ := config["Query"].(string)
+	rewrite, _ := config["Rewrite"].(string)
 
 	p := Provider{
 		provider: "consul",
@@ -46,6 +47,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 		noui:     true,
 		url:      strings.TrimSuffix(url, "/"),
 		query:    query,
+		rewrite:  rewrite,
 	}
 	if p.url != "" {
 		p.enabled = true
@@ -66,6 +68,7 @@ type Provider struct {
 	noui     bool
 	url      string
 	query    string
+	rewrite  string
 }
 
 // Search makes a search

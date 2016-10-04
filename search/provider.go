@@ -19,6 +19,7 @@ type Provider struct {
 	Enabled  bool
 	Noui     bool
 	Priority int64
+	Rewrite  string
 	Searcher
 }
 
@@ -50,7 +51,7 @@ func ProviderRegister(provider interface{}) error {
 		return errors.New("invalid provider")
 	}
 
-	var name, title string
+	var name, title, rewrite string
 	var enabled, noui bool
 	var priority int64
 
@@ -71,6 +72,8 @@ func ProviderRegister(provider interface{}) error {
 			noui = v.Field(i).Bool()
 		} else if fn == "priority" && ft == "int64" {
 			priority = v.Field(i).Int()
+		} else if fn == "rewrite" && ft == "string" {
+			rewrite = v.Field(i).String()
 		}
 	}
 	if name == "" {
@@ -90,6 +93,7 @@ func ProviderRegister(provider interface{}) error {
 		Enabled:  enabled,
 		Noui:     noui,
 		Priority: priority,
+		Rewrite:  rewrite,
 		Searcher: p,
 	}
 	providers[name] = np

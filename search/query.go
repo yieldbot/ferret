@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/yieldbot/gocli"
@@ -92,9 +94,29 @@ func (query *Query) Do() error {
 			t = srv["Date"].(time.Time)
 		}
 
+		l := srv["Link"].(string)
+		tt := srv["Title"].(string)
+
+		if provider.Rewrite != "" {
+			rl := strings.Split(provider.Rewrite, "|")
+			rt := ""
+			if len(rl) > 0 {
+				rt = rl[0]
+			}
+			if rt == "link" && len(rl) == 3 {
+				re, err := regexp.Compile(rl[1])
+				if err != nil {
+					query.HTTPStatus = http.StatusInternalServerError
+					return errors.New("failed to rewrite due to " + err.Error())
+				}
+				l = re.ReplaceAllString(l, rl[2])
+				tt = l
+			}
+		}
+
 		query.Results = append(query.Results, Result{
-			Link:        srv["Link"].(string),
-			Title:       srv["Title"].(string),
+			Link:        l,
+			Title:       tt,
 			Description: d,
 			Date:        t,
 			From:        provider.Title,

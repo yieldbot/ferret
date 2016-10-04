@@ -39,6 +39,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	}
 	token, _ := config["Token"].(string)
 	query, _ := config["Query"].(string)
+	rewrite, _ := config["Rewrite"].(string)
 
 	p := Provider{
 		provider: "slack",
@@ -48,6 +49,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 		url:      "https://slack.com/api",
 		token:    token,
 		query:    query,
+		rewrite:  rewrite,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -68,6 +70,7 @@ type Provider struct {
 	url      string
 	token    string
 	query    string
+	rewrite  string
 }
 
 // Search makes a search

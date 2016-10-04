@@ -40,6 +40,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	username, _ := config["Username"].(string)
 	password, _ := config["Password"].(string)
 	query, _ := config["Query"].(string)
+	rewrite, _ := config["Rewrite"].(string)
 
 	p := Provider{
 		provider: "answerhub",
@@ -50,6 +51,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 		username: username,
 		password: password,
 		query:    query,
+		rewrite:  rewrite,
 	}
 	if p.url != "" {
 		p.enabled = true
@@ -70,6 +72,7 @@ type Provider struct {
 	username string
 	password string
 	query    string
+	rewrite  string
 }
 
 // Search makes a search

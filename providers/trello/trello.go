@@ -39,6 +39,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 	key, _ := config["Key"].(string)
 	token, _ := config["Token"].(string)
 	query, _ := config["Query"].(string)
+	rewrite, _ := config["Rewrite"].(string)
 
 	p := Provider{
 		provider: "trello",
@@ -49,6 +50,7 @@ func Register(config map[string]interface{}, f func(interface{}) error) {
 		key:      key,
 		token:    token,
 		query:    query,
+		rewrite:  rewrite,
 	}
 	if p.token != "" {
 		p.enabled = true
@@ -70,6 +72,7 @@ type Provider struct {
 	key      string
 	token    string
 	query    string
+	rewrite  string
 }
 
 // Search makes a search
