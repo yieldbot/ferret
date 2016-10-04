@@ -1,5 +1,15 @@
 ## Changelog
 
+### 3.0.0 [2016-10-03]
+
+* **[BREAKING CHANGE]** Add config file support
+* **[BREAKING CHANGE]** Remove github exception
+* Add rewrite functionality
+* Add config package
+* Change search results layout
+* Add vendor go-yaml
+* Change result text in DoPrint
+
 ### 2.1.2 [2016-09-29]
 
 * Add redirect for slash handling
