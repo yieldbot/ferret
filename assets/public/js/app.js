@@ -41,14 +41,9 @@ var app = function app() {
           return;
         }
 
-        // Prepare providers
         providersPrepare();
-
-        // Listen for search requests
         listen();
-
-        // Handle search query
-        searchQueryHandler();
+        urlQueryHandler();
       },
       function(err) {
         var e = parseError(err);
@@ -141,31 +136,6 @@ var app = function app() {
     }).promise();
   }
 
-  // searchQueryHandler handles search query url parameter
-  function searchQueryHandler() {
-    // Handle back/forward buttons
-    window.onpopstate = function(/*event*/) {
-      // If query parameter is not empty then
-      if(urlParam('q')) {
-        // Set input value and trigger click
-        $('#searchInput').attr('data-caller', 'onpopstate');
-        $('#searchInput').val(unescape(urlParam('q')));
-        $('#searchButton').click();
-      } else {
-        searchReset();
-      }
-    };
-
-    // If query parameter is not empty then
-    if(urlParam('q')) {
-      // Set input value and trigger click
-      $('#searchInput').val(unescape(urlParam('q')));
-      $('#searchButton').click();
-    }
-
-    $('#searchInput').focus();
-  }
-
   // searchReset resets UI for search
   function searchReset() {
     $('#searchInput').val('');
@@ -187,7 +157,7 @@ var app = function app() {
     var sivc = $('#searchInput').val();
     if(sivc !== $('#searchInput').attr('data-prev-value')) {
       if($('#searchInput').attr('data-caller') !== 'onpopstate') {
-        window.history.pushState({q: sivc}, null, appPath+'?q=' + sivc);
+        window.history.pushState({q: sivc}, null, appPath+'?q=' + sivc + location.hash);
       }
       $('#searchInput').attr('data-caller', null);
       $(document).prop('title', 'Ferret - ' + sivc);
@@ -271,6 +241,31 @@ var app = function app() {
       return;
     }
     return results[1] || null;
+  }
+
+  // urlQueryHandler handles url query parameter
+  function urlQueryHandler() {
+    // Handle back/forward buttons
+    window.onpopstate = function(/*event*/) {
+      // If query parameter is not empty then
+      if(urlParam('q')) {
+        // Set input value and trigger click
+        $('#searchInput').attr('data-caller', 'onpopstate');
+        $('#searchInput').val(unescape(urlParam('q')));
+        $('#searchButton').click();
+      } else {
+        searchReset();
+      }
+    };
+
+    // If query parameter is not empty then
+    if(urlParam('q')) {
+      // Set input value and trigger click
+      $('#searchInput').val(unescape(urlParam('q')));
+      $('#searchButton').click();
+    }
+
+    $('#searchInput').focus();
   }
 
   // Return
