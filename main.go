@@ -13,6 +13,7 @@ import (
 	"os"
 
 	"github.com/yieldbot/ferret/api"
+	"github.com/yieldbot/ferret/assets"
 	conf "github.com/yieldbot/ferret/config"
 	"github.com/yieldbot/ferret/search"
 	"github.com/yieldbot/gocli"
@@ -89,6 +90,7 @@ func main() {
 		// Listen
 		search.Init(config)
 		api.Init(config)
+		assets.Init(config)
 		api.Listen()
 	} else {
 		// Default

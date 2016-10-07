@@ -23,6 +23,7 @@ type Config struct {
 	File      string
 	Search    Search     `yaml:"search"`
 	Listen    Listen     `yaml:"listen"`
+	Assets    Assets     `yaml:"assets"`
 	Providers []Provider `yaml:"providers"`
 }
 
@@ -38,6 +39,11 @@ type Listen struct {
 	Address   string `yaml:"address"`
 	Path      string `yaml:"path"`
 	Providers string `yaml:"providers"`
+}
+
+// Assets represents the structure of the config assets field
+type Assets struct {
+	GATrackingCode string `yaml:"gaTrackingCode"`
 }
 
 // Provider represents the structure of the config provider field

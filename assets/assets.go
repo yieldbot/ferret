@@ -11,19 +11,26 @@
 package assets
 
 import (
+	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/rakyll/statik/fs"
+	conf "github.com/yieldbot/ferret/config"
 	// For assets
 	_ "github.com/yieldbot/ferret/assets/statik"
 )
 
 var (
+	config   conf.Assets
 	statikFS http.FileSystem
 )
 
-func init() {
+// Init initializes the api
+func Init(c conf.Config) {
+	config = c.Assets
+
 	var err error
 	statikFS, err = fs.New()
 	if err != nil {
@@ -31,7 +38,38 @@ func init() {
 	}
 }
 
-// PublicHandler is the handler for public assets
+// IndexHandler is the handler for entry point
+func IndexHandler(w http.ResponseWriter, req *http.Request) {
+	// Open file
+	f, err := statikFS.Open("/index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Read content
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create and execute template
+	t, err := template.New("index").Parse(string(b))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	data := struct {
+		GATrackingCode string
+	}{
+		GATrackingCode: config.GATrackingCode,
+	}
+
+	if err := t.Execute(w, data); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// PublicHandler is the handler for the public files
 func PublicHandler() http.Handler {
 	return http.FileServer(statikFS)
 }

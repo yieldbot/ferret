@@ -8,8 +8,8 @@
     <title>Ferret</title>
 
     <!-- style -->
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/app.css" rel="stylesheet">
+    <link href="public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="public/css/app.css" rel="stylesheet">
     <!-- /style -->
   </head>
   <body>
@@ -21,14 +21,14 @@
           <div id="searchNavbarHolder" class="search-navbar-holder"></div>
         </div>
       </div>
-      <ul id="searchNavbarTabs" class="nav nav-pills search-navbar-tabs"></ul>
+      <ul id="searchNavbarTabs" class="nav nav-pills search-navbar-tabs search-navbar-tabs-hide"></ul>
     </nav>
 
     <div class="container">
 
       <div class="row">
         <div id="logoMiddleHolder" class="col-xs-12 col-md-12 text-center">
-          <img id="logoMain" src="img/ferret-green.png" class="logo-main">
+          <img id="logoMain" src="public/img/ferret-green.png" class="logo-main">
         </div>
         <div id="searchMiddleHolder" class="col-xs-12 col-md-12 text-center">
           <div id="searchMain" class="input-group input-group-search">
@@ -54,11 +54,21 @@
     </div> <!-- /container -->
 
     <!-- scripts -->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/jquery-scrollto/jquery.scrollto.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script src="vendor/rx/rx.all.min.js"></script>
-    <script src="js/app.js"></script>
+    <script src="public/vendor/jquery/jquery.min.js"></script>
+    <script src="public/vendor/jquery-scrollto/jquery.scrollto.min.js"></script>
+    <script src="public/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="public/vendor/rx/rx.all.min.js"></script>
+    <script src="public/js/app.js"></script>
+    {{if .GATrackingCode}}
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', '{{.GATrackingCode}}', 'auto');
+      ga('send', 'pageview');
+    </script>
+    {{end}}
     <!-- /scripts -->
   </body>
 </html>

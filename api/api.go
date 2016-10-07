@@ -69,12 +69,13 @@ func Init(c conf.Config) {
 func Listen() {
 	// Init handlers
 	lpp := strings.TrimRight(config.Path, "/")
-	http.Handle("/", http.StripPrefix(config.Path, assets.PublicHandler()))
+	http.HandleFunc(fmt.Sprintf("%s/", lpp), assets.IndexHandler)
+	http.HandleFunc(fmt.Sprintf("%s/search", lpp), SearchHandler)
+	http.HandleFunc(fmt.Sprintf("%s/providers", lpp), ProvidersHandler)
+	http.Handle("/public/", http.StripPrefix("/public/"+config.Path, assets.PublicHandler()))
 	if lpp != "" {
 		http.HandleFunc(fmt.Sprintf("%s", lpp), RedirectHandler)
 	}
-	http.HandleFunc(fmt.Sprintf("%s/search", lpp), SearchHandler)
-	http.HandleFunc(fmt.Sprintf("%s/providers", lpp), ProvidersHandler)
 
 	// Listen
 	log.Printf("listening on %s", config.Address)
@@ -145,7 +146,7 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 			Error:      http.StatusText(http.StatusBadRequest),
 			Message:    "invalid provider",
 		})
-		HandleResponse(w, req, data)
+		ResponseHandler(w, req, data)
 		return
 	}
 
@@ -156,7 +157,7 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 			Error:      http.StatusText(q.HTTPStatus),
 			Message:    err.Error(),
 		})
-		HandleResponse(w, req, data)
+		ResponseHandler(w, req, data)
 		return
 	}
 
@@ -176,12 +177,12 @@ func SearchHandler(w http.ResponseWriter, req *http.Request) {
 				Error:      http.StatusText(http.StatusInternalServerError),
 				Message:    err.Error(),
 			})
-			HandleResponse(w, req, data)
+			ResponseHandler(w, req, data)
 			return
 		}
 	}
 
-	HandleResponse(w, req, data)
+	ResponseHandler(w, req, data)
 }
 
 // ProvidersHandler is the handler for the providers route
@@ -204,15 +205,15 @@ func ProvidersHandler(w http.ResponseWriter, req *http.Request) {
 			Error:      http.StatusText(http.StatusInternalServerError),
 			Message:    err.Error(),
 		})
-		HandleResponse(w, req, data)
+		ResponseHandler(w, req, data)
 		return
 	}
 
-	HandleResponse(w, req, data)
+	ResponseHandler(w, req, data)
 }
 
-// HandleResponse handles HTTP responses
-func HandleResponse(w http.ResponseWriter, req *http.Request, data []byte) {
+// ResponseHandler handles HTTP responses
+func ResponseHandler(w http.ResponseWriter, req *http.Request, data []byte) {
 	cb := req.URL.Query().Get("callback")
 	if cb != "" {
 		w.Header().Set("Content-Type", "application/javascript")
