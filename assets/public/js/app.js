@@ -111,7 +111,7 @@ var app = function app() {
     // Iterate providers
     providerList.forEach(function(provider) {
       // Prepare navigation bar tabs
-      var content = '<li role="presentation">';
+      var content = '<li id="searchNavbarTabs-' + provider.name + '" role="presentation">';
       content += '<a href="javascript:void(0)" onclick="$.scrollTo(\'#' + provider.name + '\', 500, {offset: {top: -110}})">' + provider.title + '</a>';
       content += '</li>';
       $('#searchNavbarTabs').append(content);
@@ -169,7 +169,6 @@ var app = function app() {
   // searchResults renders search results
   function searchResults(data, provider) {
     if(data && data instanceof Array) {
-
       // Prepare result content
       var content = '';
       if(provider && typeof provider === 'object') {
@@ -188,6 +187,9 @@ var app = function app() {
         content += '<hr>';
       }
       $("#searchResults-" + provider.name).html(content);
+      $("#searchNavbarTabs-" + provider.name).removeClass("disabled");
+    } else {
+      $("#searchNavbarTabs-" + provider.name).addClass("disabled");
     }
   }
 
