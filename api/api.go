@@ -72,7 +72,11 @@ func Listen() {
 	http.HandleFunc(fmt.Sprintf("%s/", lpp), assets.IndexHandler)
 	http.HandleFunc(fmt.Sprintf("%s/search", lpp), SearchHandler)
 	http.HandleFunc(fmt.Sprintf("%s/providers", lpp), ProvidersHandler)
-	http.Handle("/public/", http.StripPrefix("/public/"+config.Path, assets.PublicHandler()))
+	if config.Path != "" {
+		http.Handle(lpp+"/public/", http.StripPrefix(lpp+"/public/", assets.PublicHandler()))
+	} else {
+		http.Handle("/public/", http.StripPrefix("/public/", assets.PublicHandler()))
+	}
 	if lpp != "" {
 		http.HandleFunc(fmt.Sprintf("%s", lpp), RedirectHandler)
 	}
