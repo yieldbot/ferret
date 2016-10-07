@@ -40,7 +40,6 @@ var app = function app() {
           critical('There is no any available provider to search');
           return;
         }
-
         providersPrepare();
         listen();
         urlQueryHandler();
@@ -108,16 +107,18 @@ var app = function app() {
 
   // providersPrepare prepares UI for providers
   function providersPrepare() {
-    // Iterate providers
+    // Iterate providers and prepare DOM elements
     providerList.forEach(function(provider) {
-      // Prepare navigation bar tabs
-      var content = '<li id="searchNavbarTabs-' + provider.name + '" role="presentation">';
-      content += '<a href="javascript:void(0)" onclick="$.scrollTo(\'#' + provider.name + '\', 500, {offset: {top: -110}})">' + provider.title + '</a>';
-      content += '</li>';
-      $('#searchNavbarTabs').append(content);
+      // Navigations
+      $('#searchResultsNavs').append('<li id="searchResultsNavs-' + provider.name + '" class="disabled" role="presentation"><a href="#' + provider.name + '" aria-controls="' + provider.name + '" role="tab" data-toggle="tab">' + provider.title + '</a></li>');
+      // Tabs
+      $('#searchResultsTabs').append('<div id="' + provider.name + '" role="tabpanel" class="tab-pane">');
+    });
 
-      // Prepare search result divs
-      $('#searchResults').append('<div id="searchResults-' + provider.name + '">');
+    // Initialize navigation clicks
+    $('#searchResultsNavs a').click(function (e) {
+      e.preventDefault();
+      $(this).tab('show');
     });
   }
 
@@ -138,9 +139,10 @@ var app = function app() {
 
   // searchReset resets UI for search
   function searchReset() {
+    providerList.forEach(function(provider) { $('#' + provider.name).empty(); });
+
     $('#searchInput').val('');
-    $('div[id^=searchResults-]').empty();
-    $('#searchNavbar').addClass('search-navbar-hide');
+    $('#searchResultsNavs').addClass('search-result-navs-hide');
     $('#logoMain').detach().appendTo($('#logoMiddleHolder')).removeClass('logo-navbar');
     $('#searchMain').detach().appendTo($("#searchMiddleHolder")).removeClass('input-group-search-navbar');
     $('#searchInput').focus();
@@ -148,10 +150,11 @@ var app = function app() {
 
   // searchPrepare prepares UI for search
   function searchPrepare() {
+    providerList.forEach(function(provider) { $('#' + provider.name).empty(); });
+
     $('#logoMain').detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
     $('#searchMain').detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
-    $('#searchNavbar').removeClass('search-navbar-hide');
-    $('div[id^=searchResults-]').empty();
+    $('#searchResultsNavs').removeClass('search-result-navs-hide');
 
     // If the current search input value is different than previous value then
     var sivc = $('#searchInput').val();
@@ -163,7 +166,6 @@ var app = function app() {
       $(document).prop('title', 'Ferret - ' + sivc);
     }
     $('#searchInput').attr('data-prev-value', sivc);
-    $('#searchInput').focus();
   }
 
   // searchResults renders search results
@@ -172,8 +174,6 @@ var app = function app() {
       // Prepare result content
       var content = '';
       if(provider && typeof provider === 'object') {
-        content += '<h3 id="' + provider.name + '">' + provider.title + '</h3>';
-
         // Iterate results
         $.map(data, function (v) {
           content += '<li class="search-results-li">';
@@ -184,12 +184,19 @@ var app = function app() {
           content += '</p>';
           content += '</li>';
         });
-        content += '<hr>';
       }
-      $("#searchResults-" + provider.name).html(content);
-      $("#searchNavbarTabs-" + provider.name).removeClass("disabled");
+      $('#' + provider.name).html(content);
+      $('#' + provider.name).attr('data-result', true);
+      $('#searchResultsNavs-' + provider.name).removeClass("disabled");
     } else {
-      $("#searchNavbarTabs-" + provider.name).addClass("disabled");
+      $('#' + provider.name).html('No results');
+      $('#' + provider.name).attr('data-result', false);
+      $('#searchResultsNavs-' + provider.name).addClass("disabled");
+    }
+
+    var tId = $('#searchResultsTabs [data-result=true]:first').attr("id");
+    if(tId) {
+      $('a[role=tab][aria-controls=' + tId + ']').tab('show');
     }
   }
 
@@ -197,9 +204,10 @@ var app = function app() {
   function searchError(err, provider) {
     var e = parseError(err);
     if(provider && typeof provider === 'object') {
-      $('#searchResults').append($('<h3 id="' + provider.name + '">').text(provider.title));
+      $('#' + provider.name).append($('<div class="alert alert-danger" role="alert">').text(e.message));
+    } else {
+      $('#searchResultsTabs').append($('<div class="alert alert-danger" role="alert">').text(e.message));
     }
-    $('#searchResults').append($('<div class="alert alert-danger" role="alert">').text(e.message));
   }
 
   // warning shows a warning message

@@ -1,5 +1,5 @@
 body {
-  margin-top: 100px;
+  margin-top: 60px;
   padding-bottom: 20px;
 }
 
@@ -20,16 +20,12 @@ body {
   height: 20px;
 }
 
-.search-navbar-hide {
-  display: none;
-}
-
 .search-navbar-holder {
   padding: 10px 15px;
 }
 
-.search-navbar-tabs {
-  padding-left: 10px;
+.search-result-navs-hide {
+  display: none;
 }
 
 .input-group-search {
@@ -43,6 +39,10 @@ body {
 
 .input-group .search-input {
   display: inline;
+}
+
+.search-results-tabs {
+  padding-top: 20px;
 }
 
 .search-results-li {
