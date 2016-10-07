@@ -1,5 +1,11 @@
 ## Changelog
 
+### 3.1.0 [2016-10-07]
+
+* Add custom menu feature
+* Add tab based navigation
+* Add template and GA support
+
 ### 3.0.0 [2016-10-03]
 
 * **[BREAKING CHANGE]** Add config file support
