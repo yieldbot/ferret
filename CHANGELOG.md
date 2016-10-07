@@ -1,5 +1,9 @@
 ## Changelog
 
+### 3.1.1 [2016-10-07]
+
+* Fix public route handling
+
 ### 3.1.0 [2016-10-07]
 
 * Add custom menu feature
