@@ -1,5 +1,4 @@
 body {
-  margin-top: 60px;
   padding-bottom: 20px;
 }
 
@@ -15,13 +14,8 @@ body {
 }
 
 .logo-navbar {
-  margin-bottom: 0;
   width: 65px;
   height: 20px;
-}
-
-.search-navbar-holder {
-  padding: 10px 15px;
 }
 
 .search-result-navs-hide {
@@ -33,12 +27,8 @@ body {
   margin: 0 auto;
 }
 
-.input-group-search-navbar {
-  margin: 0 0;
-}
-
 .input-group .search-input {
-  display: inline;
+  min-width: 300px
 }
 
 .search-results-tabs {

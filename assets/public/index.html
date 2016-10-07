@@ -14,12 +14,43 @@
   </head>
   <body>
 
-    <nav id="searchNavbar" class="navbar navbar-default navbar-fixed-top">
+    <nav id="searchNavbar" class="navbar navbar-default">
       <div class="container-fluid">
+
+        <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
           <a id="logoNavbarHolder" class="navbar-brand" href="/"></a>
-          <div id="searchNavbarHolder" class="search-navbar-holder"></div>
+          <div class="navbar-form navbar-left">
+            <div id="searchNavbarHolder"></div>
+          </div>
         </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          {{if .Menu.Caption}}
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown" style="margin-right: 10px">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{.Menu.Caption}} <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                {{range $i, $item := .Menu.Items}}
+                  {{if eq .Type "link"}}
+                  <li><a href="{{.Target}}">{{.Caption}}</a></li>
+                  {{else if eq .Type "separator"}}
+                  <li role="separator" class="divider"></li>
+                  {{end}}
+                {{end}}
+              </ul>
+            </li>
+          </ul>
+          {{end}}
+        </div>
+
       </div>
     </nav>
 
@@ -31,7 +62,7 @@
         </div>
         <div id="searchMiddleHolder" class="col-xs-12 col-md-12 text-center">
           <div id="searchMain" class="input-group input-group-search">
-            <input id="searchInput" type="text" class="form-control search-input" placeholder="Searching for...">
+            <input id="searchInput" type="text" class="form-control search-input" placeholder="Searching for..." autocomplete="off">
             <span class="input-group-btn">
               <button id="searchButton" class="btn btn-default" type="button">
                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span>

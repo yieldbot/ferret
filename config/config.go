@@ -43,7 +43,21 @@ type Listen struct {
 
 // Assets represents the structure of the config assets field
 type Assets struct {
-	GATrackingCode string `yaml:"gaTrackingCode"`
+	GATrackingCode string     `yaml:"gaTrackingCode"`
+	Menu           AssetsMenu `yaml:"menu"`
+}
+
+// AssetsMenu represents the structure of the config assets menu field
+type AssetsMenu struct {
+	Caption string            `yaml:"caption"`
+	Items   []AssetsMenuItems `yaml:"items"`
+}
+
+// AssetsMenuItems represents the structure of the config assets menu items field
+type AssetsMenuItems struct {
+	Type    string `yaml:"type"`
+	Caption string `yaml:"caption"`
+	Target  string `yaml:"target"`
 }
 
 // Provider represents the structure of the config provider field

@@ -144,7 +144,7 @@ var app = function app() {
     $('#searchInput').val('');
     $('#searchResultsNavs').addClass('search-result-navs-hide');
     $('#logoMain').detach().appendTo($('#logoMiddleHolder')).removeClass('logo-navbar');
-    $('#searchMain').detach().appendTo($("#searchMiddleHolder")).removeClass('input-group-search-navbar');
+    $('#searchMain').detach().appendTo($("#searchMiddleHolder"));
     $('#searchInput').focus();
   }
 
@@ -153,7 +153,7 @@ var app = function app() {
     providerList.forEach(function(provider) { $('#' + provider.name).empty(); });
 
     $('#logoMain').detach().appendTo($('#logoNavbarHolder')).addClass('logo-navbar');
-    $('#searchMain').detach().appendTo($("#searchNavbarHolder")).addClass('input-group-search-navbar');
+    $('#searchMain').detach().appendTo($("#searchNavbarHolder"));
     $('#searchResultsNavs').removeClass('search-result-navs-hide');
 
     // If the current search input value is different than previous value then
@@ -166,6 +166,7 @@ var app = function app() {
       $(document).prop('title', 'Ferret - ' + sivc);
     }
     $('#searchInput').attr('data-prev-value', sivc);
+    $('#searchInput').focus();
   }
 
   // searchResults renders search results

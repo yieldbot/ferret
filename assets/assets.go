@@ -60,8 +60,10 @@ func IndexHandler(w http.ResponseWriter, req *http.Request) {
 
 	data := struct {
 		GATrackingCode string
+		Menu           conf.AssetsMenu
 	}{
 		GATrackingCode: config.GATrackingCode,
+		Menu:           config.Menu,
 	}
 
 	if err := t.Execute(w, data); err != nil {
