@@ -154,6 +154,27 @@ go build
 ```
 
 
+### Test
+
+```bash
+./test.sh
+```
+
+
+### Release
+
+Releases are handled by [Travis CI](https://travis-ci.org/yieldbot/ferret)
+
+```bash
+# Update CHANGELOG.md and README.md
+git add CHANGELOG.md README.md
+
+git commit -m "v1.0.0"         # replace v1.0.0 with new version
+git tag -a v1.0.0 -m "v1.0.0"  # replace v1.0.0 with new version
+git push --follow-tags         # or git push && git push --tags
+```
+
+
 ### Contributing
 
 All contributions are welcome. However there are rules and guidelines;
