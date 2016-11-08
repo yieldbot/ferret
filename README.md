@@ -1,6 +1,6 @@
 ## Ferret
 
-[![Build Status][travis-image]][travis-url] [![GoDoc][godoc-image]][godoc-url] [![Release][release-image]][release-url]
+[![Release][release-image]][release-url] [![GoDoc][godoc-image]][godoc-url] [![Build Status][travis-image]][travis-url]
 
 Ferret is a search engine that unifies search results from different resources
 such as Github, Slack, Trello, AnswerHub and more. It can be used via
