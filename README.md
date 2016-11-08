@@ -194,14 +194,14 @@ Licensed under The MIT License (MIT)
 For the full copyright and license information, please view the LICENSE.txt file.
 
 
-[travis-url]: https://travis-ci.org/yieldbot/ferret
-[travis-image]: https://travis-ci.org/yieldbot/ferret.svg?branch=master
+[release-url]: https://github.com/yieldbot/ferret/releases/latest
+[release-image]: https://img.shields.io/badge/release-v3.1.1-blue.svg
 
 [godoc-url]: https://godoc.org/github.com/yieldbot/ferret
 [godoc-image]: https://godoc.org/github.com/yieldbot/ferret?status.svg
 
-[release-url]: https://github.com/yieldbot/ferret/releases/latest
-[release-image]: https://img.shields.io/badge/release-v3.1.1-blue.svg
+[travis-url]: https://travis-ci.org/yieldbot/ferret
+[travis-image]: https://travis-ci.org/yieldbot/ferret.svg?branch=master
 
 [download-darwin-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v3.1.1/ferret-darwin-amd64.zip
 [download-linux-amd64-url]: https://github.com/yieldbot/ferret/releases/download/v3.1.1/ferret-linux-amd64.zip
