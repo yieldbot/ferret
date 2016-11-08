@@ -17,7 +17,7 @@ accessing to information with minimal effort.
 |:---:|:---:|:---:|
 | [64bit][download-darwin-amd64-url] | [64bit][download-linux-amd64-url] | [64bit][download-windows-amd64-url] |
 
-[See](#building-from-source) for building from source.
+[See](#build) for building from source.
 
 
 ### Usage
@@ -144,9 +144,9 @@ _Note: Environment directives (`{{env ...}}`) can be replaced with credentials.
 But it's not recommended for production usage._
 
 
-### Building from source
+### Build
 
-```
+```bash
 go get -u -v github.com/yieldbot/ferret
 cd $GOPATH/src/github.com/yieldbot/ferret
 go generate ./assets
