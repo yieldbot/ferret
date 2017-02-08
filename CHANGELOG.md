@@ -1,5 +1,9 @@
 ## Changelog
 
+### 3.1.2 [2017-02-08]
+
+* Listen on the port specified by the PORT environment variable. Otherwise use 3030.
+
 ### 3.1.1 [2016-10-07]
 
 * Fix public route handling

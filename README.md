@@ -138,7 +138,7 @@ providers:
     key:   {{env "FERRET_TRELLO_KEY"}}
 ```
 
-Set the environment variables base on `ferret.yml` and credentials. 
+Set the environment variables base on `ferret.yml` and credentials.
 
 _Note: Environment directives (`{{env ...}}`) can be replaced with credentials.
 But it's not recommended for production usage._
@@ -147,6 +147,7 @@ But it's not recommended for production usage._
 ### Build
 
 ```bash
+go get github.com/rakyll/statik
 go get -u -v github.com/yieldbot/ferret
 cd $GOPATH/src/github.com/yieldbot/ferret
 go generate ./assets
@@ -190,7 +191,7 @@ All contributions are welcome. However there are rules and guidelines;
 
 ### License
 
-Licensed under The MIT License (MIT)  
+Licensed under The MIT License (MIT)
 For the full copyright and license information, please view the LICENSE.txt file.
 
 

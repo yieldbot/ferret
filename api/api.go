@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/yieldbot/ferret/assets"
@@ -22,6 +23,7 @@ import (
 var (
 	config    conf.Listen
 	providers []provider
+	port      string
 )
 
 // httpError represents an HTTP error
@@ -41,7 +43,10 @@ type provider struct {
 // Init initializes the api
 func Init(c conf.Config) {
 	config = c.Listen
-
+	port = os.Getenv("PORT")
+	if port != "" {
+		config.Address = ":" + port
+	}
 	if config.Address == "" {
 		config.Address = ":3030"
 	}
