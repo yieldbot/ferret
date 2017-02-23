@@ -133,9 +133,6 @@ providers:
     token:    {{env "FERRET_GITHUB_TOKEN"}}
   - provider: slack
     token: {{env "FERRET_SLACK_TOKEN"}}
-  - provider: trello
-    token: {{env "FERRET_TRELLO_TOKEN"}}
-    key:   {{env "FERRET_TRELLO_KEY"}}
 ```
 
 Set the environment variables base on `ferret.yml` and credentials.
@@ -146,16 +143,19 @@ But it's not recommended for production usage._
 
 ### Build
 
+Note that this builds a ferret executable in the local directory, but build products are in $GO_PATH.
+
 ```bash
 go get github.com/rakyll/statik
 go get -u -v github.com/yieldbot/ferret
-cd $GOPATH/src/github.com/yieldbot/ferret
-go generate ./assets
-go build
+go generate github.com/yieldbot/ferret/assets
+go build github.com/yieldbot/ferret
 ```
 
 
 ### Test
+
+This is broken at the moment.
 
 ```bash
 ./test.sh
@@ -164,15 +164,14 @@ go build
 
 ### Release
 
-Releases are handled by [Travis CI](https://travis-ci.org/yieldbot/ferret)
+Releases are handled by the apps build pipeline
 
 ```bash
-# Update CHANGELOG.md and README.md
-git add CHANGELOG.md README.md
+# Update CHANGELOG.md and README.md and APP_VERSION
+git add CHANGELOG.md README.md APP_VERSION
 
 git commit -m "v1.0.0"         # replace v1.0.0 with new version
-git tag -a v1.0.0 -m "v1.0.0"  # replace v1.0.0 with new version
-git push --follow-tags         # or git push && git push --tags
+git push origin master
 ```
 
 

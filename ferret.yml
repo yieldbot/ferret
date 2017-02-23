@@ -18,6 +18,3 @@ providers:
     token:    {{env "FERRET_GITHUB_TOKEN"}}
   - provider: slack
     token: {{env "FERRET_SLACK_TOKEN"}}
-  - provider: trello
-    token: {{env "FERRET_TRELLO_TOKEN"}}
-    key:   {{env "FERRET_TRELLO_KEY"}}

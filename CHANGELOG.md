@@ -1,5 +1,13 @@
 ## Changelog
 
+### 3.1.4 [2017-02-23]
+
+* Update readme to take build pipeline changes into account.
+
+### 3.1.3 [2017-02-22]
+
+* Version bump to test build pipeline.
+
 ### 3.1.2 [2017-02-08]
 
 * Listen on the port specified by the PORT environment variable. Otherwise use 3030.
